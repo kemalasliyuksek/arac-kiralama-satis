@@ -1,6 +1,3 @@
-CREATE DATABASE arac_kiralama_satis;
-USE arac_kiralama_satis;
-
 -- Şubeler
 CREATE TABLE Subeler (
     SubeID INT AUTO_INCREMENT PRIMARY KEY,
