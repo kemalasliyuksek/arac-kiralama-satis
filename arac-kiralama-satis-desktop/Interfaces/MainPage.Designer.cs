@@ -472,8 +472,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // pnlContent
             // 
             pnlContent.BackColor = Color.FromArgb(245, 245, 250);
-            pnlContent.Controls.Add(pnlVehicles);
             pnlContent.Controls.Add(pnlCustomers);
+            pnlContent.Controls.Add(pnlVehicles);
             pnlContent.Controls.Add(pnlDashboard);
             pnlContent.Dock = DockStyle.Fill;
             pnlContent.Location = new Point(250, 60);
@@ -559,6 +559,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnAddVehicle.Text = "Yeni Araç";
             btnAddVehicle.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnAddVehicle.UseVisualStyleBackColor = false;
+            btnAddVehicle.Click += btnAddVehicle_Click;
             // 
             // btnRefreshVehicles
             // 
@@ -668,6 +669,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnAddCustomer.Text = "Yeni Müşteri";
             btnAddCustomer.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnAddCustomer.UseVisualStyleBackColor = false;
+            btnAddCustomer.Click += btnAddCustomer_Click;
             // 
             // btnRefreshCustomers
             // 

@@ -53,7 +53,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             this.Text = "Araç Kiralama ve Satış Uygulaması";
 
             // Logo ve kullanıcı avatarı
-            picLogo.Image = IconChar.Car.ToBitmap(Color.White, 32);
             picUserAvatar.Image = IconChar.UserCircle.ToBitmap(Color.White, 32);
 
             // Kullanıcı bilgilerini göster
@@ -468,5 +467,43 @@ namespace arac_kiralama_satis_desktop.Interfaces
         }
 
         #endregion
+
+        private void btnAddVehicle_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                VehicleAddForm vehicleAddForm = new VehicleAddForm();
+                vehicleAddForm.VehicleAdded += (s, args) =>
+                {
+                    // Araç eklendiğinde listeyi yenile
+                    LoadVehiclesData();
+                };
+                vehicleAddForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Araç ekleme formu açılırken bir hata oluştu: {ex.Message}",
+                    "Form Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnAddCustomer_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                CustomerAddForm customerAddForm = new CustomerAddForm();
+                customerAddForm.CustomerAdded += (s, args) =>
+                {
+                    // Müşteri eklendiğinde listeyi yenile
+                    LoadCustomersData();
+                };
+                customerAddForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Müşteri ekleme formu açılırken bir hata oluştu: {ex.Message}",
+                    "Form Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }
