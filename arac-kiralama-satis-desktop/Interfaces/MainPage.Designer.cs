@@ -54,6 +54,22 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblPageTitle = new Label();
             btnLogout = new IconButton();
             pnlContent = new Panel();
+            pnlCustomers = new Panel();
+            pnlCustomersContent = new Panel();
+            dgvCustomers = new DataGridView();
+            pnlCustomersHeader = new Panel();
+            lblCustomersTitle = new Label();
+            btnAddCustomer = new IconButton();
+            btnRefreshCustomers = new IconButton();
+            txtSearchCustomers = new TextBox();
+            pnlVehicles = new Panel();
+            pnlVehiclesContent = new Panel();
+            dgvVehicles = new DataGridView();
+            pnlVehiclesHeader = new Panel();
+            lblVehiclesTitle = new Label();
+            btnAddVehicle = new IconButton();
+            btnRefreshVehicles = new IconButton();
+            txtSearchVehicles = new TextBox();
             pnlDashboard = new Panel();
             pnlCharts = new Panel();
             pnlCarsByLocation = new Panel();
@@ -69,15 +85,15 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblBrandSubtitle = new Label();
             lblCarsByBrand = new Label();
             pnlCards = new Panel();
-            pnlAvgRentalPrice = new Panel();
-            lblPriceTimeFrame = new Label();
-            lblAvgPrice = new Label();
-            lblAvgRentalPrice = new Label();
-            iconAvgPrice = new IconPictureBox();
-            pnlCarBrands = new Panel();
-            lblBrandCount = new Label();
-            lblCarBrands = new Label();
-            iconBrands = new IconPictureBox();
+            pnlTotalRevenue = new Panel();
+            lblRevenueTimeFrame = new Label();
+            lblTotalRevenue = new Label();
+            lblTotalRevenueTitle = new Label();
+            iconTotalRevenue = new IconPictureBox();
+            pnlCustomerCount = new Panel();
+            lblCustomerCount = new Label();
+            lblCustomerCountTitle = new Label();
+            iconCustomerCount = new IconPictureBox();
             pnlLocations = new Panel();
             lblLocationCount = new Label();
             lblLocations = new Label();
@@ -94,16 +110,24 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
             pnlTopbar.SuspendLayout();
             pnlContent.SuspendLayout();
+            pnlCustomers.SuspendLayout();
+            pnlCustomersContent.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
+            pnlCustomersHeader.SuspendLayout();
+            pnlVehicles.SuspendLayout();
+            pnlVehiclesContent.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvVehicles).BeginInit();
+            pnlVehiclesHeader.SuspendLayout();
             pnlDashboard.SuspendLayout();
             pnlCharts.SuspendLayout();
             pnlCarsByLocation.SuspendLayout();
             pnlRentalsByYear.SuspendLayout();
             pnlCarsByBrand.SuspendLayout();
             pnlCards.SuspendLayout();
-            pnlAvgRentalPrice.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)iconAvgPrice).BeginInit();
-            pnlCarBrands.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)iconBrands).BeginInit();
+            pnlTotalRevenue.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)iconTotalRevenue).BeginInit();
+            pnlCustomerCount.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)iconCustomerCount).BeginInit();
             pnlLocations.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)iconLocations).BeginInit();
             pnlTotalCars.SuspendLayout();
@@ -140,7 +164,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblUserRole.ForeColor = Color.LightGray;
             lblUserRole.Location = new Point(70, 36);
             lblUserRole.Name = "lblUserRole";
-            lblUserRole.Size = new Size(56, 15);
+            lblUserRole.Size = new Size(52, 15);
             lblUserRole.TabIndex = 2;
             lblUserRole.Text = "Kullanıcı";
             // 
@@ -151,7 +175,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblUserName.ForeColor = Color.White;
             lblUserName.Location = new Point(70, 16);
             lblUserName.Name = "lblUserName";
-            lblUserName.Size = new Size(92, 19);
+            lblUserName.Size = new Size(117, 19);
             lblUserName.TabIndex = 1;
             lblUserName.Text = "Kemal Aslıyüksek";
             // 
@@ -177,7 +201,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlMenu.Dock = DockStyle.Fill;
             pnlMenu.Location = new Point(0, 80);
             pnlMenu.Name = "pnlMenu";
-            pnlMenu.Size = new Size(250, 650);
+            pnlMenu.Size = new Size(250, 720);
             pnlMenu.TabIndex = 1;
             // 
             // btnSettings
@@ -390,7 +414,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblAppName.ForeColor = Color.White;
             lblAppName.Location = new Point(70, 27);
             lblAppName.Name = "lblAppName";
-            lblAppName.Size = new Size(88, 25);
+            lblAppName.Size = new Size(89, 25);
             lblAppName.TabIndex = 1;
             lblAppName.Text = "CarBook";
             // 
@@ -423,7 +447,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblBranchName.ForeColor = Color.FromArgb(120, 120, 120);
             lblBranchName.Location = new Point(26, 31);
             lblBranchName.Name = "lblBranchName";
-            lblBranchName.Size = new Size(90, 15);
+            lblBranchName.Size = new Size(106, 15);
             lblBranchName.TabIndex = 2;
             lblBranchName.Text = "Bursa Merkez Şube";
             // 
@@ -434,7 +458,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblPageTitle.ForeColor = Color.FromArgb(49, 76, 143);
             lblPageTitle.Location = new Point(20, 6);
             lblPageTitle.Name = "lblPageTitle";
-            lblPageTitle.Size = new Size(115, 25);
+            lblPageTitle.Size = new Size(109, 25);
             lblPageTitle.TabIndex = 1;
             lblPageTitle.Text = "Dashboard";
             // 
@@ -460,6 +484,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // pnlContent
             // 
             pnlContent.BackColor = Color.FromArgb(245, 245, 250);
+            pnlContent.Controls.Add(pnlVehicles);
+            pnlContent.Controls.Add(pnlCustomers);
             pnlContent.Controls.Add(pnlDashboard);
             pnlContent.Dock = DockStyle.Fill;
             pnlContent.Location = new Point(250, 60);
@@ -468,13 +494,233 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlContent.Size = new Size(1050, 740);
             pnlContent.TabIndex = 2;
             // 
+            // pnlCustomers
+            // 
+            pnlCustomers.Controls.Add(pnlCustomersContent);
+            pnlCustomers.Controls.Add(pnlCustomersHeader);
+            pnlCustomers.Dock = DockStyle.Fill;
+            pnlCustomers.Location = new Point(20, 20);
+            pnlCustomers.Name = "pnlCustomers";
+            pnlCustomers.Size = new Size(1010, 700);
+            pnlCustomers.TabIndex = 1;
+            pnlCustomers.Visible = false;
+            // 
+            // pnlCustomersContent
+            // 
+            pnlCustomersContent.Controls.Add(dgvCustomers);
+            pnlCustomersContent.Dock = DockStyle.Fill;
+            pnlCustomersContent.Location = new Point(0, 80);
+            pnlCustomersContent.Name = "pnlCustomersContent";
+            pnlCustomersContent.Padding = new Padding(10);
+            pnlCustomersContent.Size = new Size(1010, 620);
+            pnlCustomersContent.TabIndex = 1;
+            // 
+            // dgvCustomers
+            // 
+            dgvCustomers.AllowUserToAddRows = false;
+            dgvCustomers.AllowUserToDeleteRows = false;
+            dgvCustomers.BackgroundColor = Color.White;
+            dgvCustomers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvCustomers.Dock = DockStyle.Fill;
+            dgvCustomers.Location = new Point(10, 10);
+            dgvCustomers.Name = "dgvCustomers";
+            dgvCustomers.ReadOnly = true;
+            dgvCustomers.Size = new Size(990, 600);
+            dgvCustomers.TabIndex = 0;
+            // 
+            // pnlCustomersHeader
+            // 
+            pnlCustomersHeader.BackColor = Color.White;
+            pnlCustomersHeader.Controls.Add(lblCustomersTitle);
+            pnlCustomersHeader.Controls.Add(btnAddCustomer);
+            pnlCustomersHeader.Controls.Add(btnRefreshCustomers);
+            pnlCustomersHeader.Controls.Add(txtSearchCustomers);
+            pnlCustomersHeader.Dock = DockStyle.Top;
+            pnlCustomersHeader.Location = new Point(0, 0);
+            pnlCustomersHeader.Name = "pnlCustomersHeader";
+            pnlCustomersHeader.Size = new Size(1010, 80);
+            pnlCustomersHeader.TabIndex = 0;
+            // 
+            // lblCustomersTitle
+            // 
+            lblCustomersTitle.AutoSize = true;
+            lblCustomersTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblCustomersTitle.ForeColor = Color.FromArgb(49, 76, 143);
+            lblCustomersTitle.Location = new Point(23, 25);
+            lblCustomersTitle.Name = "lblCustomersTitle";
+            lblCustomersTitle.Size = new Size(163, 30);
+            lblCustomersTitle.TabIndex = 3;
+            lblCustomersTitle.Text = "Müşteri Listesi";
+            // 
+            // btnAddCustomer
+            // 
+            btnAddCustomer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAddCustomer.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddCustomer.FlatAppearance.BorderSize = 0;
+            btnAddCustomer.FlatStyle = FlatStyle.Flat;
+            btnAddCustomer.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnAddCustomer.ForeColor = Color.White;
+            btnAddCustomer.IconChar = IconChar.Add;
+            btnAddCustomer.IconColor = Color.White;
+            btnAddCustomer.IconFont = IconFont.Auto;
+            btnAddCustomer.IconSize = 20;
+            btnAddCustomer.Location = new Point(870, 20);
+            btnAddCustomer.Name = "btnAddCustomer";
+            btnAddCustomer.Size = new Size(120, 40);
+            btnAddCustomer.TabIndex = 2;
+            btnAddCustomer.Text = "Yeni Müşteri";
+            btnAddCustomer.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnAddCustomer.UseVisualStyleBackColor = false;
+            // 
+            // btnRefreshCustomers
+            // 
+            btnRefreshCustomers.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRefreshCustomers.BackColor = Color.FromArgb(108, 117, 125);
+            btnRefreshCustomers.FlatAppearance.BorderSize = 0;
+            btnRefreshCustomers.FlatStyle = FlatStyle.Flat;
+            btnRefreshCustomers.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnRefreshCustomers.ForeColor = Color.White;
+            btnRefreshCustomers.IconChar = IconChar.SyncAlt;
+            btnRefreshCustomers.IconColor = Color.White;
+            btnRefreshCustomers.IconFont = IconFont.Auto;
+            btnRefreshCustomers.IconSize = 20;
+            btnRefreshCustomers.Location = new Point(790, 20);
+            btnRefreshCustomers.Name = "btnRefreshCustomers";
+            btnRefreshCustomers.Size = new Size(40, 40);
+            btnRefreshCustomers.TabIndex = 1;
+            btnRefreshCustomers.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnRefreshCustomers.UseVisualStyleBackColor = false;
+            btnRefreshCustomers.Click += BtnRefreshCustomers_Click;
+            // 
+            // txtSearchCustomers
+            // 
+            txtSearchCustomers.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtSearchCustomers.Font = new Font("Segoe UI", 12F);
+            txtSearchCustomers.Location = new Point(475, 26);
+            txtSearchCustomers.Name = "txtSearchCustomers";
+            txtSearchCustomers.PlaceholderText = "Arama...";
+            txtSearchCustomers.Size = new Size(300, 29);
+            txtSearchCustomers.TabIndex = 0;
+            txtSearchCustomers.TextChanged += TxtSearchCustomers_TextChanged;
+            // 
+            // pnlVehicles
+            // 
+            pnlVehicles.Controls.Add(pnlVehiclesContent);
+            pnlVehicles.Controls.Add(pnlVehiclesHeader);
+            pnlVehicles.Dock = DockStyle.Fill;
+            pnlVehicles.Location = new Point(20, 20);
+            pnlVehicles.Name = "pnlVehicles";
+            pnlVehicles.Size = new Size(1010, 700);
+            pnlVehicles.TabIndex = 2;
+            pnlVehicles.Visible = false;
+            // 
+            // pnlVehiclesContent
+            // 
+            pnlVehiclesContent.Controls.Add(dgvVehicles);
+            pnlVehiclesContent.Dock = DockStyle.Fill;
+            pnlVehiclesContent.Location = new Point(0, 80);
+            pnlVehiclesContent.Name = "pnlVehiclesContent";
+            pnlVehiclesContent.Padding = new Padding(10);
+            pnlVehiclesContent.Size = new Size(1010, 620);
+            pnlVehiclesContent.TabIndex = 1;
+            // 
+            // dgvVehicles
+            // 
+            dgvVehicles.AllowUserToAddRows = false;
+            dgvVehicles.AllowUserToDeleteRows = false;
+            dgvVehicles.BackgroundColor = Color.White;
+            dgvVehicles.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvVehicles.Dock = DockStyle.Fill;
+            dgvVehicles.Location = new Point(10, 10);
+            dgvVehicles.Name = "dgvVehicles";
+            dgvVehicles.ReadOnly = true;
+            dgvVehicles.Size = new Size(990, 600);
+            dgvVehicles.TabIndex = 0;
+            // 
+            // pnlVehiclesHeader
+            // 
+            pnlVehiclesHeader.BackColor = Color.White;
+            pnlVehiclesHeader.Controls.Add(lblVehiclesTitle);
+            pnlVehiclesHeader.Controls.Add(btnAddVehicle);
+            pnlVehiclesHeader.Controls.Add(btnRefreshVehicles);
+            pnlVehiclesHeader.Controls.Add(txtSearchVehicles);
+            pnlVehiclesHeader.Dock = DockStyle.Top;
+            pnlVehiclesHeader.Location = new Point(0, 0);
+            pnlVehiclesHeader.Name = "pnlVehiclesHeader";
+            pnlVehiclesHeader.Size = new Size(1010, 80);
+            pnlVehiclesHeader.TabIndex = 0;
+            // 
+            // lblVehiclesTitle
+            // 
+            lblVehiclesTitle.AutoSize = true;
+            lblVehiclesTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblVehiclesTitle.ForeColor = Color.FromArgb(49, 76, 143);
+            lblVehiclesTitle.Location = new Point(22, 25);
+            lblVehiclesTitle.Name = "lblVehiclesTitle";
+            lblVehiclesTitle.Size = new Size(130, 30);
+            lblVehiclesTitle.TabIndex = 3;
+            lblVehiclesTitle.Text = "Araç Listesi";
+            // 
+            // btnAddVehicle
+            // 
+            btnAddVehicle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAddVehicle.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddVehicle.FlatAppearance.BorderSize = 0;
+            btnAddVehicle.FlatStyle = FlatStyle.Flat;
+            btnAddVehicle.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnAddVehicle.ForeColor = Color.White;
+            btnAddVehicle.IconChar = IconChar.Add;
+            btnAddVehicle.IconColor = Color.White;
+            btnAddVehicle.IconFont = IconFont.Auto;
+            btnAddVehicle.IconSize = 20;
+            btnAddVehicle.Location = new Point(869, 20);
+            btnAddVehicle.Name = "btnAddVehicle";
+            btnAddVehicle.Size = new Size(120, 40);
+            btnAddVehicle.TabIndex = 2;
+            btnAddVehicle.Text = "Yeni Araç";
+            btnAddVehicle.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnAddVehicle.UseVisualStyleBackColor = false;
+            // 
+            // btnRefreshVehicles
+            // 
+            btnRefreshVehicles.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRefreshVehicles.BackColor = Color.FromArgb(108, 117, 125);
+            btnRefreshVehicles.FlatAppearance.BorderSize = 0;
+            btnRefreshVehicles.FlatStyle = FlatStyle.Flat;
+            btnRefreshVehicles.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnRefreshVehicles.ForeColor = Color.White;
+            btnRefreshVehicles.IconChar = IconChar.SyncAlt;
+            btnRefreshVehicles.IconColor = Color.White;
+            btnRefreshVehicles.IconFont = IconFont.Auto;
+            btnRefreshVehicles.IconSize = 20;
+            btnRefreshVehicles.Location = new Point(789, 20);
+            btnRefreshVehicles.Name = "btnRefreshVehicles";
+            btnRefreshVehicles.Size = new Size(40, 40);
+            btnRefreshVehicles.TabIndex = 1;
+            btnRefreshVehicles.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnRefreshVehicles.UseVisualStyleBackColor = false;
+            btnRefreshVehicles.Click += BtnRefreshVehicles_Click;
+            // 
+            // txtSearchVehicles
+            // 
+            txtSearchVehicles.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtSearchVehicles.Font = new Font("Segoe UI", 12F);
+            txtSearchVehicles.Location = new Point(475, 26);
+            txtSearchVehicles.Name = "txtSearchVehicles";
+            txtSearchVehicles.PlaceholderText = "Arama...";
+            txtSearchVehicles.Size = new Size(300, 29);
+            txtSearchVehicles.TabIndex = 0;
+            txtSearchVehicles.TextChanged += TxtSearchVehicles_TextChanged;
+            // 
             // pnlDashboard
             // 
+            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
+            pnlDashboard.Controls.Add(pnlCharts);
+            pnlDashboard.Controls.Add(pnlCards);
             pnlDashboard.Dock = DockStyle.Fill;
             pnlDashboard.Location = new Point(20, 20);
             pnlDashboard.Name = "pnlDashboard";
             pnlDashboard.Size = new Size(1010, 700);
-            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
             pnlDashboard.TabIndex = 0;
             // 
             // pnlCharts
@@ -503,7 +749,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // 
             chartCarsByLocation.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             chartCarsByLocation.BackColor = Color.White;
-            chartCarsByLocation.BorderStyle = BorderStyle.None;
             chartCarsByLocation.Location = new Point(20, 78);
             chartCarsByLocation.Name = "chartCarsByLocation";
             chartCarsByLocation.Size = new Size(284, 402);
@@ -516,9 +761,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblLocationSubtitle.ForeColor = Color.Gray;
             lblLocationSubtitle.Location = new Point(20, 45);
             lblLocationSubtitle.Name = "lblLocationSubtitle";
-            lblLocationSubtitle.Size = new Size(210, 15);
+            lblLocationSubtitle.Size = new Size(150, 15);
             lblLocationSubtitle.TabIndex = 1;
-            lblLocationSubtitle.Text = "You can see the number of cars by location";
+            lblLocationSubtitle.Text = "Şubelere göre araç dağılımı";
             // 
             // lblCarsByLocation
             // 
@@ -526,9 +771,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblCarsByLocation.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             lblCarsByLocation.Location = new Point(20, 20);
             lblCarsByLocation.Name = "lblCarsByLocation";
-            lblCarsByLocation.Size = new Size(173, 21);
+            lblCarsByLocation.Size = new Size(175, 21);
             lblCarsByLocation.TabIndex = 0;
-            lblCarsByLocation.Text = "Car Count By Location";
+            lblCarsByLocation.Text = "Şubelere Göre Araçlar";
             // 
             // pnlRentalsByYear
             // 
@@ -545,7 +790,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // 
             chartRentalsByYear.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             chartRentalsByYear.BackColor = Color.White;
-            chartRentalsByYear.BorderStyle = BorderStyle.None;
             chartRentalsByYear.Location = new Point(20, 78);
             chartRentalsByYear.Name = "chartRentalsByYear";
             chartRentalsByYear.Size = new Size(284, 402);
@@ -558,9 +802,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblRentalsSubtitle.ForeColor = Color.Gray;
             lblRentalsSubtitle.Location = new Point(20, 45);
             lblRentalsSubtitle.Name = "lblRentalsSubtitle";
-            lblRentalsSubtitle.Size = new Size(171, 15);
+            lblRentalsSubtitle.Size = new Size(178, 15);
             lblRentalsSubtitle.TabIndex = 1;
-            lblRentalsSubtitle.Text = "Rental counts by year in the system";
+            lblRentalsSubtitle.Text = "Sistemdeki yıllık kiralama sayıları";
             // 
             // lblRentalsByYear
             // 
@@ -568,9 +812,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblRentalsByYear.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             lblRentalsByYear.Location = new Point(20, 20);
             lblRentalsByYear.Name = "lblRentalsByYear";
-            lblRentalsByYear.Size = new Size(136, 21);
+            lblRentalsByYear.Size = new Size(171, 21);
             lblRentalsByYear.TabIndex = 0;
-            lblRentalsByYear.Text = "Rentals By Year";
+            lblRentalsByYear.Text = "Yıllara Göre Kiralama";
             // 
             // pnlCarsByBrand
             // 
@@ -587,7 +831,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // 
             chartCarsByBrand.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             chartCarsByBrand.BackColor = Color.White;
-            chartCarsByBrand.BorderStyle = BorderStyle.None;
             chartCarsByBrand.Location = new Point(20, 78);
             chartCarsByBrand.Name = "chartCarsByBrand";
             chartCarsByBrand.Size = new Size(284, 402);
@@ -600,9 +843,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblBrandSubtitle.ForeColor = Color.Gray;
             lblBrandSubtitle.Location = new Point(20, 45);
             lblBrandSubtitle.Name = "lblBrandSubtitle";
-            lblBrandSubtitle.Size = new Size(169, 15);
+            lblBrandSubtitle.Size = new Size(184, 15);
             lblBrandSubtitle.TabIndex = 1;
-            lblBrandSubtitle.Text = "Car count by brand in the system";
+            lblBrandSubtitle.Text = "Sistemdeki markalara göre araçlar";
             // 
             // lblCarsByBrand
             // 
@@ -610,14 +853,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblCarsByBrand.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             lblCarsByBrand.Location = new Point(20, 20);
             lblCarsByBrand.Name = "lblCarsByBrand";
-            lblCarsByBrand.Size = new Size(155, 21);
+            lblCarsByBrand.Size = new Size(185, 21);
             lblCarsByBrand.TabIndex = 0;
-            lblCarsByBrand.Text = "Car Count By Brand";
+            lblCarsByBrand.Text = "Markalara Göre Araçlar";
             // 
             // pnlCards
             // 
-            pnlCards.Controls.Add(pnlAvgRentalPrice);
-            pnlCards.Controls.Add(pnlCarBrands);
+            pnlCards.Controls.Add(pnlTotalRevenue);
+            pnlCards.Controls.Add(pnlCustomerCount);
             pnlCards.Controls.Add(pnlLocations);
             pnlCards.Controls.Add(pnlTotalCars);
             pnlCards.Dock = DockStyle.Top;
@@ -626,111 +869,111 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlCards.Size = new Size(1010, 160);
             pnlCards.TabIndex = 0;
             // 
-            // pnlAvgRentalPrice
+            // pnlTotalRevenue
             // 
-            pnlAvgRentalPrice.BackColor = Color.FromArgb(47, 192, 120);
-            pnlAvgRentalPrice.Controls.Add(lblPriceTimeFrame);
-            pnlAvgRentalPrice.Controls.Add(lblAvgPrice);
-            pnlAvgRentalPrice.Controls.Add(lblAvgRentalPrice);
-            pnlAvgRentalPrice.Controls.Add(iconAvgPrice);
-            pnlAvgRentalPrice.Location = new Point(761, 10);
-            pnlAvgRentalPrice.Name = "pnlAvgRentalPrice";
-            pnlAvgRentalPrice.Size = new Size(237, 130);
-            pnlAvgRentalPrice.TabIndex = 3;
+            pnlTotalRevenue.BackColor = Color.FromArgb(47, 192, 120);
+            pnlTotalRevenue.Controls.Add(lblRevenueTimeFrame);
+            pnlTotalRevenue.Controls.Add(lblTotalRevenue);
+            pnlTotalRevenue.Controls.Add(lblTotalRevenueTitle);
+            pnlTotalRevenue.Controls.Add(iconTotalRevenue);
+            pnlTotalRevenue.Location = new Point(761, 10);
+            pnlTotalRevenue.Name = "pnlTotalRevenue";
+            pnlTotalRevenue.Size = new Size(237, 130);
+            pnlTotalRevenue.TabIndex = 3;
             // 
-            // lblPriceTimeFrame
+            // lblRevenueTimeFrame
             // 
-            lblPriceTimeFrame.AutoSize = true;
-            lblPriceTimeFrame.Font = new Font("Segoe UI", 8F);
-            lblPriceTimeFrame.ForeColor = Color.WhiteSmoke;
-            lblPriceTimeFrame.Location = new Point(1165, 14);
-            lblPriceTimeFrame.Name = "lblPriceTimeFrame";
-            lblPriceTimeFrame.Size = new Size(32, 13);
-            lblPriceTimeFrame.TabIndex = 3;
-            lblPriceTimeFrame.Text = "week";
+            lblRevenueTimeFrame.AutoSize = true;
+            lblRevenueTimeFrame.Font = new Font("Segoe UI", 8F);
+            lblRevenueTimeFrame.ForeColor = Color.WhiteSmoke;
+            lblRevenueTimeFrame.Location = new Point(1165, 14);
+            lblRevenueTimeFrame.Name = "lblRevenueTimeFrame";
+            lblRevenueTimeFrame.Size = new Size(43, 13);
+            lblRevenueTimeFrame.TabIndex = 3;
+            lblRevenueTimeFrame.Text = "Toplam";
             // 
-            // lblAvgPrice
+            // lblTotalRevenue
             // 
-            lblAvgPrice.AutoSize = true;
-            lblAvgPrice.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            lblAvgPrice.ForeColor = Color.White;
-            lblAvgPrice.Location = new Point(20, 54);
-            lblAvgPrice.Name = "lblAvgPrice";
-            lblAvgPrice.Size = new Size(140, 41);
-            lblAvgPrice.TabIndex = 2;
-            lblAvgPrice.Text = "₺ 632,70";
+            lblTotalRevenue.AutoSize = true;
+            lblTotalRevenue.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
+            lblTotalRevenue.ForeColor = Color.White;
+            lblTotalRevenue.Location = new Point(20, 54);
+            lblTotalRevenue.Name = "lblTotalRevenue";
+            lblTotalRevenue.Size = new Size(102, 41);
+            lblTotalRevenue.TabIndex = 2;
+            lblTotalRevenue.Text = "₺ 0,00";
             // 
-            // lblAvgRentalPrice
+            // lblTotalRevenueTitle
             // 
-            lblAvgRentalPrice.AutoSize = true;
-            lblAvgRentalPrice.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold);
-            lblAvgRentalPrice.ForeColor = Color.White;
-            lblAvgRentalPrice.Location = new Point(20, 20);
-            lblAvgRentalPrice.Name = "lblAvgRentalPrice";
-            lblAvgRentalPrice.Size = new Size(177, 21);
-            lblAvgRentalPrice.TabIndex = 1;
-            lblAvgRentalPrice.Text = "Average Car Rental Price";
+            lblTotalRevenueTitle.AutoSize = true;
+            lblTotalRevenueTitle.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold);
+            lblTotalRevenueTitle.ForeColor = Color.White;
+            lblTotalRevenueTitle.Location = new Point(20, 20);
+            lblTotalRevenueTitle.Name = "lblTotalRevenueTitle";
+            lblTotalRevenueTitle.Size = new Size(101, 21);
+            lblTotalRevenueTitle.TabIndex = 1;
+            lblTotalRevenueTitle.Text = "Toplam Gelir";
             // 
-            // iconAvgPrice
+            // iconTotalRevenue
             // 
-            iconAvgPrice.BackColor = Color.FromArgb(47, 192, 120);
-            iconAvgPrice.ForeColor = Color.FromArgb(229, 229, 229);
-            iconAvgPrice.IconChar = IconChar.MoneyBillWave;
-            iconAvgPrice.IconColor = Color.FromArgb(229, 229, 229);
-            iconAvgPrice.IconFont = IconFont.Auto;
-            iconAvgPrice.IconSize = 56;
-            iconAvgPrice.Location = new Point(172, 54);
-            iconAvgPrice.Name = "iconAvgPrice";
-            iconAvgPrice.Size = new Size(56, 56);
-            iconAvgPrice.TabIndex = 4;
-            iconAvgPrice.TabStop = false;
+            iconTotalRevenue.BackColor = Color.FromArgb(47, 192, 120);
+            iconTotalRevenue.ForeColor = Color.FromArgb(229, 229, 229);
+            iconTotalRevenue.IconChar = IconChar.MoneyBillWave;
+            iconTotalRevenue.IconColor = Color.FromArgb(229, 229, 229);
+            iconTotalRevenue.IconFont = IconFont.Auto;
+            iconTotalRevenue.IconSize = 56;
+            iconTotalRevenue.Location = new Point(172, 54);
+            iconTotalRevenue.Name = "iconTotalRevenue";
+            iconTotalRevenue.Size = new Size(56, 56);
+            iconTotalRevenue.TabIndex = 4;
+            iconTotalRevenue.TabStop = false;
             // 
-            // pnlCarBrands
+            // pnlCustomerCount
             // 
-            pnlCarBrands.BackColor = Color.FromArgb(156, 136, 255);
-            pnlCarBrands.Controls.Add(lblBrandCount);
-            pnlCarBrands.Controls.Add(lblCarBrands);
-            pnlCarBrands.Controls.Add(iconBrands);
-            pnlCarBrands.Location = new Point(509, 10);
-            pnlCarBrands.Name = "pnlCarBrands";
-            pnlCarBrands.Size = new Size(237, 130);
-            pnlCarBrands.TabIndex = 2;
+            pnlCustomerCount.BackColor = Color.FromArgb(83, 107, 168);
+            pnlCustomerCount.Controls.Add(lblCustomerCount);
+            pnlCustomerCount.Controls.Add(lblCustomerCountTitle);
+            pnlCustomerCount.Controls.Add(iconCustomerCount);
+            pnlCustomerCount.Location = new Point(509, 10);
+            pnlCustomerCount.Name = "pnlCustomerCount";
+            pnlCustomerCount.Size = new Size(237, 130);
+            pnlCustomerCount.TabIndex = 2;
             // 
-            // lblBrandCount
+            // lblCustomerCount
             // 
-            lblBrandCount.AutoSize = true;
-            lblBrandCount.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            lblBrandCount.ForeColor = Color.White;
-            lblBrandCount.Location = new Point(20, 54);
-            lblBrandCount.Name = "lblBrandCount";
-            lblBrandCount.Size = new Size(34, 41);
-            lblBrandCount.TabIndex = 2;
-            lblBrandCount.Text = "8";
+            lblCustomerCount.AutoSize = true;
+            lblCustomerCount.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
+            lblCustomerCount.ForeColor = Color.White;
+            lblCustomerCount.Location = new Point(20, 54);
+            lblCustomerCount.Name = "lblCustomerCount";
+            lblCustomerCount.Size = new Size(35, 41);
+            lblCustomerCount.TabIndex = 2;
+            lblCustomerCount.Text = "0";
             // 
-            // lblCarBrands
+            // lblCustomerCountTitle
             // 
-            lblCarBrands.AutoSize = true;
-            lblCarBrands.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold);
-            lblCarBrands.ForeColor = Color.White;
-            lblCarBrands.Location = new Point(20, 20);
-            lblCarBrands.Name = "lblCarBrands";
-            lblCarBrands.Size = new Size(135, 21);
-            lblCarBrands.TabIndex = 1;
-            lblCarBrands.Text = "Car Brand Count";
+            lblCustomerCountTitle.AutoSize = true;
+            lblCustomerCountTitle.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold);
+            lblCustomerCountTitle.ForeColor = Color.White;
+            lblCustomerCountTitle.Location = new Point(20, 20);
+            lblCustomerCountTitle.Name = "lblCustomerCountTitle";
+            lblCustomerCountTitle.Size = new Size(110, 21);
+            lblCustomerCountTitle.TabIndex = 1;
+            lblCustomerCountTitle.Text = "Müşteri Sayısı";
             // 
-            // iconBrands
+            // iconCustomerCount
             // 
-            iconBrands.BackColor = Color.FromArgb(156, 136, 255);
-            iconBrands.ForeColor = Color.FromArgb(229, 229, 229);
-            iconBrands.IconChar = IconChar.Building;
-            iconBrands.IconColor = Color.FromArgb(229, 229, 229);
-            iconBrands.IconFont = IconFont.Auto;
-            iconBrands.IconSize = 56;
-            iconBrands.Location = new Point(172, 54);
-            iconBrands.Name = "iconBrands";
-            iconBrands.Size = new Size(56, 56);
-            iconBrands.TabIndex = 4;
-            iconBrands.TabStop = false;
+            iconCustomerCount.BackColor = Color.FromArgb(83, 107, 168);
+            iconCustomerCount.ForeColor = Color.FromArgb(229, 229, 229);
+            iconCustomerCount.IconChar = IconChar.Users;
+            iconCustomerCount.IconColor = Color.FromArgb(229, 229, 229);
+            iconCustomerCount.IconFont = IconFont.Auto;
+            iconCustomerCount.IconSize = 56;
+            iconCustomerCount.Location = new Point(172, 54);
+            iconCustomerCount.Name = "iconCustomerCount";
+            iconCustomerCount.Size = new Size(56, 56);
+            iconCustomerCount.TabIndex = 4;
+            iconCustomerCount.TabStop = false;
             // 
             // pnlLocations
             // 
@@ -750,9 +993,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblLocationCount.ForeColor = Color.White;
             lblLocationCount.Location = new Point(20, 54);
             lblLocationCount.Name = "lblLocationCount";
-            lblLocationCount.Size = new Size(34, 41);
+            lblLocationCount.Size = new Size(35, 41);
             lblLocationCount.TabIndex = 2;
-            lblLocationCount.Text = "6";
+            lblLocationCount.Text = "0";
             // 
             // lblLocations
             // 
@@ -761,15 +1004,15 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblLocations.ForeColor = Color.White;
             lblLocations.Location = new Point(20, 20);
             lblLocations.Name = "lblLocations";
-            lblLocations.Size = new Size(128, 21);
+            lblLocations.Size = new Size(91, 21);
             lblLocations.TabIndex = 1;
-            lblLocations.Text = "Location Count";
+            lblLocations.Text = "Şube Sayısı";
             // 
             // iconLocations
             // 
             iconLocations.BackColor = Color.FromArgb(29, 35, 49);
             iconLocations.ForeColor = Color.FromArgb(229, 229, 229);
-            iconLocations.IconChar = IconChar.LocationDot;
+            iconLocations.IconChar = IconChar.MapMarkerAlt;
             iconLocations.IconColor = Color.FromArgb(229, 229, 229);
             iconLocations.IconFont = IconFont.Auto;
             iconLocations.IconSize = 56;
@@ -797,9 +1040,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblCarCount.ForeColor = Color.White;
             lblCarCount.Location = new Point(20, 54);
             lblCarCount.Name = "lblCarCount";
-            lblCarCount.Size = new Size(50, 41);
+            lblCarCount.Size = new Size(35, 41);
             lblCarCount.TabIndex = 2;
-            lblCarCount.Text = "11";
+            lblCarCount.Text = "0";
             // 
             // lblTotalCars
             // 
@@ -808,9 +1051,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblTotalCars.ForeColor = Color.White;
             lblTotalCars.Location = new Point(20, 20);
             lblTotalCars.Name = "lblTotalCars";
-            lblTotalCars.Size = new Size(120, 21);
+            lblTotalCars.Size = new Size(100, 21);
             lblTotalCars.TabIndex = 1;
-            lblTotalCars.Text = "Total Car Count";
+            lblTotalCars.Text = "Toplam Araç";
             // 
             // iconCars
             // 
@@ -839,6 +1082,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Araç Kiralama ve Satış Uygulaması";
             WindowState = FormWindowState.Maximized;
+            Load += MainPage_Load;
             pnlSidebar.ResumeLayout(false);
             pnlUserInfo.ResumeLayout(false);
             pnlUserInfo.PerformLayout();
@@ -850,6 +1094,16 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlTopbar.ResumeLayout(false);
             pnlTopbar.PerformLayout();
             pnlContent.ResumeLayout(false);
+            pnlCustomers.ResumeLayout(false);
+            pnlCustomersContent.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvCustomers).EndInit();
+            pnlCustomersHeader.ResumeLayout(false);
+            pnlCustomersHeader.PerformLayout();
+            pnlVehicles.ResumeLayout(false);
+            pnlVehiclesContent.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvVehicles).EndInit();
+            pnlVehiclesHeader.ResumeLayout(false);
+            pnlVehiclesHeader.PerformLayout();
             pnlDashboard.ResumeLayout(false);
             pnlCharts.ResumeLayout(false);
             pnlCarsByLocation.ResumeLayout(false);
@@ -859,12 +1113,12 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlCarsByBrand.ResumeLayout(false);
             pnlCarsByBrand.PerformLayout();
             pnlCards.ResumeLayout(false);
-            pnlAvgRentalPrice.ResumeLayout(false);
-            pnlAvgRentalPrice.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)iconAvgPrice).EndInit();
-            pnlCarBrands.ResumeLayout(false);
-            pnlCarBrands.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)iconBrands).EndInit();
+            pnlTotalRevenue.ResumeLayout(false);
+            pnlTotalRevenue.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)iconTotalRevenue).EndInit();
+            pnlCustomerCount.ResumeLayout(false);
+            pnlCustomerCount.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)iconCustomerCount).EndInit();
             pnlLocations.ResumeLayout(false);
             pnlLocations.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)iconLocations).EndInit();
@@ -902,21 +1156,21 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private Panel pnlCards;
         private Panel pnlTotalCars;
         private Panel pnlLocations;
-        private Panel pnlCarBrands;
-        private Panel pnlAvgRentalPrice;
+        private Panel pnlCustomerCount;
+        private Panel pnlTotalRevenue;
         private Label lblTotalCars;
         private Label lblCarCount;
         private FontAwesome.Sharp.IconPictureBox iconCars;
         private Label lblLocationCount;
         private Label lblLocations;
         private FontAwesome.Sharp.IconPictureBox iconLocations;
-        private Label lblBrandCount;
-        private Label lblCarBrands;
-        private FontAwesome.Sharp.IconPictureBox iconBrands;
-        private Label lblPriceTimeFrame;
-        private Label lblAvgPrice;
-        private Label lblAvgRentalPrice;
-        private FontAwesome.Sharp.IconPictureBox iconAvgPrice;
+        private Label lblCustomerCount;
+        private Label lblCustomerCountTitle;
+        private FontAwesome.Sharp.IconPictureBox iconCustomerCount;
+        private Label lblRevenueTimeFrame;
+        private Label lblTotalRevenue;
+        private Label lblTotalRevenueTitle;
+        private FontAwesome.Sharp.IconPictureBox iconTotalRevenue;
         private Panel pnlCharts;
         private Panel pnlCarsByBrand;
         private Label lblBrandSubtitle;
@@ -930,5 +1184,21 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private Panel chartCarsByLocation;
         private Label lblLocationSubtitle;
         private Label lblCarsByLocation;
+        private Panel pnlVehicles;
+        private Panel pnlCustomers;
+        private Panel pnlVehiclesContent;
+        private DataGridView dgvVehicles;
+        private Panel pnlVehiclesHeader;
+        private Label lblVehiclesTitle;
+        private IconButton btnAddVehicle;
+        private IconButton btnRefreshVehicles;
+        private TextBox txtSearchVehicles;
+        private Panel pnlCustomersContent;
+        private DataGridView dgvCustomers;
+        private Panel pnlCustomersHeader;
+        private Label lblCustomersTitle;
+        private IconButton btnAddCustomer;
+        private IconButton btnRefreshCustomers;
+        private TextBox txtSearchCustomers;
     }
 }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 using arac_kiralama_satis_desktop.Methods;
 using arac_kiralama_satis_desktop.Utils;
 using arac_kiralama_satis_desktop.Models;
@@ -15,6 +14,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
     {
         // Aktif buton referansı
         private IconButton currentBtn;
+        // DataTable'lar for search/filter
+        private DataTable vehiclesTable;
+        private DataTable customersTable;
 
         public MainPage()
         {
@@ -22,7 +24,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             {
                 InitializeComponent();
                 CustomizeDesign();
-                InitializeDashboard();
+                SetupDataGridViews();
             }
             catch (Exception ex)
             {
@@ -63,50 +65,247 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ActivateButton(btnDashboard);
         }
 
-        private void InitializeDashboard()
+        private void SetupDataGridViews()
         {
-            // Boş dashboard - hiçbir eleman gösterilmeyecek
-            pnlDashboard.Controls.Clear();
-            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
+            // Set up vehicles DataGridView
+            UIUtils.SetupDataGridView(dgvVehicles);
+
+            // Set up customers DataGridView
+            UIUtils.SetupDataGridView(dgvCustomers);
         }
 
-        private void LayoutDashboardPanels()
+        private void LoadDashboardData()
         {
-            // Sabit pencere boyutu için panel konumlarını ayarla
-            int padding = 15;
+            try
+            {
+                // Get data from database
+                var dashboardData = MainMethods.GetDashboardData();
 
-            // Kart bölümü düzeni
-            int availableWidth = pnlCards.Width - (padding * 2);
-            int cardWidth = (availableWidth - (padding * 3)) / 4;
+                // Update dashboard cards with data
+                lblCarCount.Text = dashboardData.TotalCarCount.ToString();
+                lblLocationCount.Text = dashboardData.LocationCount.ToString();
+                lblCustomerCount.Text = dashboardData.CustomerCount.ToString();
+                lblTotalRevenue.Text = $"₺ {dashboardData.TotalRevenue:N2}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Dashboard verileri yüklenirken bir hata oluştu: {ex.Message}",
+                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-            // Kart panellerinin boyutlarını ve konumlarını ayarla
-            pnlTotalCars.Width = cardWidth;
-            pnlLocations.Width = cardWidth;
-            pnlCarBrands.Width = cardWidth;
-            pnlAvgRentalPrice.Width = cardWidth;
+        private void LoadVehiclesData()
+        {
+            try
+            {
+                Cursor = Cursors.WaitCursor;
 
-            pnlTotalCars.Location = new Point(padding, padding);
-            pnlLocations.Location = new Point(pnlTotalCars.Right + padding, padding);
-            pnlCarBrands.Location = new Point(pnlLocations.Right + padding, padding);
-            pnlAvgRentalPrice.Location = new Point(pnlCarBrands.Right + padding, padding);
+                List<Vehicle> vehicles = VehicleMethods.GetVehicles();
+                vehiclesTable = new DataTable();
 
-            // Grafik bölümü düzeni
-            availableWidth = pnlCharts.Width - (padding * 2);
-            int chartWidth = (availableWidth - (padding * 2)) / 3;
-            int chartHeight = pnlCharts.Height - (padding * 2);
+                // Add columns
+                vehiclesTable.Columns.Add("AracID", typeof(int));
+                vehiclesTable.Columns.Add("Plaka", typeof(string));
+                vehiclesTable.Columns.Add("Marka", typeof(string));
+                vehiclesTable.Columns.Add("Model", typeof(string));
+                vehiclesTable.Columns.Add("Yıl", typeof(int));
+                vehiclesTable.Columns.Add("Renk", typeof(string));
+                vehiclesTable.Columns.Add("Kilometre", typeof(int));
+                vehiclesTable.Columns.Add("Yakıt", typeof(string));
+                vehiclesTable.Columns.Add("Vites", typeof(string));
+                vehiclesTable.Columns.Add("Durum", typeof(string));
+                vehiclesTable.Columns.Add("Şube", typeof(string));
+                vehiclesTable.Columns.Add("Sınıf", typeof(string));
 
-            // Grafik panellerinin boyutlarını ve konumlarını ayarla
-            pnlCarsByBrand.Size = new Size(chartWidth, chartHeight);
-            pnlRentalsByYear.Size = new Size(chartWidth, chartHeight);
-            pnlCarsByLocation.Size = new Size(chartWidth, chartHeight);
+                // Add rows from the vehicles list
+                foreach (var vehicle in vehicles)
+                {
+                    vehiclesTable.Rows.Add(
+                        vehicle.VehicleID,
+                        vehicle.Plate,
+                        vehicle.Brand,
+                        vehicle.Model,
+                        vehicle.Year,
+                        vehicle.Color,
+                        vehicle.Kilometers,
+                        vehicle.FuelType,
+                        vehicle.TransmissionType,
+                        vehicle.StatusName,
+                        vehicle.BranchName,
+                        vehicle.VehicleClassName
+                    );
+                }
 
-            pnlCarsByBrand.Location = new Point(padding, padding);
-            pnlRentalsByYear.Location = new Point(pnlCarsByBrand.Right + padding, padding);
-            pnlCarsByLocation.Location = new Point(pnlRentalsByYear.Right + padding, padding);
+                // Set DataSource
+                dgvVehicles.DataSource = vehiclesTable;
 
-            // Grafiklerin ve panellerin yenilenmesi
-            pnlCards.Refresh();
-            pnlCharts.Refresh();
+                // Format columns
+                if (dgvVehicles.Columns.Count > 0)
+                {
+                    dgvVehicles.Columns["AracID"].Visible = false;
+                    dgvVehicles.Columns["Plaka"].Width = 80;
+                    dgvVehicles.Columns["Marka"].Width = 100;
+                    dgvVehicles.Columns["Model"].Width = 120;
+                    dgvVehicles.Columns["Yıl"].Width = 60;
+                    dgvVehicles.Columns["Renk"].Width = 80;
+                    dgvVehicles.Columns["Kilometre"].Width = 100;
+                    dgvVehicles.Columns["Yakıt"].Width = 80;
+                    dgvVehicles.Columns["Vites"].Width = 80;
+                    dgvVehicles.Columns["Durum"].Width = 100;
+                    dgvVehicles.Columns["Şube"].Width = 120;
+                    dgvVehicles.Columns["Sınıf"].Width = 100;
+                }
+
+                // Update count information
+                lblVehiclesTitle.Text = $"Araç Listesi ({vehicles.Count})";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Araç verileri yüklenirken bir hata oluştu: {ex.Message}",
+                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void LoadCustomersData()
+        {
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+
+                // Get customer data from database
+                DataTable result = MainMethods.GetCustomerList();
+                customersTable = result.Copy();
+
+                // Rename columns for display
+                customersTable.Columns["MusteriID"].ColumnName = "MusteriID";
+                customersTable.Columns["Ad"].ColumnName = "Ad";
+                customersTable.Columns["Soyad"].ColumnName = "Soyad";
+                customersTable.Columns["TC"].ColumnName = "TC";
+                customersTable.Columns["Telefon"].ColumnName = "Telefon";
+                customersTable.Columns["Email"].ColumnName = "Email";
+                customersTable.Columns["MusteriTipi"].ColumnName = "Müşteri Tipi";
+                customersTable.Columns["KayitTarihi"].ColumnName = "Kayıt Tarihi";
+
+                // Set DataSource
+                dgvCustomers.DataSource = customersTable;
+
+                // Format columns
+                if (dgvCustomers.Columns.Count > 0)
+                {
+                    dgvCustomers.Columns["MusteriID"].Visible = false;
+                    dgvCustomers.Columns["Ad"].Width = 100;
+                    dgvCustomers.Columns["Soyad"].Width = 100;
+                    dgvCustomers.Columns["TC"].Width = 120;
+                    dgvCustomers.Columns["Telefon"].Width = 120;
+                    dgvCustomers.Columns["Email"].Width = 180;
+                    dgvCustomers.Columns["Müşteri Tipi"].Width = 100;
+                    dgvCustomers.Columns["Kayıt Tarihi"].Width = 120;
+                    dgvCustomers.Columns["Kayıt Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                }
+
+                // Update count information
+                lblCustomersTitle.Text = $"Müşteri Listesi ({customersTable.Rows.Count})";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Müşteri verileri yüklenirken bir hata oluştu: {ex.Message}",
+                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void SearchVehicles(string searchText)
+        {
+            try
+            {
+                if (vehiclesTable == null) return;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    // Show all data
+                    dgvVehicles.DataSource = vehiclesTable;
+                    lblVehiclesTitle.Text = $"Araç Listesi ({vehiclesTable.Rows.Count})";
+                    return;
+                }
+
+                // Create a case-insensitive filter
+                string filter = "";
+                string searchLower = searchText.ToLower();
+
+                // Search in most relevant columns
+                filter = $"Plaka LIKE '%{searchText}%' OR " +
+                         $"Marka LIKE '%{searchText}%' OR " +
+                         $"Model LIKE '%{searchText}%' OR " +
+                         $"Durum LIKE '%{searchText}%' OR " +
+                         $"Şube LIKE '%{searchText}%' OR " +
+                         $"CONVERT(Yıl, System.String) LIKE '%{searchText}%'";
+
+                DataView dv = vehiclesTable.DefaultView;
+                dv.RowFilter = filter;
+
+                // Update label with count
+                lblVehiclesTitle.Text = $"Araç Listesi ({dv.Count})";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Araç aramada hata: {ex.Message}");
+                // Failed filter - just reset
+                if (vehiclesTable != null)
+                {
+                    dgvVehicles.DataSource = vehiclesTable;
+                    lblVehiclesTitle.Text = $"Araç Listesi ({vehiclesTable.Rows.Count})";
+                }
+            }
+        }
+
+        private void SearchCustomers(string searchText)
+        {
+            try
+            {
+                if (customersTable == null) return;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    // Show all data
+                    dgvCustomers.DataSource = customersTable;
+                    lblCustomersTitle.Text = $"Müşteri Listesi ({customersTable.Rows.Count})";
+                    return;
+                }
+
+                // Create filter
+                string filter = "";
+                string searchLower = searchText.ToLower();
+
+                // Search in most relevant columns
+                filter = $"Ad LIKE '%{searchText}%' OR " +
+                         $"Soyad LIKE '%{searchText}%' OR " +
+                         $"TC LIKE '%{searchText}%' OR " +
+                         $"Telefon LIKE '%{searchText}%' OR " +
+                         $"Email LIKE '%{searchText}%'";
+
+                DataView dv = customersTable.DefaultView;
+                dv.RowFilter = filter;
+
+                // Update label with count
+                lblCustomersTitle.Text = $"Müşteri Listesi ({dv.Count})";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Müşteri aramada hata: {ex.Message}");
+                // Failed filter - just reset
+                if (customersTable != null)
+                {
+                    dgvCustomers.DataSource = customersTable;
+                    lblCustomersTitle.Text = $"Müşteri Listesi ({customersTable.Rows.Count})";
+                }
+            }
         }
 
         private void ActivateButton(IconButton button)
@@ -142,68 +341,89 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
-        // Olay işleyicileri
+        private void ShowPanel(Panel panel)
+        {
+            // Hide all panels
+            pnlDashboard.Visible = false;
+            pnlVehicles.Visible = false;
+            pnlCustomers.Visible = false;
+
+            // Show selected panel
+            if (panel != null)
+            {
+                panel.Visible = true;
+                panel.BringToFront();
+            }
+        }
+
+        // Form yüklendiğinde gerçekleştirilecek işlemler
+        private void MainPage_Load(object sender, EventArgs e)
+        {
+            // Formu maksimize et
+            this.WindowState = FormWindowState.Maximized;
+
+            // Dashboard verilerini yükle
+            LoadDashboardData();
+        }
+
+        #region Event Handlers
+
         private void BtnDashboard_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Dashboard içeriğini göster
-            pnlDashboard.Visible = true;
+            ShowPanel(pnlDashboard);
+            LoadDashboardData();
             lblPageTitle.Text = "Dashboard";
         }
 
         private void BtnVehicles_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Araçlar içeriğini göster (boş panel)
-            pnlDashboard.Visible = false;
+            ShowPanel(pnlVehicles);
+            LoadVehiclesData();
             lblPageTitle.Text = "Araçlar";
         }
 
         private void BtnCustomers_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Müşteriler içeriğini göster (boş panel)
-            pnlDashboard.Visible = false;
+            ShowPanel(pnlCustomers);
+            LoadCustomersData();
             lblPageTitle.Text = "Müşteriler";
         }
 
         private void BtnRentals_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Kiralamalar içeriğini göster (boş panel)
-            pnlDashboard.Visible = false;
+            ShowPanel(null);
             lblPageTitle.Text = "Kiralamalar";
         }
 
         private void BtnSales_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Satışlar içeriğini göster (boş panel)
-            pnlDashboard.Visible = false;
+            ShowPanel(null);
             lblPageTitle.Text = "Satışlar";
         }
 
         private void BtnMaintenance_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Bakım ve Servis içeriğini göster (boş panel)
-            pnlDashboard.Visible = false;
+            ShowPanel(null);
             lblPageTitle.Text = "Bakım & Servis";
         }
 
         private void BtnReports_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Raporlar içeriğini göster (boş panel)
-            pnlDashboard.Visible = false;
+            ShowPanel(null);
             lblPageTitle.Text = "Raporlar";
         }
 
         private void BtnSettings_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Ayarlar içeriğini göster (boş panel)
-            pnlDashboard.Visible = false;
+            ShowPanel(null);
             lblPageTitle.Text = "Ayarlar";
         }
 
@@ -225,30 +445,28 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
-        // Form yüklendiğinde kontrolleri düzenle
-        protected override void OnLoad(EventArgs e)
+        private void TxtSearchVehicles_TextChanged(object sender, EventArgs e)
         {
-            base.OnLoad(e);
-
-            // Formu maksimize et
-            this.WindowState = FormWindowState.Maximized;
-
-            // Panelleri düzenle
-            LayoutDashboardPanels();
-
-            // UI'ın yenilenmesi için
-            Application.DoEvents();
+            SearchVehicles(txtSearchVehicles.Text);
         }
 
-        // Form boyutu değiştiğinde kontrolleri yeniden düzenle
-        protected override void OnResize(EventArgs e)
+        private void TxtSearchCustomers_TextChanged(object sender, EventArgs e)
         {
-            base.OnResize(e);
-
-            if (this.WindowState != FormWindowState.Minimized)
-            {
-                LayoutDashboardPanels();
-            }
+            SearchCustomers(txtSearchCustomers.Text);
         }
+
+        private void BtnRefreshVehicles_Click(object sender, EventArgs e)
+        {
+            LoadVehiclesData();
+            txtSearchVehicles.Clear();
+        }
+
+        private void BtnRefreshCustomers_Click(object sender, EventArgs e)
+        {
+            LoadCustomersData();
+            txtSearchCustomers.Clear();
+        }
+
+        #endregion
     }
 }
