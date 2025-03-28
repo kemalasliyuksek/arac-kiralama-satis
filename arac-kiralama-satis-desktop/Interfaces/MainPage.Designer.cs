@@ -470,12 +470,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // 
             // pnlDashboard
             // 
-            pnlDashboard.Controls.Add(pnlCharts);
-            pnlDashboard.Controls.Add(pnlCards);
             pnlDashboard.Dock = DockStyle.Fill;
             pnlDashboard.Location = new Point(20, 20);
             pnlDashboard.Name = "pnlDashboard";
             pnlDashboard.Size = new Size(1010, 700);
+            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
             pnlDashboard.TabIndex = 0;
             // 
             // pnlCharts
@@ -503,6 +502,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // chartCarsByLocation
             // 
             chartCarsByLocation.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            chartCarsByLocation.BackColor = Color.White;
+            chartCarsByLocation.BorderStyle = BorderStyle.None;
             chartCarsByLocation.Location = new Point(20, 78);
             chartCarsByLocation.Name = "chartCarsByLocation";
             chartCarsByLocation.Size = new Size(284, 402);
@@ -543,6 +544,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // chartRentalsByYear
             // 
             chartRentalsByYear.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            chartRentalsByYear.BackColor = Color.White;
+            chartRentalsByYear.BorderStyle = BorderStyle.None;
             chartRentalsByYear.Location = new Point(20, 78);
             chartRentalsByYear.Name = "chartRentalsByYear";
             chartRentalsByYear.Size = new Size(284, 402);
@@ -583,6 +586,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // chartCarsByBrand
             // 
             chartCarsByBrand.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            chartCarsByBrand.BackColor = Color.White;
+            chartCarsByBrand.BorderStyle = BorderStyle.None;
             chartCarsByBrand.Location = new Point(20, 78);
             chartCarsByBrand.Name = "chartCarsByBrand";
             chartCarsByBrand.Size = new Size(284, 402);

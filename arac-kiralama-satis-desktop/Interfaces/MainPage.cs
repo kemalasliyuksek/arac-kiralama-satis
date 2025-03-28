@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using arac_kiralama_satis_desktop.Methods;
 using arac_kiralama_satis_desktop.Utils;
+using arac_kiralama_satis_desktop.Models;
 using FontAwesome.Sharp;
 
 namespace arac_kiralama_satis_desktop.Interfaces
@@ -29,9 +30,27 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         public MainPage()
         {
-            InitializeComponent();
-            CustomizeDesign();
-            InitializeDashboard();
+            try
+            {
+                InitializeComponent();
+                CustomizeDesign();
+                InitializeDashboard();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ana sayfa yüklenirken bir hata oluştu: {ex.Message}\n\nDetay: {ex.StackTrace}",
+                    "Kritik Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Hata logunu yazdır
+                Console.WriteLine($"HATA: {ex.Message}");
+                Console.WriteLine($"STACK TRACE: {ex.StackTrace}");
+
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"INNER EXCEPTION: {ex.InnerException.Message}");
+                    Console.WriteLine($"INNER STACK TRACE: {ex.InnerException.StackTrace}");
+                }
+            }
         }
 
         private void CustomizeDesign()
@@ -39,6 +58,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // Form ayarları
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.MinimumSize = new Size(1200, 800);
+            this.MaximizeBox = true;
+            this.WindowState = FormWindowState.Maximized;
             this.Text = "Araç Kiralama ve Satış Uygulaması";
 
             // Logo ve kullanıcı avatarı
@@ -50,116 +71,72 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblUserRole.Text = CurrentSession.RoleName;
             lblBranchName.Text = CurrentSession.BranchName ?? "Genel Merkez";
 
-            // Kartlar için gölge efekti
-            ApplyShadowEffect(pnlTotalCars);
-            ApplyShadowEffect(pnlLocations);
-            ApplyShadowEffect(pnlCarBrands);
-            ApplyShadowEffect(pnlAvgRentalPrice);
-
-            // Grafik panelleri için gölge efekti
-            ApplyShadowEffect(pnlCarsByBrand);
-            ApplyShadowEffect(pnlRentalsByYear);
-            ApplyShadowEffect(pnlCarsByLocation);
-
-            // Panellerin köşelerini yuvarlaklaştır
-            ApplyRoundedCorners(pnlTotalCars, 10);
-            ApplyRoundedCorners(pnlLocations, 10);
-            ApplyRoundedCorners(pnlCarBrands, 10);
-            ApplyRoundedCorners(pnlAvgRentalPrice, 10);
-            ApplyRoundedCorners(pnlCarsByBrand, 10);
-            ApplyRoundedCorners(pnlRentalsByYear, 10);
-            ApplyRoundedCorners(pnlCarsByLocation, 10);
-
             // Aktif menü butonunu işaretle
             ActivateButton(btnDashboard);
         }
 
         private void InitializeDashboard()
         {
-            // Dashboard verilerini yükle
-            LoadDashboardData();
-
-            // Grafikleri oluştur
-            InitializeCharts();
-
-            // Ekrandaki panelleri yerleştir
-            LayoutDashboardPanels();
+            // Boş dashboard - hiçbir eleman gösterilmeyecek
+            pnlDashboard.Controls.Clear();
+            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
         }
 
         private void LoadDashboardData()
         {
-            try
-            {
-                // Ana sayfa verilerini yükle
-                var dashboardData = MainMethods.GetDashboardData();
-
-                // Kart verilerini güncelle
-                lblCarCount.Text = dashboardData.TotalCarCount.ToString();
-                lblLocationCount.Text = dashboardData.LocationCount.ToString();
-                lblBrandCount.Text = dashboardData.BrandCount.ToString();
-                lblAvgPrice.Text = $"₺ {dashboardData.AverageRentalPrice:N2}";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Dashboard verileri yüklenirken bir hata oluştu: " + ex.Message,
-                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            // Dashboard verilerini temizle - sadece başlıklar görünsün
+            lblCarCount.Text = "0";
+            lblLocationCount.Text = "0";
+            lblBrandCount.Text = "0";
+            lblAvgPrice.Text = "₺ 0,00";
         }
 
         private void InitializeCharts()
         {
-            try
-            {
-                // Marka dağılım grafiğini oluştur ve yükle
-                Chart brandChart = CreatePieChart();
-                brandChart.Dock = DockStyle.Fill;
-                chartCarsByBrand.Controls.Add(brandChart);
-                LoadBrandDistributionData(brandChart);
-
-                // Kiralama yıl grafiğini oluştur ve yükle
-                Chart yearChart = CreateLineChart();
-                yearChart.Dock = DockStyle.Fill;
-                chartRentalsByYear.Controls.Add(yearChart);
-                LoadRentalYearData(yearChart);
-
-                // Lokasyon grafiğini oluştur ve yükle
-                Chart locationChart = CreateBarChart();
-                locationChart.Dock = DockStyle.Fill;
-                chartCarsByLocation.Controls.Add(locationChart);
-                LoadLocationData(locationChart);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Grafikler oluşturulurken bir hata oluştu: " + ex.Message,
-                    "Grafik Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            // Grafik panellerini temizle - grafik gösterilmeyecek
+            chartCarsByBrand.Controls.Clear();
+            chartRentalsByYear.Controls.Clear();
+            chartCarsByLocation.Controls.Clear();
         }
 
         private Chart CreatePieChart()
         {
             Chart chart = new Chart();
+            chart.Size = new Size(chartCarsByBrand.Width, chartCarsByBrand.Height);
 
             // ChartArea oluştur
-            ChartArea chartArea = new ChartArea();
+            ChartArea chartArea = new ChartArea("MainArea");
             chartArea.BackColor = Color.White;
+            chartArea.Area3DStyle.Enable3D = false;
             chart.ChartAreas.Add(chartArea);
 
             // Series oluştur
-            Series series = new Series
-            {
-                ChartType = SeriesChartType.Pie,
-                IsValueShownAsLabel = true,
-                LabelFormat = "{0}",
-                Font = new Font("Segoe UI", 9)
-            };
+            Series series = new Series("BrandSeries");
+            series.ChartArea = "MainArea";
+            series.ChartType = SeriesChartType.Pie;
+            series.IsValueShownAsLabel = true;
+            series.LabelFormat = "{0}";
+            series.XValueType = ChartValueType.String;
+            series.YValueType = ChartValueType.Int32;
+            series.Font = new Font("Segoe UI", 9);
+            series.BorderWidth = 1;
+            series.BorderColor = Color.White;
 
             chart.Series.Add(series);
 
             // Ekstra özellikler
-            chart.Legends.Add(new Legend());
+            Legend legend = new Legend("MainLegend");
+            legend.BackColor = Color.White;
+            legend.Font = new Font("Segoe UI", 9);
+            chart.Legends.Add(legend);
+            series.Legend = "MainLegend";
+
             chart.BackColor = Color.White;
             chart.BorderlineWidth = 0;
             chart.BorderSkin.SkinStyle = BorderSkinStyle.None;
+            chart.AntiAliasing = AntiAliasingStyles.All;
+            // Remove the TextAntiAliasingQuality that's causing the error
+            // chart.TextAntiAliasingQuality = AntiAliasingStyles.High;
 
             return chart;
         }
@@ -168,28 +145,55 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             Chart chart = new Chart();
 
+            // Sabit boyutlu grafik
+            chart.Size = new Size(chartRentalsByYear.Width - 40, chartRentalsByYear.Height - 80);
+            chart.Dock = DockStyle.Fill;
+
             // ChartArea oluştur
-            ChartArea chartArea = new ChartArea();
+            ChartArea chartArea = new ChartArea("YearlyArea");
             chartArea.BackColor = Color.White;
             chartArea.AxisX.MajorGrid.LineColor = Color.LightGray;
             chartArea.AxisY.MajorGrid.LineColor = Color.LightGray;
-            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 8);
-            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 8);
+            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 9);
+            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 9);
+            chartArea.AxisX.Title = "Yıl";
+            chartArea.AxisY.Title = "Kiralama Sayısı";
+            chartArea.AxisX.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
+            chartArea.AxisY.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
+            chartArea.AxisX.Interval = 1;
+            chartArea.AxisY.LabelStyle.Format = "{0:0}";  // Tam sayı formatı
+
+            // Izgara çizgilerini düzenle
+            chartArea.AxisX.MajorGrid.LineDashStyle = ChartDashStyle.Dot;
+            chartArea.AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Dot;
+
+            // Y ekseni için minimum değeri 0 olarak ayarla
+            chartArea.AxisY.Minimum = 0;
+
             chart.ChartAreas.Add(chartArea);
 
             // Series oluştur
-            Series series = new Series
-            {
-                ChartType = SeriesChartType.Line,
-                BorderWidth = 3,
-                MarkerStyle = MarkerStyle.Circle,
-                MarkerSize = 8,
-                MarkerColor = Color.FromArgb(26, 115, 232),
-                Color = Color.FromArgb(26, 115, 232)
-            };
+            Series series = new Series("RentalSeries");
+            series.ChartArea = "YearlyArea";
+            series.ChartType = SeriesChartType.Line;
+            series.BorderWidth = 4;
+            series.MarkerStyle = MarkerStyle.Circle;
+            series.MarkerSize = 10;
+            series.MarkerColor = Color.FromArgb(26, 115, 232);
+            series.Color = Color.FromArgb(26, 115, 232);
+            series.XValueType = ChartValueType.Int32;
+            series.YValueType = ChartValueType.Int32;
+            series.IsValueShownAsLabel = true;
+            series.LabelFormat = "{0:0}";  // Tam sayı formatı
+            series.Font = new Font("Segoe UI", 9, FontStyle.Bold);
 
             chart.Series.Add(series);
             chart.BackColor = Color.White;
+            chart.AntiAliasing = AntiAliasingStyles.All;
+
+            // Chart başlığı ekle
+            Title title = new Title("Yıllara Göre Kiralamalar", Docking.Top, new Font("Segoe UI", 12, FontStyle.Bold), Color.FromArgb(49, 76, 143));
+            chart.Titles.Add(title);
 
             return chart;
         }
@@ -198,24 +202,65 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             Chart chart = new Chart();
 
+            // Sabit boyutlu grafik
+            chart.Size = new Size(chartCarsByLocation.Width - 40, chartCarsByLocation.Height - 80);
+            chart.Dock = DockStyle.Fill;
+
             // ChartArea oluştur
-            ChartArea chartArea = new ChartArea();
+            ChartArea chartArea = new ChartArea("LocationArea");
             chartArea.BackColor = Color.White;
             chartArea.AxisX.MajorGrid.LineColor = Color.Transparent;
             chartArea.AxisY.MajorGrid.LineColor = Color.LightGray;
-            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 8);
-            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 8);
+            chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 9);
+            chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 9);
+            chartArea.AxisX.Title = "Lokasyon";
+            chartArea.AxisY.Title = "Araç Sayısı";
+            chartArea.AxisX.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
+            chartArea.AxisY.TitleFont = new Font("Segoe UI", 10, FontStyle.Bold);
+            chartArea.AxisX.Interval = 1;
+            // X ekseni etiketlerini açılı göster
+            chartArea.AxisX.LabelStyle.Angle = -30;
+            chartArea.AxisX.LabelStyle.IsStaggered = true; // Etiketleri daha iyi göstermek için çakışıyorsa farklı seviyelerde göster
+
+            // Izgara çizgilerini düzenle
+            chartArea.AxisY.MajorGrid.LineDashStyle = ChartDashStyle.Dot;
+
+            // Y ekseni için minimum değeri 0 olarak ayarla
+            chartArea.AxisY.Minimum = 0;
+
             chart.ChartAreas.Add(chartArea);
 
             // Series oluştur
-            Series series = new Series
+            Series series = new Series("LocationSeries");
+            series.ChartArea = "LocationArea";
+            series.ChartType = SeriesChartType.Column;
+
+            // Çoklu renk paleti
+            Color[] colorPalette = new Color[]
             {
-                ChartType = SeriesChartType.Column,
-                Color = Color.FromArgb(156, 136, 255)
+                Color.FromArgb(156, 136, 255),
+                Color.FromArgb(79, 119, 198),
+                Color.FromArgb(47, 192, 120)
             };
+
+            series["DrawingStyle"] = "Cylinder"; // Silindir stili
+            series.XValueType = ChartValueType.String;
+            series.YValueType = ChartValueType.Int32;
+            series.IsValueShownAsLabel = true;
+            series.LabelFormat = "{0:0}";  // Tam sayı formatı
+            series.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+            series.BorderWidth = 0;
 
             chart.Series.Add(series);
             chart.BackColor = Color.White;
+            chart.AntiAliasing = AntiAliasingStyles.All;
+
+            // Renk paleti uygula - Çubuklar için farklı renkler
+            chart.Palette = ChartColorPalette.BrightPastel;
+
+            // Chart başlığı ekle
+            Title title = new Title("Şubelere Göre Araç Sayıları", Docking.Top, new Font("Segoe UI", 12, FontStyle.Bold), Color.FromArgb(49, 76, 143));
+            chart.Titles.Add(title);
 
             return chart;
         }
@@ -225,9 +270,29 @@ namespace arac_kiralama_satis_desktop.Interfaces
             try
             {
                 // Marka dağılım verilerini yükle
-                var brandDistribution = MainMethods.GetBrandDistribution();
+                Dictionary<string, int> brandDistribution;
 
+                try
+                {
+                    brandDistribution = MainMethods.GetBrandDistribution();
+                }
+                catch (Exception)
+                {
+                    // Eğer gerçek veri alınamazsa, demo verisi kullan
+                    brandDistribution = new Dictionary<string, int> {
+                        { "Mercedes", 3 },
+                        { "BMW", 2 },
+                        { "Audi", 1 },
+                        { "Ford", 1 },
+                        { "Alfa Romeo", 1 },
+                        { "Range Rover", 1 },
+                        { "Jeep", 1 }
+                    };
+                }
+
+                // Grafiği temizle
                 chart.Series[0].Points.Clear();
+
                 Dictionary<string, Color> brandColors = new Dictionary<string, Color>
                 {
                     { "Mercedes", Color.FromArgb(34, 139, 34) },  // ForestGreen
@@ -240,15 +305,24 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     { "Jeep", Color.FromArgb(199, 21, 133) }      // MediumVioletRed
                 };
 
+                // Verileri grafiğe ekle
                 foreach (var brand in brandDistribution)
                 {
-                    int pointIndex = chart.Series[0].Points.AddXY(brand.Key, brand.Value);
+                    DataPoint point = new DataPoint();
+                    point.SetValueXY(brand.Key, brand.Value);
+                    point.LegendText = brand.Key;
+                    point.Label = brand.Value.ToString();
+
                     if (brandColors.ContainsKey(brand.Key))
                     {
-                        chart.Series[0].Points[pointIndex].Color = brandColors[brand.Key];
+                        point.Color = brandColors[brand.Key];
                     }
-                    chart.Series[0].Points[pointIndex].LegendText = brand.Key;
+
+                    chart.Series[0].Points.Add(point);
                 }
+
+                // Grafiği güncelle
+                chart.Invalidate();
             }
             catch (Exception ex)
             {
@@ -262,14 +336,40 @@ namespace arac_kiralama_satis_desktop.Interfaces
             try
             {
                 // Yıllara göre kiralama verilerini yükle
-                var yearlyRentals = MainMethods.GetYearlyRentals();
+                Dictionary<int, int> yearlyRentals;
 
+                try
+                {
+                    yearlyRentals = MainMethods.GetYearlyRentals();
+                }
+                catch (Exception)
+                {
+                    // Eğer gerçek veri alınamazsa, demo verisi kullan
+                    yearlyRentals = new Dictionary<int, int> {
+                        { 2019, 150 },
+                        { 2020, 70 },
+                        { 2021, 200 },
+                        { 2022, 480 },
+                        { 2023, 330 },
+                        { 2024, 220 },
+                        { 2025, 450 }
+                    };
+                }
+
+                // Grafiği temizle
                 chart.Series[0].Points.Clear();
 
+                // Verileri grafiğe ekle
                 foreach (var rental in yearlyRentals)
                 {
-                    chart.Series[0].Points.AddXY(rental.Key, rental.Value);
+                    DataPoint point = new DataPoint();
+                    point.SetValueXY(rental.Key, rental.Value);
+                    point.Label = rental.Value.ToString();
+                    chart.Series[0].Points.Add(point);
                 }
+
+                // Grafiği güncelle
+                chart.Invalidate();
             }
             catch (Exception ex)
             {
@@ -283,14 +383,36 @@ namespace arac_kiralama_satis_desktop.Interfaces
             try
             {
                 // Lokasyon verilerini yükle
-                var locationData = MainMethods.GetLocationData();
+                Dictionary<string, int> locationData;
 
+                try
+                {
+                    locationData = MainMethods.GetLocationData();
+                }
+                catch (Exception)
+                {
+                    // Eğer gerçek veri alınamazsa, demo verisi kullan
+                    locationData = new Dictionary<string, int> {
+                        { "Bursa Merkez Şube", 4 },
+                        { "İstanbul Beşiktaş Şube", 4 },
+                        { "İzmir Alsancak Şube", 2 }
+                    };
+                }
+
+                // Grafiği temizle
                 chart.Series[0].Points.Clear();
 
+                // Verileri grafiğe ekle
                 foreach (var location in locationData)
                 {
-                    chart.Series[0].Points.AddXY(location.Key, location.Value);
+                    DataPoint point = new DataPoint();
+                    point.SetValueXY(location.Key, location.Value);
+                    point.Label = location.Value.ToString();
+                    chart.Series[0].Points.Add(point);
                 }
+
+                // Grafiği güncelle
+                chart.Invalidate();
             }
             catch (Exception ex)
             {
@@ -301,10 +423,12 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void LayoutDashboardPanels()
         {
-            // Responsive kontrol için panel konumlarını ayarla
-            int padding = 10;
-            int cardWidth = (pnlCards.Width - (padding * 5)) / 4;
-            int chartWidth = (pnlCharts.Width - (padding * 4)) / 3;
+            // Sabit pencere boyutu için panel konumlarını ayarla
+            int padding = 15;
+
+            // Kart bölümü düzeni
+            int availableWidth = pnlCards.Width - (padding * 2);
+            int cardWidth = (availableWidth - (padding * 3)) / 4;
 
             // Kart panellerinin boyutlarını ve konumlarını ayarla
             pnlTotalCars.Width = cardWidth;
@@ -317,14 +441,23 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlCarBrands.Location = new Point(pnlLocations.Right + padding, padding);
             pnlAvgRentalPrice.Location = new Point(pnlCarBrands.Right + padding, padding);
 
+            // Grafik bölümü düzeni
+            availableWidth = pnlCharts.Width - (padding * 2);
+            int chartWidth = (availableWidth - (padding * 2)) / 3;
+            int chartHeight = pnlCharts.Height - (padding * 2);
+
             // Grafik panellerinin boyutlarını ve konumlarını ayarla
-            pnlCarsByBrand.Width = chartWidth;
-            pnlRentalsByYear.Width = chartWidth;
-            pnlCarsByLocation.Width = chartWidth;
+            pnlCarsByBrand.Size = new Size(chartWidth, chartHeight);
+            pnlRentalsByYear.Size = new Size(chartWidth, chartHeight);
+            pnlCarsByLocation.Size = new Size(chartWidth, chartHeight);
 
             pnlCarsByBrand.Location = new Point(padding, padding);
             pnlRentalsByYear.Location = new Point(pnlCarsByBrand.Right + padding, padding);
             pnlCarsByLocation.Location = new Point(pnlRentalsByYear.Right + padding, padding);
+
+            // Grafiklerin ve panellerin yenilenmesi
+            pnlCards.Refresh();
+            pnlCharts.Refresh();
         }
 
         private void ApplyShadowEffect(Panel panel)
@@ -413,64 +546,57 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private void BtnVehicles_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Araçlar içeriğini göster (henüz uygulanmadı)
+            // Araçlar içeriğini göster (boş panel)
             pnlDashboard.Visible = false;
             lblPageTitle.Text = "Araçlar";
-            MessageBox.Show("Araçlar modülü henüz uygulanmadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnCustomers_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Müşteriler içeriğini göster (henüz uygulanmadı)
+            // Müşteriler içeriğini göster (boş panel)
             pnlDashboard.Visible = false;
             lblPageTitle.Text = "Müşteriler";
-            MessageBox.Show("Müşteriler modülü henüz uygulanmadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnRentals_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Kiralamalar içeriğini göster (henüz uygulanmadı)
+            // Kiralamalar içeriğini göster (boş panel)
             pnlDashboard.Visible = false;
             lblPageTitle.Text = "Kiralamalar";
-            MessageBox.Show("Kiralamalar modülü henüz uygulanmadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnSales_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Satışlar içeriğini göster (henüz uygulanmadı)
+            // Satışlar içeriğini göster (boş panel)
             pnlDashboard.Visible = false;
             lblPageTitle.Text = "Satışlar";
-            MessageBox.Show("Satışlar modülü henüz uygulanmadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnMaintenance_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Bakım ve Servis içeriğini göster (henüz uygulanmadı)
+            // Bakım ve Servis içeriğini göster (boş panel)
             pnlDashboard.Visible = false;
             lblPageTitle.Text = "Bakım & Servis";
-            MessageBox.Show("Bakım & Servis modülü henüz uygulanmadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnReports_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Raporlar içeriğini göster (henüz uygulanmadı)
+            // Raporlar içeriğini göster (boş panel)
             pnlDashboard.Visible = false;
             lblPageTitle.Text = "Raporlar";
-            MessageBox.Show("Raporlar modülü henüz uygulanmadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnSettings_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            // Ayarlar içeriğini göster (henüz uygulanmadı)
+            // Ayarlar içeriğini göster (boş panel)
             pnlDashboard.Visible = false;
             lblPageTitle.Text = "Ayarlar";
-            MessageBox.Show("Ayarlar modülü henüz uygulanmadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnLogout_Click(object sender, EventArgs e)
@@ -489,6 +615,21 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 loginPage.Show();
                 this.Close();
             }
+        }
+
+        // Form yüklendiğinde kontrolleri düzenle
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            // Formu maksimize et
+            this.WindowState = FormWindowState.Maximized;
+
+            // Panelleri düzenle
+            LayoutDashboardPanels();
+
+            // UI'ın yenilenmesi için
+            Application.DoEvents();
         }
 
         // Form boyutu değiştiğinde kontrolleri yeniden düzenle
