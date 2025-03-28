@@ -4,39 +4,38 @@ using System.Data;
 using arac_kiralama_satis_desktop.Models;
 using arac_kiralama_satis_desktop.Utils;
 using MySql.Data.MySqlClient;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
-using Branch = arac_kiralama_satis_desktop.Models.Branch;
 
 namespace arac_kiralama_satis_desktop.Methods
 {
     public class BranchMethods
     {
-        public static DataTable GetBranches()
+        public static DataTable GetBranchList()
         {
             try
             {
-                string query = @"SELECT SubeID, SubeAdi, Adres, UlkeKodu, TelefonNo, Email, SehirPlaka, 
-                               AktifMi, OlusturmaTarihi
-                               FROM Subeler
-                               WHERE AktifMi = 1
-                               ORDER BY SubeID";
+                string query = @"SELECT s.SubeID, s.SubeAdi, s.Adres, s.SehirPlaka, 
+                                CONCAT(s.UlkeKodu, s.TelefonNo) as Telefon, 
+                                s.Email, s.AktifMi, s.OlusturmaTarihi 
+                                FROM Subeler s
+                                ORDER BY s.SubeAdi";
 
-                return DatabaseConnection.ExecuteQuery(query);
+                DataTable result = DatabaseConnection.ExecuteQuery(query);
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Şubeler listelenirken bir hata oluştu: " + ex.Message);
+                throw new Exception("Şube listesi alınırken bir hata oluştu: " + ex.Message);
             }
         }
 
-        public static Branch GetBranchById(int branchId)
+        public static DataRow GetBranchById(int branchId)
         {
             try
             {
-                string query = @"SELECT SubeID, SubeAdi, Adres, UlkeKodu, TelefonNo, Email, SehirPlaka, 
-                               AktifMi, OlusturmaTarihi
-                               FROM Subeler 
-                               WHERE SubeID = @subeId";
+                string query = @"SELECT s.SubeID, s.SubeAdi, s.Adres, s.UlkeKodu, s.TelefonNo, 
+                                s.Email, s.SehirPlaka, s.AktifMi, s.OlusturmaTarihi 
+                                FROM Subeler s 
+                                WHERE s.SubeID = @subeId";
 
                 MySqlParameter[] parameters = new MySqlParameter[]
                 {
@@ -47,21 +46,7 @@ namespace arac_kiralama_satis_desktop.Methods
 
                 if (result.Rows.Count > 0)
                 {
-                    DataRow row = result.Rows[0];
-                    Branch branch = new Branch
-                    {
-                        BranchID = Convert.ToInt32(row["SubeID"]),
-                        BranchName = row["SubeAdi"].ToString(),
-                        Address = row["Adres"].ToString(),
-                        CountryCode = row["UlkeKodu"].ToString(),
-                        PhoneNumber = row["TelefonNo"].ToString(),
-                        Email = row["Email"] != DBNull.Value ? row["Email"].ToString() : string.Empty,
-                        CityCode = row["SehirPlaka"].ToString(),
-                        IsActive = Convert.ToBoolean(row["AktifMi"]),
-                        CreatedDate = Convert.ToDateTime(row["OlusturmaTarihi"])
-                    };
-
-                    return branch;
+                    return result.Rows[0];
                 }
                 else
                 {
@@ -79,8 +64,8 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 string query = @"INSERT INTO Subeler (SubeAdi, Adres, UlkeKodu, TelefonNo, Email, SehirPlaka, AktifMi)
-                               VALUES (@subeAdi, @adres, @ulkeKodu, @telefonNo, @email, @sehirPlaka, @aktifMi);
-                               SELECT LAST_INSERT_ID();";
+                                VALUES (@subeAdi, @adres, @ulkeKodu, @telefonNo, @email, @sehirPlaka, @aktifMi);
+                                SELECT LAST_INSERT_ID();";
 
                 MySqlParameter[] parameters = new MySqlParameter[]
                 {
@@ -88,7 +73,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     new MySqlParameter("@adres", branch.Address),
                     new MySqlParameter("@ulkeKodu", branch.CountryCode),
                     new MySqlParameter("@telefonNo", branch.PhoneNumber),
-                    new MySqlParameter("@email", !string.IsNullOrEmpty(branch.Email) ? (object)branch.Email : DBNull.Value),
+                    new MySqlParameter("@email", branch.Email != string.Empty ? (object)branch.Email : DBNull.Value),
                     new MySqlParameter("@sehirPlaka", branch.CityCode),
                     new MySqlParameter("@aktifMi", branch.IsActive)
                 };
@@ -107,14 +92,14 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 string query = @"UPDATE Subeler SET 
-                               SubeAdi = @subeAdi, 
-                               Adres = @adres, 
-                               UlkeKodu = @ulkeKodu, 
-                               TelefonNo = @telefonNo, 
-                               Email = @email, 
-                               SehirPlaka = @sehirPlaka, 
-                               AktifMi = @aktifMi
-                               WHERE SubeID = @subeId";
+                                SubeAdi = @subeAdi, 
+                                Adres = @adres, 
+                                UlkeKodu = @ulkeKodu, 
+                                TelefonNo = @telefonNo, 
+                                Email = @email, 
+                                SehirPlaka = @sehirPlaka, 
+                                AktifMi = @aktifMi 
+                                WHERE SubeID = @subeId";
 
                 MySqlParameter[] parameters = new MySqlParameter[]
                 {
@@ -123,7 +108,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     new MySqlParameter("@adres", branch.Address),
                     new MySqlParameter("@ulkeKodu", branch.CountryCode),
                     new MySqlParameter("@telefonNo", branch.PhoneNumber),
-                    new MySqlParameter("@email", !string.IsNullOrEmpty(branch.Email) ? (object)branch.Email : DBNull.Value),
+                    new MySqlParameter("@email", branch.Email != string.Empty ? (object)branch.Email : DBNull.Value),
                     new MySqlParameter("@sehirPlaka", branch.CityCode),
                     new MySqlParameter("@aktifMi", branch.IsActive)
                 };
@@ -136,11 +121,27 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        public static void DeactivateBranch(int branchId)
+        public static void DeleteBranch(int branchId)
         {
             try
             {
-                string query = "UPDATE Subeler SET AktifMi = 0 WHERE SubeID = @subeId";
+                // Önce şubeye ait araçları ve kullanıcıları kontrol et
+                string checkQuery = @"SELECT COUNT(*) FROM Araclar WHERE SubeID = @subeId;
+                                    SELECT COUNT(*) FROM Kullanicilar WHERE SubeID = @subeId;";
+
+                MySqlParameter[] checkParams = new MySqlParameter[]
+                {
+                    new MySqlParameter("@subeId", branchId)
+                };
+
+                int vehicleCount = Convert.ToInt32(DatabaseConnection.ExecuteScalar(checkQuery, checkParams));
+                if (vehicleCount > 0)
+                {
+                    throw new Exception("Bu şubeye ait araçlar bulunmaktadır. Önce araçları başka bir şubeye transfer edin.");
+                }
+
+                // Direkt silmek yerine AktifMi = false olarak işaretle
+                string query = "UPDATE Subeler SET AktifMi = FALSE WHERE SubeID = @subeId";
 
                 MySqlParameter[] parameters = new MySqlParameter[]
                 {
@@ -151,7 +152,7 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Şube pasifleştirilirken bir hata oluştu: " + ex.Message);
+                throw new Exception("Şube silinirken bir hata oluştu: " + ex.Message);
             }
         }
     }

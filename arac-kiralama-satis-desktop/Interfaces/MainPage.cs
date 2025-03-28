@@ -17,6 +17,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
         // DataTable'lar for search/filter
         private DataTable vehiclesTable;
         private DataTable customersTable;
+        private DataTable branchesTable;
 
         public MainPage()
         {
@@ -71,6 +72,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
             // Set up customers DataGridView
             UIUtils.SetupDataGridView(dgvCustomers);
+
+            // Set up branches DataGridView
+            UIUtils.SetupDataGridView(dgvBranches);
         }
 
         private void LoadDashboardData()
@@ -220,6 +224,57 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
+        private void LoadBranchesData()
+        {
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+
+                // Get branch data from database
+                DataTable result = BranchMethods.GetBranchList();
+                branchesTable = result.Copy();
+
+                // Rename columns for display
+                branchesTable.Columns["SubeID"].ColumnName = "SubeID";
+                branchesTable.Columns["SubeAdi"].ColumnName = "Şube Adı";
+                branchesTable.Columns["Adres"].ColumnName = "Adres";
+                branchesTable.Columns["SehirPlaka"].ColumnName = "Şehir Plaka";
+                branchesTable.Columns["Telefon"].ColumnName = "Telefon";
+                branchesTable.Columns["Email"].ColumnName = "Email";
+                branchesTable.Columns["AktifMi"].ColumnName = "Aktif Mi";
+                branchesTable.Columns["OlusturmaTarihi"].ColumnName = "Oluşturma Tarihi";
+
+                // Set DataSource
+                dgvBranches.DataSource = branchesTable;
+
+                // Format columns
+                if (dgvBranches.Columns.Count > 0)
+                {
+                    dgvBranches.Columns["SubeID"].Visible = false;
+                    dgvBranches.Columns["Şube Adı"].Width = 150;
+                    dgvBranches.Columns["Adres"].Width = 250;
+                    dgvBranches.Columns["Şehir Plaka"].Width = 80;
+                    dgvBranches.Columns["Telefon"].Width = 120;
+                    dgvBranches.Columns["Email"].Width = 180;
+                    dgvBranches.Columns["Aktif Mi"].Width = 70;
+                    dgvBranches.Columns["Oluşturma Tarihi"].Width = 120;
+                    dgvBranches.Columns["Oluşturma Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                }
+
+                // Update count information
+                lblBranchesTitle.Text = $"Şube Listesi ({branchesTable.Rows.Count})";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Şube verileri yüklenirken bir hata oluştu: {ex.Message}",
+                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
         private void SearchVehicles(string searchText)
         {
             try
@@ -307,6 +362,48 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
+        private void SearchBranches(string searchText)
+        {
+            try
+            {
+                if (branchesTable == null) return;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    // Show all data
+                    dgvBranches.DataSource = branchesTable;
+                    lblBranchesTitle.Text = $"Şube Listesi ({branchesTable.Rows.Count})";
+                    return;
+                }
+
+                // Create filter
+                string filter = "";
+
+                // Search in most relevant columns
+                filter = $"[Şube Adı] LIKE '%{searchText}%' OR " +
+                         $"Adres LIKE '%{searchText}%' OR " +
+                         $"[Şehir Plaka] LIKE '%{searchText}%' OR " +
+                         $"Telefon LIKE '%{searchText}%' OR " +
+                         $"Email LIKE '%{searchText}%'";
+
+                DataView dv = branchesTable.DefaultView;
+                dv.RowFilter = filter;
+
+                // Update label with count
+                lblBranchesTitle.Text = $"Şube Listesi ({dv.Count})";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Şube aramada hata: {ex.Message}");
+                // Failed filter - just reset
+                if (branchesTable != null)
+                {
+                    dgvBranches.DataSource = branchesTable;
+                    lblBranchesTitle.Text = $"Şube Listesi ({branchesTable.Rows.Count})";
+                }
+            }
+        }
+
         private void ActivateButton(IconButton button)
         {
             if (button != null)
@@ -346,6 +443,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlDashboard.Visible = false;
             pnlVehicles.Visible = false;
             pnlCustomers.Visible = false;
+            pnlBranches.Visible = false;
 
             // Show selected panel
             if (panel != null)
@@ -389,6 +487,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ShowPanel(pnlCustomers);
             LoadCustomersData();
             lblPageTitle.Text = "Müşteriler";
+        }
+
+        private void BtnBranches_Click(object sender, EventArgs e)
+        {
+            ActivateButton(sender as IconButton);
+            ShowPanel(pnlBranches);
+            LoadBranchesData();
+            lblPageTitle.Text = "Şubeler";
         }
 
         private void BtnRentals_Click(object sender, EventArgs e)
@@ -454,6 +560,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             SearchCustomers(txtSearchCustomers.Text);
         }
 
+        private void TxtSearchBranches_TextChanged(object sender, EventArgs e)
+        {
+            SearchBranches(txtSearchBranches.Text);
+        }
+
         private void BtnRefreshVehicles_Click(object sender, EventArgs e)
         {
             LoadVehiclesData();
@@ -466,44 +577,22 @@ namespace arac_kiralama_satis_desktop.Interfaces
             txtSearchCustomers.Clear();
         }
 
+        private void BtnRefreshBranches_Click(object sender, EventArgs e)
+        {
+            LoadBranchesData();
+            txtSearchBranches.Clear();
+        }
+
+        private void BtnAddBranch_Click(object sender, EventArgs e)
+        {
+            BranchAddForm branchForm = new BranchAddForm();
+            if (branchForm.ShowDialog() == DialogResult.OK)
+            {
+                // Şube ekleme başarılı olduğunda listeyi yenile
+                LoadBranchesData();
+            }
+        }
+
         #endregion
-
-        private void btnAddVehicle_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                VehicleAddForm vehicleAddForm = new VehicleAddForm();
-                vehicleAddForm.VehicleAdded += (s, args) =>
-                {
-                    // Araç eklendiğinde listeyi yenile
-                    LoadVehiclesData();
-                };
-                vehicleAddForm.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Araç ekleme formu açılırken bir hata oluştu: {ex.Message}",
-                    "Form Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnAddCustomer_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                CustomerAddForm customerAddForm = new CustomerAddForm();
-                customerAddForm.CustomerAdded += (s, args) =>
-                {
-                    // Müşteri eklendiğinde listeyi yenile
-                    LoadCustomersData();
-                };
-                customerAddForm.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Müşteri ekleme formu açılırken bir hata oluştu: {ex.Message}",
-                    "Form Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
     }
 }

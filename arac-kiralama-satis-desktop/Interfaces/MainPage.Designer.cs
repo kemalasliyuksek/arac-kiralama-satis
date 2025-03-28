@@ -43,6 +43,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnMaintenance = new IconButton();
             btnSales = new IconButton();
             btnRentals = new IconButton();
+            btnBranches = new IconButton();
             btnCustomers = new IconButton();
             btnVehicles = new IconButton();
             btnDashboard = new IconButton();
@@ -53,6 +54,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblPageTitle = new Label();
             btnLogout = new IconButton();
             pnlContent = new Panel();
+            pnlBranches = new Panel();
+            pnlBranchesContent = new Panel();
+            dgvBranches = new DataGridView();
+            pnlBranchesHeader = new Panel();
+            lblBranchesTitle = new Label();
+            btnAddBranch = new IconButton();
+            btnRefreshBranches = new IconButton();
+            txtSearchBranches = new TextBox();
             pnlVehicles = new Panel();
             pnlVehiclesContent = new Panel();
             dgvVehicles = new DataGridView();
@@ -108,6 +117,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlLogo.SuspendLayout();
             pnlTopbar.SuspendLayout();
             pnlContent.SuspendLayout();
+            pnlBranches.SuspendLayout();
+            pnlBranchesContent.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvBranches).BeginInit();
+            pnlBranchesHeader.SuspendLayout();
             pnlVehicles.SuspendLayout();
             pnlVehiclesContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvVehicles).BeginInit();
@@ -193,6 +206,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlMenu.Controls.Add(btnMaintenance);
             pnlMenu.Controls.Add(btnSales);
             pnlMenu.Controls.Add(btnRentals);
+            pnlMenu.Controls.Add(btnBranches);
             pnlMenu.Controls.Add(btnCustomers);
             pnlMenu.Controls.Add(btnVehicles);
             pnlMenu.Controls.Add(btnDashboard);
@@ -215,11 +229,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnSettings.IconFont = IconFont.Auto;
             btnSettings.IconSize = 24;
             btnSettings.ImageAlign = ContentAlignment.MiddleLeft;
-            btnSettings.Location = new Point(0, 350);
+            btnSettings.Location = new Point(0, 400);
             btnSettings.Name = "btnSettings";
             btnSettings.Padding = new Padding(15, 0, 0, 0);
             btnSettings.Size = new Size(250, 50);
-            btnSettings.TabIndex = 7;
+            btnSettings.TabIndex = 8;
             btnSettings.Text = "  Ayarlar";
             btnSettings.TextAlign = ContentAlignment.MiddleLeft;
             btnSettings.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -239,11 +253,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnReports.IconFont = IconFont.Auto;
             btnReports.IconSize = 24;
             btnReports.ImageAlign = ContentAlignment.MiddleLeft;
-            btnReports.Location = new Point(0, 300);
+            btnReports.Location = new Point(0, 350);
             btnReports.Name = "btnReports";
             btnReports.Padding = new Padding(15, 0, 0, 0);
             btnReports.Size = new Size(250, 50);
-            btnReports.TabIndex = 6;
+            btnReports.TabIndex = 7;
             btnReports.Text = "  Raporlar";
             btnReports.TextAlign = ContentAlignment.MiddleLeft;
             btnReports.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -263,11 +277,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnMaintenance.IconFont = IconFont.Auto;
             btnMaintenance.IconSize = 24;
             btnMaintenance.ImageAlign = ContentAlignment.MiddleLeft;
-            btnMaintenance.Location = new Point(0, 250);
+            btnMaintenance.Location = new Point(0, 300);
             btnMaintenance.Name = "btnMaintenance";
             btnMaintenance.Padding = new Padding(15, 0, 0, 0);
             btnMaintenance.Size = new Size(250, 50);
-            btnMaintenance.TabIndex = 5;
+            btnMaintenance.TabIndex = 6;
             btnMaintenance.Text = "  Bakım ve Servis";
             btnMaintenance.TextAlign = ContentAlignment.MiddleLeft;
             btnMaintenance.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -287,11 +301,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnSales.IconFont = IconFont.Auto;
             btnSales.IconSize = 24;
             btnSales.ImageAlign = ContentAlignment.MiddleLeft;
-            btnSales.Location = new Point(0, 200);
+            btnSales.Location = new Point(0, 250);
             btnSales.Name = "btnSales";
             btnSales.Padding = new Padding(15, 0, 0, 0);
             btnSales.Size = new Size(250, 50);
-            btnSales.TabIndex = 4;
+            btnSales.TabIndex = 5;
             btnSales.Text = "  Satışlar";
             btnSales.TextAlign = ContentAlignment.MiddleLeft;
             btnSales.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -311,16 +325,40 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnRentals.IconFont = IconFont.Auto;
             btnRentals.IconSize = 24;
             btnRentals.ImageAlign = ContentAlignment.MiddleLeft;
-            btnRentals.Location = new Point(0, 150);
+            btnRentals.Location = new Point(0, 200);
             btnRentals.Name = "btnRentals";
             btnRentals.Padding = new Padding(15, 0, 0, 0);
             btnRentals.Size = new Size(250, 50);
-            btnRentals.TabIndex = 3;
+            btnRentals.TabIndex = 4;
             btnRentals.Text = "  Kiralamalar";
             btnRentals.TextAlign = ContentAlignment.MiddleLeft;
             btnRentals.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnRentals.UseVisualStyleBackColor = true;
             btnRentals.Click += BtnRentals_Click;
+            // 
+            // btnBranches
+            // 
+            btnBranches.Cursor = Cursors.Hand;
+            btnBranches.Dock = DockStyle.Top;
+            btnBranches.FlatAppearance.BorderSize = 0;
+            btnBranches.FlatStyle = FlatStyle.Flat;
+            btnBranches.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnBranches.ForeColor = Color.White;
+            btnBranches.IconChar = IconChar.Building;
+            btnBranches.IconColor = Color.White;
+            btnBranches.IconFont = IconFont.Auto;
+            btnBranches.IconSize = 24;
+            btnBranches.ImageAlign = ContentAlignment.MiddleLeft;
+            btnBranches.Location = new Point(0, 150);
+            btnBranches.Name = "btnBranches";
+            btnBranches.Padding = new Padding(15, 0, 0, 0);
+            btnBranches.Size = new Size(250, 50);
+            btnBranches.TabIndex = 3;
+            btnBranches.Text = "  Şubeler";
+            btnBranches.TextAlign = ContentAlignment.MiddleLeft;
+            btnBranches.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnBranches.UseVisualStyleBackColor = true;
+            btnBranches.Click += BtnBranches_Click;
             // 
             // btnCustomers
             // 
@@ -472,8 +510,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // pnlContent
             // 
             pnlContent.BackColor = Color.FromArgb(245, 245, 250);
-            pnlContent.Controls.Add(pnlCustomers);
+            pnlContent.Controls.Add(pnlBranches);
             pnlContent.Controls.Add(pnlVehicles);
+            pnlContent.Controls.Add(pnlCustomers);
             pnlContent.Controls.Add(pnlDashboard);
             pnlContent.Dock = DockStyle.Fill;
             pnlContent.Location = new Point(250, 60);
@@ -481,6 +520,116 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlContent.Padding = new Padding(20);
             pnlContent.Size = new Size(1050, 740);
             pnlContent.TabIndex = 2;
+            // 
+            // pnlBranches
+            // 
+            pnlBranches.Controls.Add(pnlBranchesContent);
+            pnlBranches.Controls.Add(pnlBranchesHeader);
+            pnlBranches.Dock = DockStyle.Fill;
+            pnlBranches.Location = new Point(20, 20);
+            pnlBranches.Name = "pnlBranches";
+            pnlBranches.Size = new Size(1010, 700);
+            pnlBranches.TabIndex = 3;
+            pnlBranches.Visible = false;
+            // 
+            // pnlBranchesContent
+            // 
+            pnlBranchesContent.Controls.Add(dgvBranches);
+            pnlBranchesContent.Dock = DockStyle.Fill;
+            pnlBranchesContent.Location = new Point(0, 80);
+            pnlBranchesContent.Name = "pnlBranchesContent";
+            pnlBranchesContent.Padding = new Padding(10);
+            pnlBranchesContent.Size = new Size(1010, 620);
+            pnlBranchesContent.TabIndex = 1;
+            // 
+            // dgvBranches
+            // 
+            dgvBranches.AllowUserToAddRows = false;
+            dgvBranches.AllowUserToDeleteRows = false;
+            dgvBranches.BackgroundColor = Color.White;
+            dgvBranches.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvBranches.Dock = DockStyle.Fill;
+            dgvBranches.Location = new Point(10, 10);
+            dgvBranches.Name = "dgvBranches";
+            dgvBranches.ReadOnly = true;
+            dgvBranches.Size = new Size(990, 600);
+            dgvBranches.TabIndex = 0;
+            // 
+            // pnlBranchesHeader
+            // 
+            pnlBranchesHeader.BackColor = Color.White;
+            pnlBranchesHeader.Controls.Add(lblBranchesTitle);
+            pnlBranchesHeader.Controls.Add(btnAddBranch);
+            pnlBranchesHeader.Controls.Add(btnRefreshBranches);
+            pnlBranchesHeader.Controls.Add(txtSearchBranches);
+            pnlBranchesHeader.Dock = DockStyle.Top;
+            pnlBranchesHeader.Location = new Point(0, 0);
+            pnlBranchesHeader.Name = "pnlBranchesHeader";
+            pnlBranchesHeader.Size = new Size(1010, 80);
+            pnlBranchesHeader.TabIndex = 0;
+            // 
+            // lblBranchesTitle
+            // 
+            lblBranchesTitle.AutoSize = true;
+            lblBranchesTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblBranchesTitle.ForeColor = Color.FromArgb(49, 76, 143);
+            lblBranchesTitle.Location = new Point(23, 25);
+            lblBranchesTitle.Name = "lblBranchesTitle";
+            lblBranchesTitle.Size = new Size(133, 30);
+            lblBranchesTitle.TabIndex = 3;
+            lblBranchesTitle.Text = "Şube Listesi";
+            // 
+            // btnAddBranch
+            // 
+            btnAddBranch.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAddBranch.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddBranch.FlatAppearance.BorderSize = 0;
+            btnAddBranch.FlatStyle = FlatStyle.Flat;
+            btnAddBranch.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnAddBranch.ForeColor = Color.White;
+            btnAddBranch.IconChar = IconChar.Add;
+            btnAddBranch.IconColor = Color.White;
+            btnAddBranch.IconFont = IconFont.Auto;
+            btnAddBranch.IconSize = 20;
+            btnAddBranch.Location = new Point(869, 20);
+            btnAddBranch.Name = "btnAddBranch";
+            btnAddBranch.Size = new Size(120, 40);
+            btnAddBranch.TabIndex = 2;
+            btnAddBranch.Text = "Yeni Şube";
+            btnAddBranch.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnAddBranch.UseVisualStyleBackColor = false;
+            btnAddBranch.Click += BtnAddBranch_Click;
+            // 
+            // btnRefreshBranches
+            // 
+            btnRefreshBranches.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRefreshBranches.BackColor = Color.FromArgb(108, 117, 125);
+            btnRefreshBranches.FlatAppearance.BorderSize = 0;
+            btnRefreshBranches.FlatStyle = FlatStyle.Flat;
+            btnRefreshBranches.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnRefreshBranches.ForeColor = Color.White;
+            btnRefreshBranches.IconChar = IconChar.SyncAlt;
+            btnRefreshBranches.IconColor = Color.White;
+            btnRefreshBranches.IconFont = IconFont.Auto;
+            btnRefreshBranches.IconSize = 20;
+            btnRefreshBranches.Location = new Point(789, 20);
+            btnRefreshBranches.Name = "btnRefreshBranches";
+            btnRefreshBranches.Size = new Size(40, 40);
+            btnRefreshBranches.TabIndex = 1;
+            btnRefreshBranches.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnRefreshBranches.UseVisualStyleBackColor = false;
+            btnRefreshBranches.Click += BtnRefreshBranches_Click;
+            // 
+            // txtSearchBranches
+            // 
+            txtSearchBranches.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtSearchBranches.Font = new Font("Segoe UI", 12F);
+            txtSearchBranches.Location = new Point(475, 26);
+            txtSearchBranches.Name = "txtSearchBranches";
+            txtSearchBranches.PlaceholderText = "Arama...";
+            txtSearchBranches.Size = new Size(300, 29);
+            txtSearchBranches.TabIndex = 0;
+            txtSearchBranches.TextChanged += TxtSearchBranches_TextChanged;
             // 
             // pnlVehicles
             // 
@@ -559,7 +708,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnAddVehicle.Text = "Yeni Araç";
             btnAddVehicle.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnAddVehicle.UseVisualStyleBackColor = false;
-            btnAddVehicle.Click += btnAddVehicle_Click;
             // 
             // btnRefreshVehicles
             // 
@@ -669,7 +817,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnAddCustomer.Text = "Yeni Müşteri";
             btnAddCustomer.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnAddCustomer.UseVisualStyleBackColor = false;
-            btnAddCustomer.Click += btnAddCustomer_Click;
             // 
             // btnRefreshCustomers
             // 
@@ -1083,6 +1230,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlTopbar.ResumeLayout(false);
             pnlTopbar.PerformLayout();
             pnlContent.ResumeLayout(false);
+            pnlBranches.ResumeLayout(false);
+            pnlBranchesContent.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvBranches).EndInit();
+            pnlBranchesHeader.ResumeLayout(false);
+            pnlBranchesHeader.PerformLayout();
             pnlVehicles.ResumeLayout(false);
             pnlVehiclesContent.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvVehicles).EndInit();
@@ -1132,6 +1284,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private FontAwesome.Sharp.IconButton btnDashboard;
         private FontAwesome.Sharp.IconButton btnVehicles;
         private FontAwesome.Sharp.IconButton btnCustomers;
+        private FontAwesome.Sharp.IconButton btnBranches;
         private FontAwesome.Sharp.IconButton btnRentals;
         private FontAwesome.Sharp.IconButton btnSales;
         private FontAwesome.Sharp.IconButton btnMaintenance;
@@ -1188,5 +1341,13 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private IconButton btnAddCustomer;
         private IconButton btnRefreshCustomers;
         private TextBox txtSearchCustomers;
+        private Panel pnlBranches;
+        private Panel pnlBranchesContent;
+        private DataGridView dgvBranches;
+        private Panel pnlBranchesHeader;
+        private Label lblBranchesTitle;
+        private IconButton btnAddBranch;
+        private IconButton btnRefreshBranches;
+        private TextBox txtSearchBranches;
     }
 }

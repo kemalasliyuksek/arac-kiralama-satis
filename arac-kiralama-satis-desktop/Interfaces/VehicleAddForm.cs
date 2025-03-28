@@ -167,7 +167,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     cmbVehicleClass.SelectedIndex = 0;
 
                 // Şubeler
-                DataTable branchesTable = BranchMethods.GetBranches();
+                DataTable branchesTable = BranchMethods.GetBranchList();
                 cmbBranch.Items.Clear();
                 _branches.Clear();
 
