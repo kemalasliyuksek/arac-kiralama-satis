@@ -77,26 +77,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             UIUtils.SetupDataGridView(dgvBranches);
         }
 
-        private void LoadDashboardData()
-        {
-            try
-            {
-                // Get data from database
-                var dashboardData = MainMethods.GetDashboardData();
-
-                // Update dashboard cards with data
-                lblCarCount.Text = dashboardData.TotalCarCount.ToString();
-                lblLocationCount.Text = dashboardData.LocationCount.ToString();
-                lblCustomerCount.Text = dashboardData.CustomerCount.ToString();
-                lblTotalRevenue.Text = $"₺ {dashboardData.TotalRevenue:N2}";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Dashboard verileri yüklenirken bir hata oluştu: {ex.Message}",
-                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void LoadVehiclesData()
         {
             try
@@ -459,8 +439,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // Formu maksimize et
             this.WindowState = FormWindowState.Maximized;
 
-            // Dashboard verilerini yükle
-            LoadDashboardData();
         }
 
         #region Event Handlers
@@ -469,7 +447,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             ActivateButton(sender as IconButton);
             ShowPanel(pnlDashboard);
-            LoadDashboardData();
             lblPageTitle.Text = "Dashboard";
         }
 

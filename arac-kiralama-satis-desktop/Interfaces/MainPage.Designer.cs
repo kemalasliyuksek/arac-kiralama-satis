@@ -54,6 +54,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblPageTitle = new Label();
             btnLogout = new IconButton();
             pnlContent = new Panel();
+            pnlDashboard = new Panel();
+            pnlCharts = new Panel();
             pnlBranches = new Panel();
             pnlBranchesContent = new Panel();
             dgvBranches = new DataGridView();
@@ -78,8 +80,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnAddCustomer = new IconButton();
             btnRefreshCustomers = new IconButton();
             txtSearchCustomers = new TextBox();
-            pnlDashboard = new Panel();
-            pnlCharts = new Panel();
             pnlSidebar.SuspendLayout();
             pnlUserInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)picUserAvatar).BeginInit();
@@ -87,6 +87,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlLogo.SuspendLayout();
             pnlTopbar.SuspendLayout();
             pnlContent.SuspendLayout();
+            pnlDashboard.SuspendLayout();
             pnlBranches.SuspendLayout();
             pnlBranchesContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvBranches).BeginInit();
@@ -99,7 +100,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlCustomersContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
             pnlCustomersHeader.SuspendLayout();
-            pnlDashboard.SuspendLayout();
             SuspendLayout();
             // 
             // pnlSidebar
@@ -478,6 +478,24 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlContent.Size = new Size(1050, 740);
             pnlContent.TabIndex = 2;
             // 
+            // pnlDashboard
+            // 
+            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
+            pnlDashboard.Controls.Add(pnlCharts);
+            pnlDashboard.Dock = DockStyle.Fill;
+            pnlDashboard.Location = new Point(20, 20);
+            pnlDashboard.Name = "pnlDashboard";
+            pnlDashboard.Size = new Size(1010, 700);
+            pnlDashboard.TabIndex = 0;
+            // 
+            // pnlCharts
+            // 
+            pnlCharts.Dock = DockStyle.Fill;
+            pnlCharts.Location = new Point(0, 0);
+            pnlCharts.Name = "pnlCharts";
+            pnlCharts.Size = new Size(1010, 700);
+            pnlCharts.TabIndex = 1;
+            // 
             // pnlBranches
             // 
             pnlBranches.Controls.Add(pnlBranchesContent);
@@ -806,24 +824,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             txtSearchCustomers.TabIndex = 0;
             txtSearchCustomers.TextChanged += TxtSearchCustomers_TextChanged;
             // 
-            // pnlDashboard
-            // 
-            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
-            pnlDashboard.Controls.Add(pnlCharts);
-            pnlDashboard.Dock = DockStyle.Fill;
-            pnlDashboard.Location = new Point(20, 20);
-            pnlDashboard.Name = "pnlDashboard";
-            pnlDashboard.Size = new Size(1010, 700);
-            pnlDashboard.TabIndex = 0;
-            // 
-            // pnlCharts
-            // 
-            pnlCharts.Dock = DockStyle.Fill;
-            pnlCharts.Location = new Point(0, 0);
-            pnlCharts.Name = "pnlCharts";
-            pnlCharts.Size = new Size(1010, 700);
-            pnlCharts.TabIndex = 1;
-            // 
             // MainPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -832,7 +832,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             Controls.Add(pnlContent);
             Controls.Add(pnlTopbar);
             Controls.Add(pnlSidebar);
-            MinimumSize = new Size(1000, 600);
+            MinimumSize = new Size(1316, 839);
             Name = "MainPage";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Araç Kiralama ve Satış Uygulaması";
@@ -848,6 +848,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlTopbar.ResumeLayout(false);
             pnlTopbar.PerformLayout();
             pnlContent.ResumeLayout(false);
+            pnlDashboard.ResumeLayout(false);
             pnlBranches.ResumeLayout(false);
             pnlBranchesContent.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvBranches).EndInit();
@@ -863,7 +864,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ((System.ComponentModel.ISupportInitialize)dgvCustomers).EndInit();
             pnlCustomersHeader.ResumeLayout(false);
             pnlCustomersHeader.PerformLayout();
-            pnlDashboard.ResumeLayout(false);
             ResumeLayout(false);
         }
 
