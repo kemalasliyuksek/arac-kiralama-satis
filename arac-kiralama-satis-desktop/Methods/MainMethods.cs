@@ -21,9 +21,10 @@ namespace arac_kiralama_satis_desktop.Methods
                     object carCountResult = DatabaseConnection.ExecuteScalar(carCountQuery);
                     dashboardData.TotalCarCount = Convert.ToInt32(carCountResult);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    dashboardData.TotalCarCount = 10; // Fallback value
+                    Console.WriteLine($"Error getting car count: {ex.Message}");
+                    dashboardData.TotalCarCount = 0;
                 }
 
                 // Get total branch count
@@ -33,9 +34,10 @@ namespace arac_kiralama_satis_desktop.Methods
                     object locationCountResult = DatabaseConnection.ExecuteScalar(locationCountQuery);
                     dashboardData.LocationCount = Convert.ToInt32(locationCountResult);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    dashboardData.LocationCount = 3; // Fallback value
+                    Console.WriteLine($"Error getting branch count: {ex.Message}");
+                    dashboardData.LocationCount = 0;
                 }
 
                 // Get total customer count
@@ -45,9 +47,10 @@ namespace arac_kiralama_satis_desktop.Methods
                     object customerCountResult = DatabaseConnection.ExecuteScalar(customerCountQuery);
                     dashboardData.CustomerCount = Convert.ToInt32(customerCountResult);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    dashboardData.CustomerCount = 10; // Fallback value
+                    Console.WriteLine($"Error getting customer count: {ex.Message}");
+                    dashboardData.CustomerCount = 0;
                 }
 
                 // Get total revenue (from both rentals and sales)
@@ -60,49 +63,133 @@ namespace arac_kiralama_satis_desktop.Methods
                     object revenueResult = DatabaseConnection.ExecuteScalar(revenueQuery);
                     dashboardData.TotalRevenue = Convert.ToDecimal(revenueResult);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    dashboardData.TotalRevenue = 1500000.00M; // Fallback value
+                    Console.WriteLine($"Error getting total revenue: {ex.Message}");
+                    dashboardData.TotalRevenue = 0;
                 }
 
-                // Keep brand count for compatibility
+                // Keep brand count and average rental price for compatibility
                 try
                 {
                     string brandCountQuery = "SELECT COUNT(DISTINCT Marka) FROM Araclar";
                     object brandCountResult = DatabaseConnection.ExecuteScalar(brandCountQuery);
                     dashboardData.BrandCount = Convert.ToInt32(brandCountResult);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    dashboardData.BrandCount = 7; // Fallback value
+                    Console.WriteLine($"Error getting brand count: {ex.Message}");
+                    dashboardData.BrandCount = 0;
                 }
 
-                // Keep average rental price for compatibility
                 try
                 {
-                    string avgPriceQuery = "SELECT AVG(Fiyat) FROM KiraFiyatlari WHERE KiralamaTipi = 'Haftalık'";
+                    string avgPriceQuery = "SELECT AVG(Fiyat) FROM KiraFiyatlari WHERE KiralamaTipi = 'Günlük'";
                     object avgPriceResult = DatabaseConnection.ExecuteScalar(avgPriceQuery);
-                    dashboardData.AverageRentalPrice = Convert.ToDouble(avgPriceResult);
+                    dashboardData.AverageRentalPrice = avgPriceResult != DBNull.Value ? Convert.ToDouble(avgPriceResult) : 0;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    dashboardData.AverageRentalPrice = 12500.00; // Fallback value
+                    Console.WriteLine($"Error getting average rental price: {ex.Message}");
+                    dashboardData.AverageRentalPrice = 0;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Dashboard verileri alınırken bir hata oluştu: " + ex.Message);
+                Console.WriteLine($"Error getting dashboard data: {ex.Message}");
 
-                // Set fallback values for all properties
-                dashboardData.TotalCarCount = 10;
-                dashboardData.LocationCount = 3;
-                dashboardData.CustomerCount = 10;
-                dashboardData.TotalRevenue = 1500000.00M;
-                dashboardData.BrandCount = 7;
-                dashboardData.AverageRentalPrice = 12500.00;
+                // Set all values to 0 on error
+                dashboardData.TotalCarCount = 0;
+                dashboardData.LocationCount = 0;
+                dashboardData.CustomerCount = 0;
+                dashboardData.TotalRevenue = 0;
+                dashboardData.BrandCount = 0;
+                dashboardData.AverageRentalPrice = 0;
             }
 
             return dashboardData;
+        }
+
+        public static int GetActiveRentalsCount()
+        {
+            try
+            {
+                // Get count of active rentals (where end date is in the future and not returned yet)
+                string query = @"
+                    SELECT COUNT(*) 
+                    FROM Kiralamalar 
+                    WHERE BitisTarihi >= CURRENT_DATE() 
+                    AND (TeslimTarihi IS NULL)";
+
+                object result = DatabaseConnection.ExecuteScalar(query);
+                return Convert.ToInt32(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting active rentals count: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static int GetMonthlySalesCount()
+        {
+            try
+            {
+                // Get count of sales in the current month
+                string query = @"
+                    SELECT COUNT(*) 
+                    FROM Satislar 
+                    WHERE MONTH(SatisTarihi) = MONTH(CURRENT_DATE()) 
+                    AND YEAR(SatisTarihi) = YEAR(CURRENT_DATE())";
+
+                object result = DatabaseConnection.ExecuteScalar(query);
+                return Convert.ToInt32(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting monthly sales count: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static int GetPendingServiceCount()
+        {
+            try
+            {
+                // Get count of pending service/maintenance records (where end date is null)
+                string query = @"
+                    SELECT COUNT(*) 
+                    FROM Bakimlar 
+                    WHERE BitisTarihi IS NULL";
+
+                object result = DatabaseConnection.ExecuteScalar(query);
+                return Convert.ToInt32(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting pending service count: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static int GetTeamMembersCount()
+        {
+            try
+            {
+                // Get count of active employees
+                string query = @"
+                    SELECT COUNT(*) 
+                    FROM Kullanicilar 
+                    WHERE Durum = 1";
+
+                object result = DatabaseConnection.ExecuteScalar(query);
+                return Convert.ToInt32(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting team members count: {ex.Message}");
+                return 0;
+            }
         }
 
         public static Dictionary<string, int> GetBrandDistribution()
@@ -124,7 +211,7 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Marka dağılımı alınırken bir hata oluştu: " + ex.Message);
+                Console.WriteLine($"Error getting brand distribution: {ex.Message}");
             }
 
             return brandDistribution;
@@ -136,17 +223,42 @@ namespace arac_kiralama_satis_desktop.Methods
 
             try
             {
-                yearlyRentals.Add(2019, 150);
-                yearlyRentals.Add(2020, 70);
-                yearlyRentals.Add(2021, 200);
-                yearlyRentals.Add(2022, 480);
-                yearlyRentals.Add(2023, 330);
-                yearlyRentals.Add(2024, 220);
-                yearlyRentals.Add(2025, 450);
+                // Get rental counts grouped by year
+                string query = @"
+                    SELECT YEAR(BaslangicTarihi) as Year, COUNT(*) as Count 
+                    FROM Kiralamalar 
+                    GROUP BY YEAR(BaslangicTarihi)
+                    ORDER BY Year";
+
+                DataTable result = DatabaseConnection.ExecuteQuery(query);
+
+                foreach (DataRow row in result.Rows)
+                {
+                    int year = Convert.ToInt32(row["Year"]);
+                    int count = Convert.ToInt32(row["Count"]);
+                    yearlyRentals.Add(year, count);
+                }
+
+                // If no data found, provide sample data for demonstration
+                if (yearlyRentals.Count == 0)
+                {
+                    int currentYear = DateTime.Now.Year;
+                    for (int i = -3; i <= 0; i++)
+                    {
+                        yearlyRentals.Add(currentYear + i, new Random().Next(100, 500));
+                    }
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Yıllık kiralama verileri alınırken bir hata oluştu: " + ex.Message);
+                Console.WriteLine($"Error getting yearly rentals: {ex.Message}");
+
+                // Provide sample data on error
+                int currentYear = DateTime.Now.Year;
+                for (int i = -3; i <= 0; i++)
+                {
+                    yearlyRentals.Add(currentYear + i, new Random().Next(100, 500));
+                }
             }
 
             return yearlyRentals;
@@ -158,12 +270,13 @@ namespace arac_kiralama_satis_desktop.Methods
 
             try
             {
-                string query = @"SELECT s.SubeAdi, COUNT(a.AracID) as AracSayisi 
-                               FROM Subeler s
-                               LEFT JOIN Araclar a ON s.SubeID = a.SubeID
-                               WHERE s.AktifMi = 1
-                               GROUP BY s.SubeAdi
-                               ORDER BY AracSayisi DESC";
+                string query = @"
+                    SELECT s.SubeAdi, COUNT(a.AracID) as AracSayisi 
+                    FROM Subeler s
+                    LEFT JOIN Araclar a ON s.SubeID = a.SubeID
+                    WHERE s.AktifMi = 1
+                    GROUP BY s.SubeAdi
+                    ORDER BY AracSayisi DESC";
 
                 DataTable result = DatabaseConnection.ExecuteQuery(query);
 
@@ -176,12 +289,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Lokasyon verileri alınırken bir hata oluştu: " + ex.Message);
+                Console.WriteLine($"Error getting location data: {ex.Message}");
             }
 
             return locationData;
         }
 
+        // Existing methods for lists remain unchanged
         public static DataTable GetVehicleList()
         {
             try
@@ -287,68 +401,6 @@ namespace arac_kiralama_satis_desktop.Methods
                 throw new Exception("Bakım listesi alınırken bir hata oluştu: " + ex.Message);
             }
         }
-
-        // Bu metodları MainMethods sınıfına ekleyin
-        public static int GetActiveRentalsCount()
-        {
-            try
-            {
-                // Gerçek veritabanı sorgusu burada yapılacak
-                // Şimdilik örnek veri dönüyoruz
-                return 15; // Örnek değer
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Aktif kiralamalar sayısını alırken hata: {ex.Message}");
-                return 0;
-            }
-        }
-
-        public static int GetMonthlySalesCount()
-        {
-            try
-            {
-                // Gerçek veritabanı sorgusu burada yapılacak
-                // Şimdilik örnek veri dönüyoruz
-                return 23; // Örnek değer
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Aylık satışlar sayısını alırken hata: {ex.Message}");
-                return 0;
-            }
-        }
-
-        public static int GetPendingServiceCount()
-        {
-            try
-            {
-                // Gerçek veritabanı sorgusu burada yapılacak
-                // Şimdilik örnek veri dönüyoruz
-                return 7; // Örnek değer
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Bekleyen servis sayısını alırken hata: {ex.Message}");
-                return 0;
-            }
-        }
-
-        public static int GetTeamMembersCount()
-        {
-            try
-            {
-                // Gerçek veritabanı sorgusu burada yapılacak
-                // Şimdilik örnek veri dönüyoruz
-                return 12; // Örnek değer
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ekip üyesi sayısını alırken hata: {ex.Message}");
-                return 0;
-            }
-        }
-
     }
 
     public class DashboardData
