@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+using System.Drawing.Drawing2D;
 using arac_kiralama_satis_desktop.Methods;
 using arac_kiralama_satis_desktop.Utils;
 using arac_kiralama_satis_desktop.Models;
@@ -19,6 +22,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private DataTable customersTable;
         private DataTable branchesTable;
 
+        // Dashboard controls
+        private Panel[] metricPanels;
+        private Label[] metricTitles;
+        private Label[] metricValues;
+
         public MainPage()
         {
             try
@@ -26,6 +34,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 InitializeComponent();
                 CustomizeDesign();
                 SetupDataGridViews();
+
+                // Form resize event için handler ekle
+                this.Resize += MainPage_Resize;
             }
             catch (Exception ex)
             {
@@ -75,6 +86,292 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
             // Set up branches DataGridView
             UIUtils.SetupDataGridView(dgvBranches);
+        }
+
+        private void InitializeDashboard()
+        {
+            if (metricPanels != null)
+                return; // Dashboard already initialized
+
+            // Clear existing controls
+            pnlCharts.Controls.Clear();
+
+            // Create metric panels
+            int panelCount = 8; // Increased from 4 to 8 panels
+            int panelWidth = 220;
+            int panelHeight = 120;
+            int panelSpacing = 20;
+
+            // Calculate how many panels per row based on available width
+            int panelsPerRow = 4;
+            int startX = (pnlCharts.Width - (panelWidth * panelsPerRow + panelSpacing * (panelsPerRow - 1))) / 2;
+
+            metricPanels = new Panel[panelCount];
+            metricTitles = new Label[panelCount];
+            metricValues = new Label[panelCount];
+
+            // Define titles for all metrics
+            string[] titles = new string[] {
+                "Toplam Araç",
+                "Şube Sayısı",
+                "Müşteri Sayısı",
+                "Toplam Gelir (₺)",
+                "Aktif Kiralamalar",
+                "Bu Ay Satışlar",
+                "Servis Bekleyen",
+                "Ekip Üyeleri"
+            };
+
+            // Define colors for each panel
+            Color[] colors = new Color[] {
+                Color.FromArgb(83, 107, 168),   // Mavi
+                Color.FromArgb(40, 167, 69),    // Yeşil
+                Color.FromArgb(255, 193, 7),    // Sarı
+                Color.FromArgb(23, 162, 184),   // Turkuaz
+                Color.FromArgb(220, 53, 69),    // Kırmızı
+                Color.FromArgb(111, 66, 193),   // Mor
+                Color.FromArgb(253, 126, 20),   // Turuncu
+                Color.FromArgb(108, 117, 125)   // Gri
+            };
+
+            // Create panels in a grid layout (2 rows x 4 columns)
+            for (int i = 0; i < panelCount; i++)
+            {
+                int row = i / panelsPerRow;
+                int col = i % panelsPerRow;
+
+                // Create panel
+                metricPanels[i] = new Panel
+                {
+                    Width = panelWidth,
+                    Height = panelHeight,
+                    Left = startX + (panelWidth + panelSpacing) * col,
+                    Top = 20 + (panelHeight + panelSpacing) * row,
+                    BackColor = Color.White
+                };
+
+                // Apply shadow and rounded corners
+                UIUtils.ApplyShadowEffect(metricPanels[i]);
+
+                // Create title label
+                metricTitles[i] = new Label
+                {
+                    Text = titles[i],
+                    Font = new Font("Segoe UI", 10, FontStyle.Regular),
+                    ForeColor = Color.FromArgb(100, 100, 100),
+                    Left = 15,
+                    Top = 15,
+                    AutoSize = true
+                };
+
+                // Create value label
+                metricValues[i] = new Label
+                {
+                    Text = "0",
+                    Font = new Font("Segoe UI", 22, FontStyle.Bold),
+                    ForeColor = colors[i],
+                    Left = 15,
+                    Top = 45,
+                    AutoSize = true
+                };
+
+                // Create icon label
+                Label iconLabel = new Label
+                {
+                    Text = "•",
+                    Font = new Font("Segoe UI", 28, FontStyle.Bold),
+                    ForeColor = colors[i],
+                    Left = panelWidth - 45,
+                    Top = 35,
+                    AutoSize = true
+                };
+
+                // Add controls to panel
+                metricPanels[i].Controls.Add(metricTitles[i]);
+                metricPanels[i].Controls.Add(metricValues[i]);
+                metricPanels[i].Controls.Add(iconLabel);
+
+                // Add panel to charts panel
+                pnlCharts.Controls.Add(metricPanels[i]);
+            }
+
+            // Add additional informational panels if needed
+            // For example, a recent activity panel or announcements panel
+            Panel recentActivityPanel = new Panel
+            {
+                Width = pnlCharts.Width - 40,
+                Height = 300,
+                Left = 20,
+                Top = 20 + (panelHeight + panelSpacing) * 2 + 20,
+                BackColor = Color.White
+            };
+
+            UIUtils.ApplyShadowEffect(recentActivityPanel);
+
+            Label activityTitle = new Label
+            {
+                Text = "Son Aktiviteler",
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                ForeColor = Color.FromArgb(49, 76, 143),
+                Left = 15,
+                Top = 15,
+                AutoSize = true
+            };
+
+            recentActivityPanel.Controls.Add(activityTitle);
+            pnlCharts.Controls.Add(recentActivityPanel);
+        }
+
+        private void LoadDashboardData()
+        {
+            try
+            {
+                // Show loading indicator
+                Cursor = Cursors.WaitCursor;
+
+                // Get dashboard data from database
+                var dashboardData = MainMethods.GetDashboardData();
+
+                // Update metric values
+                if (metricValues != null && metricValues.Length >= 8)
+                {
+                    // Update existing metrics
+                    metricValues[0].Text = dashboardData.TotalCarCount.ToString("N0");
+                    metricValues[1].Text = dashboardData.LocationCount.ToString("N0");
+                    metricValues[2].Text = dashboardData.CustomerCount.ToString("N0");
+                    metricValues[3].Text = dashboardData.TotalRevenue.ToString("N0");
+
+                    // Get additional metrics from database
+                    int activeRentals = MainMethods.GetActiveRentalsCount();
+                    int monthlySales = MainMethods.GetMonthlySalesCount();
+                    int pendingService = MainMethods.GetPendingServiceCount();
+                    int teamMembers = MainMethods.GetTeamMembersCount();
+
+                    // Update additional metrics
+                    metricValues[4].Text = activeRentals.ToString("N0");
+                    metricValues[5].Text = monthlySales.ToString("N0");
+                    metricValues[6].Text = pendingService.ToString("N0");
+                    metricValues[7].Text = teamMembers.ToString("N0");
+                }
+
+                // Load recent activities data
+                LoadRecentActivities();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Dashboard verisi yüklenirken hata oluştu: {ex.Message}",
+                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Hide loading indicator
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void LoadRecentActivities()
+        {
+            // Son aktiviteler paneli bul 
+            Panel recentActivityPanel = null;
+
+            foreach (Control ctrl in pnlCharts.Controls)
+            {
+                if (ctrl is Panel && ctrl != null && !metricPanels.Contains(ctrl))
+                {
+                    recentActivityPanel = ctrl as Panel;
+                    break;
+                }
+            }
+
+            if (recentActivityPanel == null)
+                return;
+
+            // Mevcut içeriği temizle (başlık dışında)
+            Label titleLabel = null;
+
+            foreach (Control ctrl in recentActivityPanel.Controls)
+            {
+                if (ctrl is Label && ctrl.Text == "Son Aktiviteler")
+                {
+                    titleLabel = ctrl as Label;
+                }
+            }
+
+            recentActivityPanel.Controls.Clear();
+
+            if (titleLabel != null)
+                recentActivityPanel.Controls.Add(titleLabel);
+
+            // Örnek aktiviteler ekle
+            string[] sampleActivities = new string[]
+            {
+                "Bugün, 10:15 - Yeni araç kaydedildi: BMW 320i, 34AC123",
+                "Bugün, 09:30 - Müşteri kaydı: Ahmet Yılmaz",
+                "Dün, 16:45 - Kiralama başlatıldı: Mercedes C180, 5 gün",
+                "Dün, 14:20 - Servis tamamlandı: Audi A3, 34ZT456",
+                "Dün, 11:00 - Satış gerçekleşti: Volkswagen Passat",
+                "24.03.2025, 15:30 - Yeni şube açıldı: İzmir Merkez"
+            };
+
+            int top = titleLabel != null ? titleLabel.Bottom + 15 : 15;
+
+            foreach (string activity in sampleActivities)
+            {
+                Label activityLabel = new Label
+                {
+                    Text = activity,
+                    AutoSize = false,
+                    Width = recentActivityPanel.Width - 30,
+                    Height = 25,
+                    Left = 15,
+                    Top = top,
+                    Font = new Font("Segoe UI", 9)
+                };
+
+                recentActivityPanel.Controls.Add(activityLabel);
+                top += 30;
+            }
+        }
+
+        private void ResizeDashboardComponents()
+        {
+            if (metricPanels == null)
+                return;
+
+            int panelCount = metricPanels.Length;
+            int panelWidth = 220;
+            int panelHeight = 120;
+            int panelSpacing = 20;
+            int panelsPerRow = 4;
+            int startX = (pnlCharts.Width - (panelWidth * panelsPerRow + panelSpacing * (panelsPerRow - 1))) / 2;
+
+            // Resize metric panels
+            for (int i = 0; i < panelCount; i++)
+            {
+                int row = i / panelsPerRow;
+                int col = i % panelsPerRow;
+
+                metricPanels[i].Left = startX + (panelWidth + panelSpacing) * col;
+                metricPanels[i].Top = 20 + (panelHeight + panelSpacing) * row;
+            }
+
+            // Resize recent activity panel (if it exists)
+            Panel recentActivityPanel = null;
+
+            foreach (Control ctrl in pnlCharts.Controls)
+            {
+                if (ctrl is Panel && ctrl != null && !metricPanels.Contains(ctrl))
+                {
+                    recentActivityPanel = ctrl as Panel;
+                    break;
+                }
+            }
+
+            if (recentActivityPanel != null)
+            {
+                recentActivityPanel.Width = pnlCharts.Width - 40;
+                recentActivityPanel.Left = 20;
+            }
         }
 
         private void LoadVehiclesData()
@@ -439,6 +736,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // Formu maksimize et
             this.WindowState = FormWindowState.Maximized;
 
+            // Dashboard'ı varsayılan olarak yükle
+            BtnDashboard_Click(btnDashboard, EventArgs.Empty);
+        }
+
+        // Form yeniden boyutlandırıldığında çağrılır
+        private void MainPage_Resize(object sender, EventArgs e)
+        {
+            ResizeDashboardComponents();
         }
 
         #region Event Handlers
@@ -448,6 +753,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ActivateButton(sender as IconButton);
             ShowPanel(pnlDashboard);
             lblPageTitle.Text = "Dashboard";
+
+            // Dashboard'ı başlat ve verileri yükle
+            InitializeDashboard();
+            LoadDashboardData();
         }
 
         private void BtnVehicles_Click(object sender, EventArgs e)

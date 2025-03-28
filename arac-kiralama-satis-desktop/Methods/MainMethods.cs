@@ -287,6 +287,68 @@ namespace arac_kiralama_satis_desktop.Methods
                 throw new Exception("Bakım listesi alınırken bir hata oluştu: " + ex.Message);
             }
         }
+
+        // Bu metodları MainMethods sınıfına ekleyin
+        public static int GetActiveRentalsCount()
+        {
+            try
+            {
+                // Gerçek veritabanı sorgusu burada yapılacak
+                // Şimdilik örnek veri dönüyoruz
+                return 15; // Örnek değer
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Aktif kiralamalar sayısını alırken hata: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static int GetMonthlySalesCount()
+        {
+            try
+            {
+                // Gerçek veritabanı sorgusu burada yapılacak
+                // Şimdilik örnek veri dönüyoruz
+                return 23; // Örnek değer
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Aylık satışlar sayısını alırken hata: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static int GetPendingServiceCount()
+        {
+            try
+            {
+                // Gerçek veritabanı sorgusu burada yapılacak
+                // Şimdilik örnek veri dönüyoruz
+                return 7; // Örnek değer
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Bekleyen servis sayısını alırken hata: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static int GetTeamMembersCount()
+        {
+            try
+            {
+                // Gerçek veritabanı sorgusu burada yapılacak
+                // Şimdilik örnek veri dönüyoruz
+                return 12; // Örnek değer
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ekip üyesi sayısını alırken hata: {ex.Message}");
+                return 0;
+            }
+        }
+
     }
 
     public class DashboardData
