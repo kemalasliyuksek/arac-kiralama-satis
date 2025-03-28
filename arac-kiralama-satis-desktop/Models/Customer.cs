@@ -36,10 +36,7 @@ namespace arac_kiralama_satis_desktop.Models
             IsAvailable = true;
         }
 
-        // Müşterinin tam adını döndürür
         public string FullName => $"{FirstName} {LastName}";
-
-        // Tam telefon numarasını döndürür
         public string FullPhoneNumber => $"{CountryCode}{PhoneNumber}";
     }
 }

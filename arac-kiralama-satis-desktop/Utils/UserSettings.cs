@@ -4,14 +4,13 @@ using System.Xml.Serialization;
 
 namespace arac_kiralama_satis_desktop.Utils
 {
-    public class UserSettings
+    public static class UserSettings
     {
         private static readonly string SettingsFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "AracKiralamaSatis",
             "user_settings.xml");
 
-        // Singleton instance
         private static UserSettingsData _instance;
 
         public static UserSettingsData Current
@@ -26,19 +25,16 @@ namespace arac_kiralama_satis_desktop.Utils
             }
         }
 
-        // Save settings
         public static void Save()
         {
             try
             {
-                // Create directory if it doesn't exist
                 string directory = Path.GetDirectoryName(SettingsFilePath);
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
                 }
 
-                // Serialize settings to XML
                 XmlSerializer serializer = new XmlSerializer(typeof(UserSettingsData));
                 using (FileStream stream = new FileStream(SettingsFilePath, FileMode.Create))
                 {
@@ -47,12 +43,10 @@ namespace arac_kiralama_satis_desktop.Utils
             }
             catch (Exception ex)
             {
-                // Log error or handle it as appropriate
                 Console.WriteLine("Error saving settings: " + ex.Message);
             }
         }
 
-        // Load settings
         private static UserSettingsData Load()
         {
             try
@@ -68,11 +62,9 @@ namespace arac_kiralama_satis_desktop.Utils
             }
             catch (Exception ex)
             {
-                // Log error or handle it as appropriate
                 Console.WriteLine("Error loading settings: " + ex.Message);
             }
 
-            // Return default settings if file doesn't exist or there's an error
             return new UserSettingsData();
         }
     }

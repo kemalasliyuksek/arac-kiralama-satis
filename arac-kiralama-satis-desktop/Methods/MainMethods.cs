@@ -8,9 +8,6 @@ namespace arac_kiralama_satis_desktop.Methods
 {
     public class MainMethods
     {
-        /// <summary>
-        /// Dashboard için özet verileri alır
-        /// </summary>
         public static DashboardData GetDashboardData()
         {
             DashboardData dashboardData = new DashboardData();
@@ -19,53 +16,45 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 try
                 {
-                    // Toplam araç sayısı
                     string carCountQuery = "SELECT COUNT(*) FROM Araclar";
                     object carCountResult = DatabaseConnection.ExecuteScalar(carCountQuery);
                     dashboardData.TotalCarCount = Convert.ToInt32(carCountResult);
                 }
                 catch (Exception)
                 {
-                    // Hata durumunda varsayılan değer
                     dashboardData.TotalCarCount = 10;
                 }
 
                 try
                 {
-                    // Şube sayısı
                     string locationCountQuery = "SELECT COUNT(*) FROM Subeler WHERE AktifMi = 1";
                     object locationCountResult = DatabaseConnection.ExecuteScalar(locationCountQuery);
                     dashboardData.LocationCount = Convert.ToInt32(locationCountResult);
                 }
                 catch (Exception)
                 {
-                    // Hata durumunda varsayılan değer
                     dashboardData.LocationCount = 3;
                 }
 
                 try
                 {
-                    // Marka sayısı
                     string brandCountQuery = "SELECT COUNT(DISTINCT Marka) FROM Araclar";
                     object brandCountResult = DatabaseConnection.ExecuteScalar(brandCountQuery);
                     dashboardData.BrandCount = Convert.ToInt32(brandCountResult);
                 }
                 catch (Exception)
                 {
-                    // Hata durumunda varsayılan değer
                     dashboardData.BrandCount = 7;
                 }
 
                 try
                 {
-                    // Ortalama kiralama fiyatı
                     string avgPriceQuery = "SELECT AVG(Fiyat) FROM KiraFiyatlari WHERE KiralamaTipi = 'Haftalık'";
                     object avgPriceResult = DatabaseConnection.ExecuteScalar(avgPriceQuery);
                     dashboardData.AverageRentalPrice = Convert.ToDouble(avgPriceResult);
                 }
                 catch (Exception)
                 {
-                    // Hata durumunda varsayılan değer
                     dashboardData.AverageRentalPrice = 12500.00;
                 }
             }
@@ -73,7 +62,6 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 Console.WriteLine("Dashboard verileri alınırken bir hata oluştu: " + ex.Message);
 
-                // Hata durumunda varsayılan değerler
                 dashboardData.TotalCarCount = 10;
                 dashboardData.LocationCount = 3;
                 dashboardData.BrandCount = 7;
@@ -83,9 +71,6 @@ namespace arac_kiralama_satis_desktop.Methods
             return dashboardData;
         }
 
-        /// <summary>
-        /// Marka dağılımını alır
-        /// </summary>
         public static Dictionary<string, int> GetBrandDistribution()
         {
             Dictionary<string, int> brandDistribution = new Dictionary<string, int>();
@@ -111,17 +96,12 @@ namespace arac_kiralama_satis_desktop.Methods
             return brandDistribution;
         }
 
-        /// <summary>
-        /// Yıllara göre kiralama verilerini alır
-        /// </summary>
         public static Dictionary<int, int> GetYearlyRentals()
         {
             Dictionary<int, int> yearlyRentals = new Dictionary<int, int>();
 
             try
             {
-                // Gerçek veri olmadığı için örnek veri oluştur
-                // Not: Gerçek uygulamada bu verileri veritabanından çekmelisiniz
                 yearlyRentals.Add(2019, 150);
                 yearlyRentals.Add(2020, 70);
                 yearlyRentals.Add(2021, 200);
@@ -129,23 +109,6 @@ namespace arac_kiralama_satis_desktop.Methods
                 yearlyRentals.Add(2023, 330);
                 yearlyRentals.Add(2024, 220);
                 yearlyRentals.Add(2025, 450);
-
-                // Eğer sistemde veri varsa, aşağıdaki sorguyu kullanabilirsiniz
-                /*
-                string query = @"SELECT YEAR(BaslangicTarihi) as Yil, COUNT(*) as KiralamaSayisi 
-                               FROM Kiralamalar 
-                               GROUP BY YEAR(BaslangicTarihi) 
-                               ORDER BY Yil";
-                
-                DataTable result = DatabaseConnection.ExecuteQuery(query);
-
-                foreach (DataRow row in result.Rows)
-                {
-                    int year = Convert.ToInt32(row["Yil"]);
-                    int count = Convert.ToInt32(row["KiralamaSayisi"]);
-                    yearlyRentals.Add(year, count);
-                }
-                */
             }
             catch (Exception ex)
             {
@@ -155,9 +118,6 @@ namespace arac_kiralama_satis_desktop.Methods
             return yearlyRentals;
         }
 
-        /// <summary>
-        /// Şubelere göre araç sayılarını alır
-        /// </summary>
         public static Dictionary<string, int> GetLocationData()
         {
             Dictionary<string, int> locationData = new Dictionary<string, int>();
@@ -188,9 +148,6 @@ namespace arac_kiralama_satis_desktop.Methods
             return locationData;
         }
 
-        /// <summary>
-        /// Araç detaylarını almak için kullanılır
-        /// </summary>
         public static DataTable GetVehicleList()
         {
             try
@@ -214,9 +171,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Müşteri listesini almak için kullanılır
-        /// </summary>
         public static DataTable GetCustomerList()
         {
             try
@@ -234,9 +188,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Kiralama listesini almak için kullanılır
-        /// </summary>
         public static DataTable GetRentalList()
         {
             try
@@ -259,9 +210,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Satış listesini almak için kullanılır
-        /// </summary>
         public static DataTable GetSalesList()
         {
             try
@@ -284,9 +232,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Bakım listesini almak için kullanılır
-        /// </summary>
         public static DataTable GetMaintenanceList()
         {
             try
@@ -310,9 +255,6 @@ namespace arac_kiralama_satis_desktop.Methods
         }
     }
 
-    /// <summary>
-    /// Dashboard ana sayfasındaki verileri tutan sınıf
-    /// </summary>
     public class DashboardData
     {
         public int TotalCarCount { get; set; }

@@ -9,9 +9,6 @@ namespace arac_kiralama_satis_desktop.Methods
 {
     public class VehicleMethods
     {
-        /// <summary>
-        /// Tüm araçları listeler
-        /// </summary>
         public static List<Vehicle> GetVehicles()
         {
             List<Vehicle> vehicles = new List<Vehicle>();
@@ -69,9 +66,6 @@ namespace arac_kiralama_satis_desktop.Methods
             return vehicles;
         }
 
-        /// <summary>
-        /// ID'ye göre araç detaylarını getirir
-        /// </summary>
         public static Vehicle GetVehicleById(int vehicleId)
         {
             try
@@ -135,9 +129,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Yeni araç ekler
-        /// </summary>
         public static int AddVehicle(Vehicle vehicle)
         {
             try
@@ -179,9 +170,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Araç bilgilerini günceller
-        /// </summary>
         public static void UpdateVehicle(Vehicle vehicle)
         {
             try
@@ -234,9 +222,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Araç durumunu günceller
-        /// </summary>
         public static void UpdateVehicleStatus(int vehicleId, int statusId)
         {
             try
@@ -257,9 +242,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Tüm araç durumlarını listeler
-        /// </summary>
         public static DataTable GetVehicleStatuses()
         {
             try
@@ -273,9 +255,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Tüm araç sınıflarını listeler
-        /// </summary>
         public static DataTable GetVehicleClasses()
         {
             try
@@ -289,9 +268,6 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        /// <summary>
-        /// Kiralama için müsait olan araçları listeler
-        /// </summary>
         public static List<Vehicle> GetAvailableVehiclesForRental()
         {
             List<Vehicle> vehicles = new List<Vehicle>();
@@ -303,7 +279,7 @@ namespace arac_kiralama_satis_desktop.Methods
                                FROM Araclar a
                                LEFT JOIN Subeler s ON a.SubeID = s.SubeID
                                LEFT JOIN AracSiniflari c ON a.AracSinifID = c.AracSinifID
-                               WHERE a.DurumID = 1 OR a.DurumID = 4 -- Müsait veya Kiralık durumunda olanlar
+                               WHERE a.DurumID = 1 OR a.DurumID = 4 
                                ORDER BY a.AracID DESC";
 
                 DataTable result = DatabaseConnection.ExecuteQuery(query);
@@ -338,9 +314,6 @@ namespace arac_kiralama_satis_desktop.Methods
             return vehicles;
         }
 
-        /// <summary>
-        /// Satış için müsait olan araçları listeler
-        /// </summary>
         public static List<Vehicle> GetAvailableVehiclesForSale()
         {
             List<Vehicle> vehicles = new List<Vehicle>();
@@ -351,7 +324,7 @@ namespace arac_kiralama_satis_desktop.Methods
                                a.YakitTipi, a.VitesTipi, a.AlisFiyati, a.SatisFiyati, a.SubeID, s.SubeAdi
                                FROM Araclar a
                                LEFT JOIN Subeler s ON a.SubeID = s.SubeID
-                               WHERE a.DurumID = 2 -- Satılık durumunda olanlar
+                               WHERE a.DurumID = 2 
                                ORDER BY a.AracID DESC";
 
                 DataTable result = DatabaseConnection.ExecuteQuery(query);

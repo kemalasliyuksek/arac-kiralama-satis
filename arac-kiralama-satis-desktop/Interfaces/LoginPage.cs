@@ -149,7 +149,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
                 using (Pen bottomPen = new Pen(borderColor, thickness + 1))
                 {
-                    e.Graphics.DrawLine(bottomPen, rect.Left, rect.Bottom, rect.Right, rect.Bottom); // Alt
+                    e.Graphics.DrawLine(bottomPen, rect.Left, rect.Bottom, rect.Right, rect.Bottom);
                 }
             }
         }
@@ -257,12 +257,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
-        private void SaveUserCredentials()
-        {
-            // Bu metot artık LoginMethods.SaveUserCredentials() ile değiştirildi
-            LoginMethods.SaveUserCredentials(txtUsername.Text);
-        }
-
         private void ShowSuccess(string message)
         {
             lblStatus.ForeColor = Color.FromArgb(40, 167, 69);
@@ -333,7 +327,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             MessageBox.Show("Şifre sıfırlama talebi için lütfen yönetici ile iletişime geçin.",
                           "Şifremi Unuttum", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-
     }
 
     public static class TextBoxExtensions

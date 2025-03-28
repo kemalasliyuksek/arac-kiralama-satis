@@ -36,16 +36,9 @@ namespace arac_kiralama_satis_desktop.Models
             UserFullName = string.Empty;
         }
 
-        // Kiralama süresi (gün)
         public int Duration => (EndDate - StartDate).Days + 1;
-
-        // Kiralama durumunu kontrol eder
         public bool IsActive => DateTime.Now >= StartDate && DateTime.Now <= EndDate && !ReturnDate.HasValue;
-
-        // Kiralama gecikme durumunu kontrol eder
         public bool IsOverdue => DateTime.Now > EndDate && !ReturnDate.HasValue;
-
-        // Kilometre farkını hesaplar
         public int? KmDifference => EndKm.HasValue ? EndKm - StartKm : null;
     }
 }

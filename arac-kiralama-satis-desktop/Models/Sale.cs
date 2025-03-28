@@ -32,13 +32,8 @@ namespace arac_kiralama_satis_desktop.Models
             UserFullName = string.Empty;
         }
 
-        // Satışın peşin olup olmadığını kontrol eder
         public bool IsCashPayment => InstallmentCount == 0;
-
-        // Satışın taksitli olup olmadığını kontrol eder
         public bool IsInstallment => InstallmentCount > 0;
-
-        // Taksit tutarını hesaplar
         public decimal InstallmentAmount => IsInstallment ? SaleAmount / InstallmentCount : 0;
     }
 }

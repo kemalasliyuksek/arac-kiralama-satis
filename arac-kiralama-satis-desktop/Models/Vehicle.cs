@@ -42,7 +42,6 @@ namespace arac_kiralama_satis_desktop.Models
             VehicleClassName = string.Empty;
         }
 
-        // Araç durumuna göre renk dönüşü
         public System.Drawing.Color GetStatusColor()
         {
             return StatusName switch

@@ -7,9 +7,6 @@ namespace arac_kiralama_satis_desktop.Utils
 {
     public static class UIUtils
     {
-        /// <summary>
-        /// Panel kontrolü için yuvarlak köşeler oluşturur
-        /// </summary>
         public static void ApplyRoundedCorners(Control control, int radius)
         {
             using (GraphicsPath path = new GraphicsPath())
@@ -24,14 +21,10 @@ namespace arac_kiralama_satis_desktop.Utils
             }
         }
 
-        /// <summary>
-        /// Controls a gölge efekti uygular
-        /// </summary>
         public static void ApplyShadowEffect(Control control)
         {
             control.Paint += (s, e) =>
             {
-                // Kontrol sınırlarını çiz
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
                 using (GraphicsPath path = new GraphicsPath())
                 {
@@ -42,7 +35,6 @@ namespace arac_kiralama_satis_desktop.Utils
                     path.AddArc(0, control.Height - radius, radius, radius, 90, 90);
                     path.CloseFigure();
 
-                    // Hafif bir kenar çizgisi
                     using (Pen pen = new Pen(Color.FromArgb(20, 0, 0, 0), 1))
                     {
                         e.Graphics.DrawPath(pen, path);
@@ -50,7 +42,6 @@ namespace arac_kiralama_satis_desktop.Utils
                 }
             };
 
-            // Kontrol boyutu değiştiğinde bölgeyi yeniden ayarla
             control.Resize += (s, e) =>
             {
                 using (GraphicsPath path = new GraphicsPath())
@@ -67,9 +58,6 @@ namespace arac_kiralama_satis_desktop.Utils
             };
         }
 
-        /// <summary>
-        /// Butonlar için gölgeli efekt uygular
-        /// </summary>
         public static void ApplyButtonStyle(Button button, Color primaryColor, Color hoverColor)
         {
             button.FlatStyle = FlatStyle.Flat;
@@ -79,11 +67,9 @@ namespace arac_kiralama_satis_desktop.Utils
             button.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             button.Cursor = Cursors.Hand;
 
-            // Mouse üzerine gelince renk değişimi
             button.MouseEnter += (s, e) => button.BackColor = hoverColor;
             button.MouseLeave += (s, e) => button.BackColor = primaryColor;
 
-            // Yuvarlak köşeli buton
             button.Paint += (s, e) =>
             {
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -101,9 +87,6 @@ namespace arac_kiralama_satis_desktop.Utils
             };
         }
 
-        /// <summary>
-        /// DataGridView kontrolünü özelleştirir
-        /// </summary>
         public static void SetupDataGridView(DataGridView dgv)
         {
             dgv.BorderStyle = BorderStyle.None;
