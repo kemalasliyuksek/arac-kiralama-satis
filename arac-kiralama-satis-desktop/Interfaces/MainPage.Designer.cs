@@ -270,7 +270,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnMaintenance.Padding = new Padding(15, 0, 0, 0);
             btnMaintenance.Size = new Size(250, 50);
             btnMaintenance.TabIndex = 5;
-            btnMaintenance.Text = "  Bakım & Servis";
+            btnMaintenance.Text = "  Bakım ve Servis";
             btnMaintenance.TextAlign = ContentAlignment.MiddleLeft;
             btnMaintenance.TextImageRelation = TextImageRelation.ImageBeforeText;
             btnMaintenance.UseVisualStyleBackColor = true;
