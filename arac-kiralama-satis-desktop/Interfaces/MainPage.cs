@@ -21,6 +21,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private DataTable vehiclesTable;
         private DataTable customersTable;
         private DataTable branchesTable;
+        private DataTable staffTable;
 
         // Dashboard controls
         private Panel[] metricPanels;
@@ -86,6 +87,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
             // Set up branches DataGridView
             UIUtils.SetupDataGridView(dgvBranches);
+
+            // Set up staff DataGridView
+            UIUtils.SetupDataGridView(dgvStaff);
         }
 
         private void InitializeDashboard()
@@ -552,6 +556,106 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
+        private void LoadStaffData()
+        {
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+
+                // Get staff data from database
+                DataTable result = MainMethods.GetStaffList();
+                staffTable = result.Copy();
+
+                // Rename columns for display
+                staffTable.Columns["KullaniciID"].ColumnName = "KullaniciID";
+                staffTable.Columns["Ad"].ColumnName = "Ad";
+                staffTable.Columns["Soyad"].ColumnName = "Soyad";
+                staffTable.Columns["KullaniciAdi"].ColumnName = "Kullanıcı Adı";
+                staffTable.Columns["Email"].ColumnName = "Email";
+                staffTable.Columns["Telefon"].ColumnName = "Telefon";
+                staffTable.Columns["RolAdi"].ColumnName = "Rol";
+                staffTable.Columns["SubeAdi"].ColumnName = "Şube";
+                staffTable.Columns["Durum"].ColumnName = "Durum";
+                staffTable.Columns["SonGirisTarihi"].ColumnName = "Son Giriş";
+                staffTable.Columns["OlusturmaTarihi"].ColumnName = "Kayıt Tarihi";
+
+                // Durum sütununu string türüne dönüştür (format hatası için önlem)
+                foreach (DataRow row in staffTable.Rows)
+                {
+                    // Durum değerini Boolean'dan string'e dönüştür
+                    bool aktifMi = false;
+                    if (row["Durum"] != DBNull.Value && row["Durum"] != null)
+                    {
+                        // Farklı veri tipleri için güvenli dönüşüm
+                        if (row["Durum"] is bool)
+                            aktifMi = (bool)row["Durum"];
+                        else if (row["Durum"] is int)
+                            aktifMi = ((int)row["Durum"]) != 0;
+                        else if (row["Durum"] is string)
+                            aktifMi = row["Durum"].ToString().ToLower() == "true" || row["Durum"].ToString() == "1";
+                    }
+
+                    // Durum değerini metin olarak ayarla
+                    row["Durum"] = aktifMi ? "Aktif" : "Pasif";
+                }
+
+                // Set DataSource
+                dgvStaff.DataSource = staffTable;
+
+                // Format columns
+                if (dgvStaff.Columns.Count > 0)
+                {
+                    dgvStaff.Columns["KullaniciID"].Visible = false;
+                    dgvStaff.Columns["Ad"].Width = 100;
+                    dgvStaff.Columns["Soyad"].Width = 100;
+                    dgvStaff.Columns["Kullanıcı Adı"].Width = 120;
+                    dgvStaff.Columns["Email"].Width = 180;
+                    dgvStaff.Columns["Telefon"].Width = 120;
+                    dgvStaff.Columns["Rol"].Width = 120;
+                    dgvStaff.Columns["Şube"].Width = 150;
+                    dgvStaff.Columns["Durum"].Width = 80;
+                    dgvStaff.Columns["Son Giriş"].Width = 120;
+                    dgvStaff.Columns["Kayıt Tarihi"].Width = 120;
+                    dgvStaff.Columns["Son Giriş"].DefaultCellStyle.Format = "dd.MM.yyyy HH:mm";
+                    dgvStaff.Columns["Kayıt Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+
+                    // Durum sütunu için renklendirme (hata alınan kısım düzeltildi)
+                    dgvStaff.CellFormatting += (s, e) => {
+                        try
+                        {
+                            if (e.ColumnIndex == dgvStaff.Columns["Durum"].Index && e.Value != null)
+                            {
+                                string durumText = e.Value.ToString();
+                                if (durumText == "Aktif")
+                                    e.CellStyle.ForeColor = Color.FromArgb(40, 167, 69); // Yeşil
+                                else if (durumText == "Pasif")
+                                    e.CellStyle.ForeColor = Color.FromArgb(220, 53, 69); // Kırmızı
+
+                                e.FormattingApplied = true;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Hücre formatlanırken hata: {ex.Message}");
+                            // Hata durumunda formatlamayı atla
+                        }
+                    };
+                }
+
+                // Update count information
+                lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Personel verileri yüklenirken bir hata oluştu: {ex.Message}",
+                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
         private void SearchVehicles(string searchText)
         {
             try
@@ -681,6 +785,50 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
+        private void SearchStaff(string searchText)
+        {
+            try
+            {
+                if (staffTable == null) return;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    // Show all data
+                    dgvStaff.DataSource = staffTable;
+                    lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
+                    return;
+                }
+
+                // Create filter
+                string filter = "";
+
+                // Search in most relevant columns
+                filter = $"Ad LIKE '%{searchText}%' OR " +
+                         $"Soyad LIKE '%{searchText}%' OR " +
+                         $"[Kullanıcı Adı] LIKE '%{searchText}%' OR " +
+                         $"Email LIKE '%{searchText}%' OR " +
+                         $"Telefon LIKE '%{searchText}%' OR " +
+                         $"Rol LIKE '%{searchText}%' OR " +
+                         $"Şube LIKE '%{searchText}%'";
+
+                DataView dv = staffTable.DefaultView;
+                dv.RowFilter = filter;
+
+                // Update label with count
+                lblStaffTitle.Text = $"Personel Listesi ({dv.Count})";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Personel aramada hata: {ex.Message}");
+                // Failed filter - just reset
+                if (staffTable != null)
+                {
+                    dgvStaff.DataSource = staffTable;
+                    lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
+                }
+            }
+        }
+
         private void ActivateButton(IconButton button)
         {
             if (button != null)
@@ -721,6 +869,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlVehicles.Visible = false;
             pnlCustomers.Visible = false;
             pnlBranches.Visible = false;
+            pnlStaff.Visible = false;
 
             // Show selected panel
             if (panel != null)
@@ -781,6 +930,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ShowPanel(pnlBranches);
             LoadBranchesData();
             lblPageTitle.Text = "Şubeler";
+        }
+
+        private void BtnStaff_Click(object sender, EventArgs e)
+        {
+            ActivateButton(sender as IconButton);
+            ShowPanel(pnlStaff);
+            LoadStaffData();
+            lblPageTitle.Text = "Personeller";
         }
 
         private void BtnRentals_Click(object sender, EventArgs e)
@@ -851,6 +1008,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             SearchBranches(txtSearchBranches.Text);
         }
 
+        private void TxtSearchStaff_TextChanged(object sender, EventArgs e)
+        {
+            SearchStaff(txtSearchStaff.Text);
+        }
+
         private void BtnRefreshVehicles_Click(object sender, EventArgs e)
         {
             LoadVehiclesData();
@@ -869,6 +1031,12 @@ namespace arac_kiralama_satis_desktop.Interfaces
             txtSearchBranches.Clear();
         }
 
+        private void BtnRefreshStaff_Click(object sender, EventArgs e)
+        {
+            LoadStaffData();
+            txtSearchStaff.Clear();
+        }
+
         private void BtnAddBranch_Click(object sender, EventArgs e)
         {
             BranchAddForm branchForm = new BranchAddForm();
@@ -877,6 +1045,17 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 // Şube ekleme başarılı olduğunda listeyi yenile
                 LoadBranchesData();
             }
+        }
+
+        private void BtnAddStaff_Click(object sender, EventArgs e)
+        {
+            PersonelAddForm staffForm = new PersonelAddForm();
+            staffForm.StaffAdded += (s, args) => {
+                // Personel eklendiğinde listeyi yenile
+                LoadStaffData();
+            };
+
+            staffForm.ShowDialog();
         }
 
         #endregion

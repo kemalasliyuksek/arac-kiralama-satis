@@ -401,6 +401,92 @@ namespace arac_kiralama_satis_desktop.Methods
                 throw new Exception("Bakım listesi alınırken bir hata oluştu: " + ex.Message);
             }
         }
+
+        // Personel listesini getiren yeni metot
+        // Personel listesini getiren metot
+        public static DataTable GetStaffList()
+        {
+            try
+            {
+                string query = @"SELECT 
+                        k.KullaniciID, 
+                        k.Ad, 
+                        k.Soyad, 
+                        k.KullaniciAdi, 
+                        k.Email, 
+                        CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
+                        r.RolAdi, 
+                        s.SubeAdi, 
+                        CAST(k.Durum as VARCHAR(10)) as Durum, 
+                        k.SonGirisTarihi,
+                        k.OlusturmaTarihi
+                        FROM Kullanicilar k
+                        LEFT JOIN Roller r ON k.RolID = r.RolID
+                        LEFT JOIN Subeler s ON k.SubeID = s.SubeID
+                        ORDER BY k.KullaniciID DESC";
+
+                return DatabaseConnection.ExecuteQuery(query);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Personel listesi alınırken bir hata oluştu: " + ex.Message);
+            }
+        }
+
+        // Personel arama metotu (ihtiyaç olursa daha sonra eklenebilir)
+        public static DataTable SearchStaffList(string searchText)
+        {
+            try
+            {
+                string query = @"SELECT k.KullaniciID, k.Ad, k.Soyad, k.KullaniciAdi, k.Email, 
+                               CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
+                               r.RolAdi, s.SubeAdi, k.Durum, k.SonGirisTarihi,
+                               k.OlusturmaTarihi
+                               FROM Kullanicilar k
+                               LEFT JOIN Roller r ON k.RolID = r.RolID
+                               LEFT JOIN Subeler s ON k.SubeID = s.SubeID
+                               WHERE k.Ad LIKE @searchText 
+                               OR k.Soyad LIKE @searchText 
+                               OR k.KullaniciAdi LIKE @searchText 
+                               OR k.Email LIKE @searchText 
+                               OR CONCAT(k.UlkeKodu, k.TelefonNo) LIKE @searchText
+                               OR r.RolAdi LIKE @searchText
+                               OR s.SubeAdi LIKE @searchText
+                               ORDER BY k.KullaniciID DESC";
+
+                MySqlParameter[] parameters = new MySqlParameter[]
+                {
+                    new MySqlParameter("@searchText", "%" + searchText + "%")
+                };
+
+                return DatabaseConnection.ExecuteQuery(query, parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Personel arama sırasında bir hata oluştu: " + ex.Message);
+            }
+        }
+
+        // Personel durumunu değiştiren metot
+        public static void ChangeStaffStatus(int staffId, bool isActive)
+        {
+            try
+            {
+                string query = "UPDATE Kullanicilar SET Durum = @durum WHERE KullaniciID = @kullaniciId";
+
+                MySqlParameter[] parameters = new MySqlParameter[]
+                {
+                    new MySqlParameter("@kullaniciId", staffId),
+                    new MySqlParameter("@durum", isActive)
+                };
+
+                DatabaseConnection.ExecuteNonQuery(query, parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Personel durumu güncellenirken bir hata oluştu: " + ex.Message);
+            }
+        }
     }
 
     public class DashboardData
