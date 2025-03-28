@@ -2,6 +2,7 @@
 using System.Data;
 using System.Configuration;
 using MySql.Data.MySqlClient;
+using System.Windows.Forms;
 
 namespace arac_kiralama_satis_desktop.Utils
 {
@@ -17,13 +18,47 @@ namespace arac_kiralama_satis_desktop.Utils
                 Console.WriteLine("Bağlantı dizesi: " + connectionString);
 
                 MySqlConnection connection = new MySqlConnection(connectionString);
+
+                // Test connection before returning
                 connection.Open();
                 connection.Close();
+
                 return connection;
+            }
+            catch (MySqlException ex)
+            {
+                string detailMessage = "Veritabanı bağlantısı oluşturulamadı: " + ex.Message;
+
+                // Handle specific MySQL errors
+                switch (ex.Number)
+                {
+                    case 1042: // Unable to connect to server
+                        detailMessage = "Veritabanı sunucusuna bağlanılamıyor. Sunucu çalışıyor ve erişilebilir durumda mı kontrol edin.";
+                        break;
+                    case 1045: // Invalid username/password
+                        detailMessage = "Veritabanı kullanıcı adı veya şifresi geçersiz.";
+                        break;
+                    case 1049: // Unknown database
+                        detailMessage = "Belirtilen veritabanı bulunamadı.";
+                        break;
+                    case 1130: // Host not allowed
+                        detailMessage = "Bu IP adresi veritabanı sunucusuna erişim için yetkilendirilmemiş. Veritabanı yöneticinizle iletişime geçin.";
+                        break;
+                }
+
+                if (ex.InnerException != null)
+                {
+                    detailMessage += " | İç hata: " + ex.InnerException.Message;
+                }
+
+                MessageBox.Show(detailMessage, "Veritabanı Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                throw new Exception(detailMessage);
             }
             catch (Exception ex)
             {
-                string detailMessage = "Veritabanı bağlantısı oluşturulamadı: " + ex.Message;
+                string detailMessage = "Veritabanı bağlantısında beklenmeyen hata: " + ex.Message;
+
                 if (ex.InnerException != null)
                 {
                     detailMessage += " | İç hata: " + ex.InnerException.Message;
@@ -55,6 +90,8 @@ namespace arac_kiralama_satis_desktop.Utils
                     connection.Open();
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
+                        command.CommandTimeout = 60; // 60 saniye zaman aşımı
+
                         if (parameters != null)
                         {
                             command.Parameters.AddRange(parameters);
@@ -66,9 +103,24 @@ namespace arac_kiralama_satis_desktop.Utils
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (MySqlException ex)
                 {
                     string detailMessage = "Sorgu çalıştırma hatası: " + ex.Message;
+
+                    // Handle specific MySQL errors
+                    switch (ex.Number)
+                    {
+                        case 1064: // SQL syntax error
+                            detailMessage = "SQL sözdizimi hatası. Sorguyu kontrol edin.";
+                            break;
+                        case 1146: // Table doesn't exist
+                            detailMessage = "Belirtilen tablo bulunamadı.";
+                            break;
+                        case 1054: // Unknown column
+                            detailMessage = "Belirtilen sütun bulunamadı.";
+                            break;
+                    }
+
                     if (ex.InnerException != null)
                     {
                         detailMessage += " | İç hata: " + ex.InnerException.Message;
@@ -109,6 +161,8 @@ namespace arac_kiralama_satis_desktop.Utils
                     connection.Open();
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
+                        command.CommandTimeout = 60; // 60 saniye zaman aşımı
+
                         if (parameters != null)
                         {
                             command.Parameters.AddRange(parameters);
@@ -117,9 +171,18 @@ namespace arac_kiralama_satis_desktop.Utils
                         affectedRows = command.ExecuteNonQuery();
                     }
                 }
-                catch (Exception ex)
+                catch (MySqlException ex)
                 {
-                    throw new Exception("Sorgu çalıştırma hatası: " + ex.Message);
+                    string detailMessage = "Sorgu çalıştırma hatası: " + ex.Message;
+
+                    if (ex.InnerException != null)
+                    {
+                        detailMessage += " | İç hata: " + ex.InnerException.Message;
+                    }
+
+                    MessageBox.Show(detailMessage, "Sorgu Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    throw new Exception(detailMessage);
                 }
                 finally
                 {
@@ -151,6 +214,8 @@ namespace arac_kiralama_satis_desktop.Utils
                     connection.Open();
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
+                        command.CommandTimeout = 60; // 60 saniye zaman aşımı
+
                         if (parameters != null)
                         {
                             command.Parameters.AddRange(parameters);
@@ -159,9 +224,10 @@ namespace arac_kiralama_satis_desktop.Utils
                         result = command.ExecuteScalar();
                     }
                 }
-                catch (Exception ex)
+                catch (MySqlException ex)
                 {
                     string detailMessage = "Scalar sorgu çalıştırma hatası: " + ex.Message;
+
                     if (ex.InnerException != null)
                     {
                         detailMessage += " | İç hata: " + ex.InnerException.Message;
@@ -189,6 +255,31 @@ namespace arac_kiralama_satis_desktop.Utils
             }
 
             return result;
+        }
+
+        // Test veritabanı bağlantısı için metod
+        public static bool TestConnection(out string errorMessage)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    connection.Close();
+                }
+
+                errorMessage = string.Empty;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMessage += " | " + ex.InnerException.Message;
+                }
+                return false;
+            }
         }
     }
 }
