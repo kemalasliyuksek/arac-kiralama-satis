@@ -48,20 +48,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnDashboard = new IconButton();
             pnlLogo = new Panel();
             lblAppName = new Label();
-            picLogo = new PictureBox();
             pnlTopbar = new Panel();
             lblBranchName = new Label();
             lblPageTitle = new Label();
             btnLogout = new IconButton();
             pnlContent = new Panel();
-            pnlCustomers = new Panel();
-            pnlCustomersContent = new Panel();
-            dgvCustomers = new DataGridView();
-            pnlCustomersHeader = new Panel();
-            lblCustomersTitle = new Label();
-            btnAddCustomer = new IconButton();
-            btnRefreshCustomers = new IconButton();
-            txtSearchCustomers = new TextBox();
             pnlVehicles = new Panel();
             pnlVehiclesContent = new Panel();
             dgvVehicles = new DataGridView();
@@ -70,6 +61,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnAddVehicle = new IconButton();
             btnRefreshVehicles = new IconButton();
             txtSearchVehicles = new TextBox();
+            pnlCustomers = new Panel();
+            pnlCustomersContent = new Panel();
+            dgvCustomers = new DataGridView();
+            pnlCustomersHeader = new Panel();
+            lblCustomersTitle = new Label();
+            btnAddCustomer = new IconButton();
+            btnRefreshCustomers = new IconButton();
+            txtSearchCustomers = new TextBox();
             pnlDashboard = new Panel();
             pnlCharts = new Panel();
             pnlCarsByLocation = new Panel();
@@ -107,17 +106,16 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ((System.ComponentModel.ISupportInitialize)picUserAvatar).BeginInit();
             pnlMenu.SuspendLayout();
             pnlLogo.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
             pnlTopbar.SuspendLayout();
             pnlContent.SuspendLayout();
-            pnlCustomers.SuspendLayout();
-            pnlCustomersContent.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
-            pnlCustomersHeader.SuspendLayout();
             pnlVehicles.SuspendLayout();
             pnlVehiclesContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvVehicles).BeginInit();
             pnlVehiclesHeader.SuspendLayout();
+            pnlCustomers.SuspendLayout();
+            pnlCustomersContent.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
+            pnlCustomersHeader.SuspendLayout();
             pnlDashboard.SuspendLayout();
             pnlCharts.SuspendLayout();
             pnlCarsByLocation.SuspendLayout();
@@ -400,7 +398,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // pnlLogo
             // 
             pnlLogo.Controls.Add(lblAppName);
-            pnlLogo.Controls.Add(picLogo);
             pnlLogo.Dock = DockStyle.Top;
             pnlLogo.Location = new Point(0, 0);
             pnlLogo.Name = "pnlLogo";
@@ -412,20 +409,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblAppName.AutoSize = true;
             lblAppName.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             lblAppName.ForeColor = Color.White;
-            lblAppName.Location = new Point(70, 27);
+            lblAppName.Location = new Point(23, 28);
             lblAppName.Name = "lblAppName";
-            lblAppName.Size = new Size(89, 25);
+            lblAppName.Size = new Size(205, 25);
             lblAppName.TabIndex = 1;
-            lblAppName.Text = "CarBook";
-            // 
-            // picLogo
-            // 
-            picLogo.Location = new Point(20, 20);
-            picLogo.Name = "picLogo";
-            picLogo.Size = new Size(40, 40);
-            picLogo.SizeMode = PictureBoxSizeMode.Zoom;
-            picLogo.TabIndex = 0;
-            picLogo.TabStop = false;
+            lblAppName.Text = "Araç Kiralama ve Satış";
             // 
             // pnlTopbar
             // 
@@ -493,115 +481,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlContent.Padding = new Padding(20);
             pnlContent.Size = new Size(1050, 740);
             pnlContent.TabIndex = 2;
-            // 
-            // pnlCustomers
-            // 
-            pnlCustomers.Controls.Add(pnlCustomersContent);
-            pnlCustomers.Controls.Add(pnlCustomersHeader);
-            pnlCustomers.Dock = DockStyle.Fill;
-            pnlCustomers.Location = new Point(20, 20);
-            pnlCustomers.Name = "pnlCustomers";
-            pnlCustomers.Size = new Size(1010, 700);
-            pnlCustomers.TabIndex = 1;
-            pnlCustomers.Visible = false;
-            // 
-            // pnlCustomersContent
-            // 
-            pnlCustomersContent.Controls.Add(dgvCustomers);
-            pnlCustomersContent.Dock = DockStyle.Fill;
-            pnlCustomersContent.Location = new Point(0, 80);
-            pnlCustomersContent.Name = "pnlCustomersContent";
-            pnlCustomersContent.Padding = new Padding(10);
-            pnlCustomersContent.Size = new Size(1010, 620);
-            pnlCustomersContent.TabIndex = 1;
-            // 
-            // dgvCustomers
-            // 
-            dgvCustomers.AllowUserToAddRows = false;
-            dgvCustomers.AllowUserToDeleteRows = false;
-            dgvCustomers.BackgroundColor = Color.White;
-            dgvCustomers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvCustomers.Dock = DockStyle.Fill;
-            dgvCustomers.Location = new Point(10, 10);
-            dgvCustomers.Name = "dgvCustomers";
-            dgvCustomers.ReadOnly = true;
-            dgvCustomers.Size = new Size(990, 600);
-            dgvCustomers.TabIndex = 0;
-            // 
-            // pnlCustomersHeader
-            // 
-            pnlCustomersHeader.BackColor = Color.White;
-            pnlCustomersHeader.Controls.Add(lblCustomersTitle);
-            pnlCustomersHeader.Controls.Add(btnAddCustomer);
-            pnlCustomersHeader.Controls.Add(btnRefreshCustomers);
-            pnlCustomersHeader.Controls.Add(txtSearchCustomers);
-            pnlCustomersHeader.Dock = DockStyle.Top;
-            pnlCustomersHeader.Location = new Point(0, 0);
-            pnlCustomersHeader.Name = "pnlCustomersHeader";
-            pnlCustomersHeader.Size = new Size(1010, 80);
-            pnlCustomersHeader.TabIndex = 0;
-            // 
-            // lblCustomersTitle
-            // 
-            lblCustomersTitle.AutoSize = true;
-            lblCustomersTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-            lblCustomersTitle.ForeColor = Color.FromArgb(49, 76, 143);
-            lblCustomersTitle.Location = new Point(23, 25);
-            lblCustomersTitle.Name = "lblCustomersTitle";
-            lblCustomersTitle.Size = new Size(163, 30);
-            lblCustomersTitle.TabIndex = 3;
-            lblCustomersTitle.Text = "Müşteri Listesi";
-            // 
-            // btnAddCustomer
-            // 
-            btnAddCustomer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnAddCustomer.BackColor = Color.FromArgb(40, 167, 69);
-            btnAddCustomer.FlatAppearance.BorderSize = 0;
-            btnAddCustomer.FlatStyle = FlatStyle.Flat;
-            btnAddCustomer.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            btnAddCustomer.ForeColor = Color.White;
-            btnAddCustomer.IconChar = IconChar.Add;
-            btnAddCustomer.IconColor = Color.White;
-            btnAddCustomer.IconFont = IconFont.Auto;
-            btnAddCustomer.IconSize = 20;
-            btnAddCustomer.Location = new Point(870, 20);
-            btnAddCustomer.Name = "btnAddCustomer";
-            btnAddCustomer.Size = new Size(120, 40);
-            btnAddCustomer.TabIndex = 2;
-            btnAddCustomer.Text = "Yeni Müşteri";
-            btnAddCustomer.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btnAddCustomer.UseVisualStyleBackColor = false;
-            // 
-            // btnRefreshCustomers
-            // 
-            btnRefreshCustomers.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnRefreshCustomers.BackColor = Color.FromArgb(108, 117, 125);
-            btnRefreshCustomers.FlatAppearance.BorderSize = 0;
-            btnRefreshCustomers.FlatStyle = FlatStyle.Flat;
-            btnRefreshCustomers.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            btnRefreshCustomers.ForeColor = Color.White;
-            btnRefreshCustomers.IconChar = IconChar.SyncAlt;
-            btnRefreshCustomers.IconColor = Color.White;
-            btnRefreshCustomers.IconFont = IconFont.Auto;
-            btnRefreshCustomers.IconSize = 20;
-            btnRefreshCustomers.Location = new Point(790, 20);
-            btnRefreshCustomers.Name = "btnRefreshCustomers";
-            btnRefreshCustomers.Size = new Size(40, 40);
-            btnRefreshCustomers.TabIndex = 1;
-            btnRefreshCustomers.TextImageRelation = TextImageRelation.ImageBeforeText;
-            btnRefreshCustomers.UseVisualStyleBackColor = false;
-            btnRefreshCustomers.Click += BtnRefreshCustomers_Click;
-            // 
-            // txtSearchCustomers
-            // 
-            txtSearchCustomers.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtSearchCustomers.Font = new Font("Segoe UI", 12F);
-            txtSearchCustomers.Location = new Point(475, 26);
-            txtSearchCustomers.Name = "txtSearchCustomers";
-            txtSearchCustomers.PlaceholderText = "Arama...";
-            txtSearchCustomers.Size = new Size(300, 29);
-            txtSearchCustomers.TabIndex = 0;
-            txtSearchCustomers.TextChanged += TxtSearchCustomers_TextChanged;
             // 
             // pnlVehicles
             // 
@@ -711,6 +590,115 @@ namespace arac_kiralama_satis_desktop.Interfaces
             txtSearchVehicles.Size = new Size(300, 29);
             txtSearchVehicles.TabIndex = 0;
             txtSearchVehicles.TextChanged += TxtSearchVehicles_TextChanged;
+            // 
+            // pnlCustomers
+            // 
+            pnlCustomers.Controls.Add(pnlCustomersContent);
+            pnlCustomers.Controls.Add(pnlCustomersHeader);
+            pnlCustomers.Dock = DockStyle.Fill;
+            pnlCustomers.Location = new Point(20, 20);
+            pnlCustomers.Name = "pnlCustomers";
+            pnlCustomers.Size = new Size(1010, 700);
+            pnlCustomers.TabIndex = 1;
+            pnlCustomers.Visible = false;
+            // 
+            // pnlCustomersContent
+            // 
+            pnlCustomersContent.Controls.Add(dgvCustomers);
+            pnlCustomersContent.Dock = DockStyle.Fill;
+            pnlCustomersContent.Location = new Point(0, 80);
+            pnlCustomersContent.Name = "pnlCustomersContent";
+            pnlCustomersContent.Padding = new Padding(10);
+            pnlCustomersContent.Size = new Size(1010, 620);
+            pnlCustomersContent.TabIndex = 1;
+            // 
+            // dgvCustomers
+            // 
+            dgvCustomers.AllowUserToAddRows = false;
+            dgvCustomers.AllowUserToDeleteRows = false;
+            dgvCustomers.BackgroundColor = Color.White;
+            dgvCustomers.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvCustomers.Dock = DockStyle.Fill;
+            dgvCustomers.Location = new Point(10, 10);
+            dgvCustomers.Name = "dgvCustomers";
+            dgvCustomers.ReadOnly = true;
+            dgvCustomers.Size = new Size(990, 600);
+            dgvCustomers.TabIndex = 0;
+            // 
+            // pnlCustomersHeader
+            // 
+            pnlCustomersHeader.BackColor = Color.White;
+            pnlCustomersHeader.Controls.Add(lblCustomersTitle);
+            pnlCustomersHeader.Controls.Add(btnAddCustomer);
+            pnlCustomersHeader.Controls.Add(btnRefreshCustomers);
+            pnlCustomersHeader.Controls.Add(txtSearchCustomers);
+            pnlCustomersHeader.Dock = DockStyle.Top;
+            pnlCustomersHeader.Location = new Point(0, 0);
+            pnlCustomersHeader.Name = "pnlCustomersHeader";
+            pnlCustomersHeader.Size = new Size(1010, 80);
+            pnlCustomersHeader.TabIndex = 0;
+            // 
+            // lblCustomersTitle
+            // 
+            lblCustomersTitle.AutoSize = true;
+            lblCustomersTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblCustomersTitle.ForeColor = Color.FromArgb(49, 76, 143);
+            lblCustomersTitle.Location = new Point(23, 25);
+            lblCustomersTitle.Name = "lblCustomersTitle";
+            lblCustomersTitle.Size = new Size(163, 30);
+            lblCustomersTitle.TabIndex = 3;
+            lblCustomersTitle.Text = "Müşteri Listesi";
+            // 
+            // btnAddCustomer
+            // 
+            btnAddCustomer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAddCustomer.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddCustomer.FlatAppearance.BorderSize = 0;
+            btnAddCustomer.FlatStyle = FlatStyle.Flat;
+            btnAddCustomer.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnAddCustomer.ForeColor = Color.White;
+            btnAddCustomer.IconChar = IconChar.Add;
+            btnAddCustomer.IconColor = Color.White;
+            btnAddCustomer.IconFont = IconFont.Auto;
+            btnAddCustomer.IconSize = 20;
+            btnAddCustomer.Location = new Point(870, 20);
+            btnAddCustomer.Name = "btnAddCustomer";
+            btnAddCustomer.Size = new Size(120, 40);
+            btnAddCustomer.TabIndex = 2;
+            btnAddCustomer.Text = "Yeni Müşteri";
+            btnAddCustomer.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnAddCustomer.UseVisualStyleBackColor = false;
+            // 
+            // btnRefreshCustomers
+            // 
+            btnRefreshCustomers.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRefreshCustomers.BackColor = Color.FromArgb(108, 117, 125);
+            btnRefreshCustomers.FlatAppearance.BorderSize = 0;
+            btnRefreshCustomers.FlatStyle = FlatStyle.Flat;
+            btnRefreshCustomers.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnRefreshCustomers.ForeColor = Color.White;
+            btnRefreshCustomers.IconChar = IconChar.SyncAlt;
+            btnRefreshCustomers.IconColor = Color.White;
+            btnRefreshCustomers.IconFont = IconFont.Auto;
+            btnRefreshCustomers.IconSize = 20;
+            btnRefreshCustomers.Location = new Point(790, 20);
+            btnRefreshCustomers.Name = "btnRefreshCustomers";
+            btnRefreshCustomers.Size = new Size(40, 40);
+            btnRefreshCustomers.TabIndex = 1;
+            btnRefreshCustomers.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnRefreshCustomers.UseVisualStyleBackColor = false;
+            btnRefreshCustomers.Click += BtnRefreshCustomers_Click;
+            // 
+            // txtSearchCustomers
+            // 
+            txtSearchCustomers.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtSearchCustomers.Font = new Font("Segoe UI", 12F);
+            txtSearchCustomers.Location = new Point(475, 26);
+            txtSearchCustomers.Name = "txtSearchCustomers";
+            txtSearchCustomers.PlaceholderText = "Arama...";
+            txtSearchCustomers.Size = new Size(300, 29);
+            txtSearchCustomers.TabIndex = 0;
+            txtSearchCustomers.TextChanged += TxtSearchCustomers_TextChanged;
             // 
             // pnlDashboard
             // 
@@ -1090,20 +1078,19 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlMenu.ResumeLayout(false);
             pnlLogo.ResumeLayout(false);
             pnlLogo.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
             pnlTopbar.ResumeLayout(false);
             pnlTopbar.PerformLayout();
             pnlContent.ResumeLayout(false);
-            pnlCustomers.ResumeLayout(false);
-            pnlCustomersContent.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgvCustomers).EndInit();
-            pnlCustomersHeader.ResumeLayout(false);
-            pnlCustomersHeader.PerformLayout();
             pnlVehicles.ResumeLayout(false);
             pnlVehiclesContent.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvVehicles).EndInit();
             pnlVehiclesHeader.ResumeLayout(false);
             pnlVehiclesHeader.PerformLayout();
+            pnlCustomers.ResumeLayout(false);
+            pnlCustomersContent.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvCustomers).EndInit();
+            pnlCustomersHeader.ResumeLayout(false);
+            pnlCustomersHeader.PerformLayout();
             pnlDashboard.ResumeLayout(false);
             pnlCharts.ResumeLayout(false);
             pnlCarsByLocation.ResumeLayout(false);
@@ -1136,7 +1123,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private Panel pnlLogo;
         private Panel pnlMenu;
         private Panel pnlUserInfo;
-        private PictureBox picLogo;
         private Label lblAppName;
         private PictureBox picUserAvatar;
         private Label lblUserName;
