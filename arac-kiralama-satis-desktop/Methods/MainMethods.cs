@@ -416,7 +416,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
                     r.RolAdi, 
                     s.SubeAdi, 
-                    k.Durum,
+                    IF(k.Durum = '1', 'Aktif', 'Pasif') as Durum, 
                     k.SonGirisTarihi,
                     k.OlusturmaTarihi
                     FROM Kullanicilar k
