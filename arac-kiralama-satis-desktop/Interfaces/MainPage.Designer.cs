@@ -54,6 +54,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblBranchName = new Label();
             lblPageTitle = new Label();
             btnLogout = new IconButton();
+            btnRefresh = new IconButton();
+            pnlTopbar.Controls.Add(btnRefresh);
             pnlContent = new Panel();
             pnlStaff = new Panel();
             pnlStaffContent = new Panel();
@@ -502,6 +504,25 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnLogout.UseVisualStyleBackColor = true;
             btnLogout.Click += BtnLogout_Click;
             // 
+            // btnRefresh
+            //
+            btnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRefresh.Cursor = Cursors.Hand;
+            btnRefresh.FlatAppearance.BorderSize = 0;
+            btnRefresh.FlatStyle = FlatStyle.Flat;
+            btnRefresh.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnRefresh.ForeColor = Color.FromArgb(49, 76, 143);
+            btnRefresh.IconChar = IconChar.SyncAlt;
+            btnRefresh.IconColor = Color.FromArgb(49, 76, 143);
+            btnRefresh.IconFont = IconFont.Auto;
+            btnRefresh.IconSize = 24;
+            btnRefresh.Location = new Point(938, 10);
+            btnRefresh.Name = "btnRefresh";
+            btnRefresh.Size = new Size(40, 40);
+            btnRefresh.TabIndex = 1;
+            btnRefresh.UseVisualStyleBackColor = true;
+            btnRefresh.Click += BtnRefresh_Click;
+            //
             // pnlContent
             // 
             pnlContent.BackColor = Color.FromArgb(245, 245, 250);
@@ -1043,6 +1064,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private FontAwesome.Sharp.IconButton btnMaintenance;
         private FontAwesome.Sharp.IconButton btnReports;
         private FontAwesome.Sharp.IconButton btnSettings;
+        private FontAwesome.Sharp.IconButton btnRefresh;
         private Label lblPageTitle;
         private FontAwesome.Sharp.IconButton btnLogout;
         private Label lblBranchName;

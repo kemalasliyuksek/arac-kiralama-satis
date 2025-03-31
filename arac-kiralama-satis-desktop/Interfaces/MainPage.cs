@@ -1061,6 +1061,50 @@ namespace arac_kiralama_satis_desktop.Interfaces
             staffForm.ShowDialog();
         }
 
+        private void BtnRefresh_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+
+                // Determine which panel is currently visible and refresh its data
+                if (pnlDashboard.Visible)
+                {
+                    LoadDashboardData();
+                }
+                else if (pnlVehicles.Visible)
+                {
+                    LoadVehiclesData();
+                    txtSearchVehicles.Clear();
+                }
+                else if (pnlCustomers.Visible)
+                {
+                    LoadCustomersData();
+                    txtSearchCustomers.Clear();
+                }
+                else if (pnlBranches.Visible)
+                {
+                    LoadBranchesData();
+                    txtSearchBranches.Clear();
+                }
+                else if (pnlStaff.Visible)
+                {
+                    LoadStaffData();
+                    txtSearchStaff.Clear();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Veriler yenilenirken bir hata oluştu: {ex.Message}",
+                    "Yenileme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
         #endregion
     }
 }
