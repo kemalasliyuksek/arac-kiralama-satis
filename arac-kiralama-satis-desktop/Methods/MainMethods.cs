@@ -402,28 +402,27 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        // Personel listesini getiren yeni metot
         // Personel listesini getiren metot
         public static DataTable GetStaffList()
         {
             try
             {
                 string query = @"SELECT 
-                        k.KullaniciID, 
-                        k.Ad, 
-                        k.Soyad, 
-                        k.KullaniciAdi, 
-                        k.Email, 
-                        CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
-                        r.RolAdi, 
-                        s.SubeAdi, 
-                        CAST(k.Durum as VARCHAR(10)) as Durum, 
-                        k.SonGirisTarihi,
-                        k.OlusturmaTarihi
-                        FROM Kullanicilar k
-                        LEFT JOIN Roller r ON k.RolID = r.RolID
-                        LEFT JOIN Subeler s ON k.SubeID = s.SubeID
-                        ORDER BY k.KullaniciID DESC";
+                    k.KullaniciID, 
+                    k.Ad, 
+                    k.Soyad, 
+                    k.KullaniciAdi, 
+                    k.Email, 
+                    CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
+                    r.RolAdi, 
+                    s.SubeAdi, 
+                    k.Durum,
+                    k.SonGirisTarihi,
+                    k.OlusturmaTarihi
+                    FROM Kullanicilar k
+                    LEFT JOIN Roller r ON k.RolID = r.RolID
+                    LEFT JOIN Subeler s ON k.SubeID = s.SubeID
+                    ORDER BY k.KullaniciID DESC";
 
                 return DatabaseConnection.ExecuteQuery(query);
             }

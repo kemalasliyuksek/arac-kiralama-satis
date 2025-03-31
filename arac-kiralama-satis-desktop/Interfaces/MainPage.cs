@@ -582,21 +582,20 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 // Durum sütununu string türüne dönüştür (format hatası için önlem)
                 foreach (DataRow row in staffTable.Rows)
                 {
-                    // Durum değerini Boolean'dan string'e dönüştür
-                    bool aktifMi = false;
-                    if (row["Durum"] != DBNull.Value && row["Durum"] != null)
+                    // Durum değerini kontrol edip değiştirin
+                    if (row["Durum"] != DBNull.Value)
                     {
-                        // Farklı veri tipleri için güvenli dönüşüm
-                        if (row["Durum"] is bool)
-                            aktifMi = (bool)row["Durum"];
-                        else if (row["Durum"] is int)
-                            aktifMi = ((int)row["Durum"]) != 0;
-                        else if (row["Durum"] is string)
-                            aktifMi = row["Durum"].ToString().ToLower() == "true" || row["Durum"].ToString() == "1";
-                    }
+                        // Direkt int değer olarak kontrol et - veritabanında 1 olduğunu görmüştük
+                        int durumValue = Convert.ToInt32(row["Durum"]);
+                        row["Durum"] = durumValue == 1 ? "Aktif" : "Pasif";
 
-                    // Durum değerini metin olarak ayarla
-                    row["Durum"] = aktifMi ? "Aktif" : "Pasif";
+                        // Debug için konsola yazdır
+                        Console.WriteLine($"Durum değeri: {durumValue} -> {row["Durum"]}");
+                    }
+                    else
+                    {
+                        row["Durum"] = "Pasif";
+                    }
                 }
 
                 // Set DataSource

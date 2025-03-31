@@ -8,16 +8,53 @@ namespace arac_kiralama_satis_desktop.Utils
 {
     public static class DatabaseConnection
     {
-        // Localhost connection string
-        private static string connectionString = "Server=localhost;Database=arac_kiralama_satis;Uid=root;Pwd=2307;Port=3306;SslMode=None;CharSet=utf8mb4;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+        // Localhost veya Remote veritabanını seçmek için değiştirin
+        private static bool UseRemote = true;
 
-        // Remote connection string
-        // private static string connectionString = "Server=92.205.171.9;Database=arac_kiralama_satis;Uid=admin;Pwd=Ke3@1.3ySQ1;Port=3306;SslMode=None;CharSet=utf8mb4;Collation=utf8mb4_unicode_ci;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+        private static string GetConnectionString()
+        {
+            string connectionName = UseRemote ? "AracDB_Remote" : "AracDB_Local";
+
+            try
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings[connectionName]?.ConnectionString;
+
+                // Config'de bağlantı dizesi bulunamazsa varsayılan değerlere dön
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    if (UseRemote)
+                    {
+                        return "Server=92.205.171.9;Database=arac_kiralama_satis;Uid=admin;Pwd=Ke3@1.3ySQ1;Port=3306;SslMode=None;CharSet=utf8mb4;AllowPublicKeyRetrieval=true;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+                    }
+                    else
+                    {
+                        return "Server=localhost;Database=arac_kiralama_satis;Uid=root;Pwd=2307;Port=3306;SslMode=None;CharSet=utf8mb4;AllowPublicKeyRetrieval=true;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+                    }
+                }
+
+                return connectionString;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Bağlantı dizesi alınırken hata: {ex.Message}");
+
+                // Hata durumunda varsayılan değer döndür
+                if (UseRemote)
+                {
+                    return "Server=92.205.171.9;Database=arac_kiralama_satis;Uid=admin;Pwd=Ke3@1.3ySQ1;Port=3306;SslMode=None;CharSet=utf8mb4;AllowPublicKeyRetrieval=true;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+                }
+                else
+                {
+                    return "Server=localhost;Database=arac_kiralama_satis;Uid=root;Pwd=2307;Port=3306;SslMode=None;CharSet=utf8mb4;AllowPublicKeyRetrieval=true;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+                }
+            }
+        }
 
         public static MySqlConnection GetConnection()
         {
             try
             {
+                string connectionString = GetConnectionString();
                 Console.WriteLine("Bağlantı dizesi: " + connectionString);
 
                 MySqlConnection connection = new MySqlConnection(connectionString);
@@ -265,6 +302,7 @@ namespace arac_kiralama_satis_desktop.Utils
         {
             try
             {
+                string connectionString = GetConnectionString();
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
