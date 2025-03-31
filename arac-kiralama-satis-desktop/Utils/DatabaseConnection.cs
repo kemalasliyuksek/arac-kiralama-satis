@@ -8,8 +8,11 @@ namespace arac_kiralama_satis_desktop.Utils
 {
     public static class DatabaseConnection
     {
-        private static string connectionString = ConfigurationManager.ConnectionStrings["AracDB"]?.ConnectionString
-                                     ?? "Server=92.205.171.9;Database=arac_kiralama_satis;Uid=admin;Pwd=Ke3@1.3ySQ1;Port=3306;SslMode=None;CharSet=utf8mb4;Collation=utf8mb4_unicode_ci;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+        // Localhost connection string
+        private static string connectionString = "Server=localhost;Database=arac_kiralama_satis;Uid=root;Pwd=2307;Port=3306;SslMode=None;CharSet=utf8mb4;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
+
+        // Remote connection string
+        // private static string connectionString = "Server=92.205.171.9;Database=arac_kiralama_satis;Uid=admin;Pwd=Ke3@1.3ySQ1;Port=3306;SslMode=None;CharSet=utf8mb4;Collation=utf8mb4_unicode_ci;ConnectionTimeout=60;DefaultCommandTimeout=60;Pooling=true;";
 
         public static MySqlConnection GetConnection()
         {

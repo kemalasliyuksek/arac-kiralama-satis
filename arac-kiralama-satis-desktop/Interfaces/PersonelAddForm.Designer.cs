@@ -32,7 +32,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components = new System.ComponentModel.Container();
             pnlMain = new Panel();
             pnlContent = new Panel();
             lblError = new Label();
@@ -63,7 +63,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlHeader = new Panel();
             btnClose = new IconButton();
             lblTitle = new Label();
-            errorProvider = new ErrorProvider(this.components);
+            errorProvider = new ErrorProvider(components);
             pnlMain.SuspendLayout();
             pnlContent.SuspendLayout();
             pnlHeader.SuspendLayout();
@@ -119,11 +119,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // lblError
             // 
             lblError.AutoSize = true;
-            lblError.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
+            lblError.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             lblError.ForeColor = Color.FromArgb(220, 53, 69);
             lblError.Location = new Point(20, 487);
             lblError.Name = "lblError";
-            lblError.Size = new Size(104, 17);
+            lblError.Size = new Size(93, 17);
             lblError.TabIndex = 36;
             lblError.Text = "Hata mesajı...";
             lblError.Visible = false;
@@ -133,7 +133,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnCancel.BackColor = Color.FromArgb(108, 117, 125);
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.FlatStyle = FlatStyle.Flat;
-            btnCancel.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
+            btnCancel.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnCancel.ForeColor = Color.White;
             btnCancel.Location = new Point(579, 478);
             btnCancel.Name = "btnCancel";
@@ -148,7 +148,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnSave.BackColor = Color.FromArgb(40, 167, 69);
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.FlatStyle = FlatStyle.Flat;
-            btnSave.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
+            btnSave.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnSave.ForeColor = Color.White;
             btnSave.Location = new Point(685, 478);
             btnSave.Name = "btnSave";
@@ -165,7 +165,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             chkIsActive.CheckState = CheckState.Checked;
             chkIsActive.Location = new Point(579, 425);
             chkIsActive.Name = "chkIsActive";
-            chkIsActive.Size = new Size(55, 19);
+            chkIsActive.Size = new Size(51, 19);
             chkIsActive.TabIndex = 12;
             chkIsActive.Text = "Aktif";
             chkIsActive.UseVisualStyleBackColor = true;
@@ -175,7 +175,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label13.AutoSize = true;
             label13.Location = new Point(579, 407);
             label13.Name = "label13";
-            label13.Size = new Size(48, 15);
+            label13.Size = new Size(47, 15);
             label13.TabIndex = 24;
             label13.Text = "Durum:";
             // 
@@ -192,7 +192,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label12.AutoSize = true;
             label12.Location = new Point(579, 334);
             label12.Name = "label12";
-            label12.Size = new Size(37, 15);
+            label12.Size = new Size(36, 15);
             label12.TabIndex = 22;
             label12.Text = "Şube:";
             // 
@@ -225,7 +225,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label10.AutoSize = true;
             label10.Location = new Point(579, 228);
             label10.Name = "label10";
-            label10.Size = new Size(47, 15);
+            label10.Size = new Size(50, 15);
             label10.TabIndex = 18;
             label10.Text = "E-posta:";
             // 
@@ -242,7 +242,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label9.AutoSize = true;
             label9.Location = new Point(579, 175);
             label9.Name = "label9";
-            label9.Size = new Size(48, 15);
+            label9.Size = new Size(49, 15);
             label9.TabIndex = 16;
             label9.Text = "Telefon:";
             // 
@@ -276,7 +276,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label7.AutoSize = true;
             label7.Location = new Point(20, 334);
             label7.Name = "label7";
-            label7.Size = new Size(73, 15);
+            label7.Size = new Size(76, 15);
             label7.TabIndex = 12;
             label7.Text = "Şifre (Tekrar):";
             // 
@@ -339,11 +339,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // label2
             // 
             label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point);
+            label2.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label2.ForeColor = Color.FromArgb(49, 76, 143);
             label2.Location = new Point(20, 80);
             label2.Name = "label2";
-            label2.Size = new Size(147, 21);
+            label2.Size = new Size(140, 21);
             label2.TabIndex = 2;
             label2.Text = "Personel Bilgileri";
             // 
@@ -364,7 +364,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.ForeColor = Color.White;
-            btnClose.IconChar = IconChar.Times;
+            btnClose.IconChar = IconChar.Close;
             btnClose.IconColor = Color.White;
             btnClose.IconFont = IconFont.Auto;
             btnClose.IconSize = 24;
@@ -378,11 +378,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // lblTitle
             // 
             lblTitle.AutoSize = true;
-            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold, GraphicsUnit.Point);
+            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(20, 15);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(165, 30);
+            lblTitle.Size = new Size(149, 30);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "Personel Ekle";
             // 
