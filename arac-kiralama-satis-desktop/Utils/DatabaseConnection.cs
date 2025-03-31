@@ -9,7 +9,7 @@ namespace arac_kiralama_satis_desktop.Utils
     public static class DatabaseConnection
     {
         // Localhost veya Remote veritabanını seçmek için değiştirin
-        private static bool UseRemote = true;
+        private static bool UseRemote = false;
 
         private static string GetConnectionString()
         {

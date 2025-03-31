@@ -408,21 +408,21 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 string query = @"SELECT 
-                    k.KullaniciID, 
-                    k.Ad, 
-                    k.Soyad, 
-                    k.KullaniciAdi, 
-                    k.Email, 
-                    CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
-                    r.RolAdi, 
-                    s.SubeAdi, 
-                    IF(k.Durum = '1', 'Aktif', 'Pasif') as Durum, 
-                    k.SonGirisTarihi,
-                    k.OlusturmaTarihi
-                    FROM Kullanicilar k
-                    LEFT JOIN Roller r ON k.RolID = r.RolID
-                    LEFT JOIN Subeler s ON k.SubeID = s.SubeID
-                    ORDER BY k.KullaniciID DESC";
+            k.KullaniciID, 
+            k.Ad, 
+            k.Soyad, 
+            k.KullaniciAdi, 
+            k.Email, 
+            CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
+            r.RolAdi, 
+            s.SubeAdi, 
+            IF(k.Durum, 'Aktif', 'Pasif') as Durum, 
+            k.SonGirisTarihi,
+            k.OlusturmaTarihi
+            FROM Kullanicilar k
+            LEFT JOIN Roller r ON k.RolID = r.RolID
+            LEFT JOIN Subeler s ON k.SubeID = s.SubeID
+            ORDER BY k.KullaniciID DESC";
 
                 return DatabaseConnection.ExecuteQuery(query);
             }
