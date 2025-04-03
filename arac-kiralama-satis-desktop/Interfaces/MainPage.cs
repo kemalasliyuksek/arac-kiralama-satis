@@ -22,6 +22,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private DataTable customersTable;
         private DataTable branchesTable;
         private DataTable staffTable;
+        private DataTable rentalsTable;
 
         // Dashboard controls
         private Panel[] metricPanels;
@@ -832,6 +833,156 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
+        // Kiralama verilerini yüklemek için yeni metot ekleyin
+        private void LoadRentalsData()
+        {
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+
+                // Get rental data from database
+                DataTable result = MainMethods.GetRentalList();
+                rentalsTable = result.Copy();
+
+                // Rename columns for display
+                rentalsTable.Columns["KiralamaID"].ColumnName = "KiralamaID";
+                rentalsTable.Columns["MusteriAdSoyad"].ColumnName = "Müşteri";
+                rentalsTable.Columns["Plaka"].ColumnName = "Plaka";
+                rentalsTable.Columns["Marka"].ColumnName = "Marka";
+                rentalsTable.Columns["Model"].ColumnName = "Model";
+                rentalsTable.Columns["BaslangicTarihi"].ColumnName = "Başlangıç Tarihi";
+                rentalsTable.Columns["BitisTarihi"].ColumnName = "Bitiş Tarihi";
+                rentalsTable.Columns["TeslimTarihi"].ColumnName = "Teslim Tarihi";
+                rentalsTable.Columns["KiralamaTutari"].ColumnName = "Kiralama Tutarı";
+                rentalsTable.Columns["OdemeTipi"].ColumnName = "Ödeme Tipi";
+
+                // Set DataSource
+                dgvRentals.DataSource = rentalsTable;
+
+                // Format columns
+                if (dgvRentals.Columns.Count > 0)
+                {
+                    dgvRentals.Columns["KiralamaID"].Visible = false;
+                    dgvRentals.Columns["Müşteri"].Width = 150;
+                    dgvRentals.Columns["Plaka"].Width = 80;
+                    dgvRentals.Columns["Marka"].Width = 100;
+                    dgvRentals.Columns["Model"].Width = 100;
+                    dgvRentals.Columns["Başlangıç Tarihi"].Width = 120;
+                    dgvRentals.Columns["Bitiş Tarihi"].Width = 120;
+                    dgvRentals.Columns["Teslim Tarihi"].Width = 120;
+                    dgvRentals.Columns["Kiralama Tutarı"].Width = 120;
+                    dgvRentals.Columns["Ödeme Tipi"].Width = 100;
+
+                    dgvRentals.Columns["Başlangıç Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvRentals.Columns["Bitiş Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvRentals.Columns["Teslim Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvRentals.Columns["Kiralama Tutarı"].DefaultCellStyle.Format = "N2";
+                    dgvRentals.Columns["Kiralama Tutarı"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                }
+
+                // Update count information
+                lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
+
+                // Renk kodlaması ekle - aktif ve gecikmiş kiralamalar için
+                dgvRentals.CellFormatting += (s, e) => {
+                    if (e.RowIndex >= 0)
+                    {
+                        DateTime baslangicTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["Başlangıç Tarihi"].Value);
+                        DateTime bitisTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["Bitiş Tarihi"].Value);
+                        object teslimTarihiValue = dgvRentals.Rows[e.RowIndex].Cells["Teslim Tarihi"].Value;
+
+                        bool teslimEdildi = teslimTarihiValue != DBNull.Value && teslimTarihiValue != null;
+                        bool aktifKiralama = DateTime.Now >= baslangicTarihi && DateTime.Now <= bitisTarihi && !teslimEdildi;
+                        bool gecikmisKiralama = DateTime.Now > bitisTarihi && !teslimEdildi;
+
+                        if (gecikmisKiralama)
+                        {
+                            dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 235, 235);
+                        }
+                        else if (aktifKiralama)
+                        {
+                            dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(235, 255, 235);
+                        }
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kiralama verileri yüklenirken bir hata oluştu: {ex.Message}",
+                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        // Kiralama verileri içinde arama yapmak için metot ekleyin
+        private void SearchRentals(string searchText)
+        {
+            try
+            {
+                if (rentalsTable == null) return;
+
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    // Show all data
+                    dgvRentals.DataSource = rentalsTable;
+                    lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
+                    return;
+                }
+
+                // Create filter
+                string filter = "";
+
+                // Search in most relevant columns
+                filter = $"Müşteri LIKE '%{searchText}%' OR " +
+                         $"Plaka LIKE '%{searchText}%' OR " +
+                         $"Marka LIKE '%{searchText}%' OR " +
+                         $"Model LIKE '%{searchText}%' OR " +
+                         $"[Ödeme Tipi] LIKE '%{searchText}%'";
+
+                DataView dv = rentalsTable.DefaultView;
+                dv.RowFilter = filter;
+
+                // Update label with count
+                lblRentalsTitle.Text = $"Kiralama Listesi ({dv.Count})";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Kiralama aramada hata: {ex.Message}");
+                // Failed filter - just reset
+                if (rentalsTable != null)
+                {
+                    dgvRentals.DataSource = rentalsTable;
+                    lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
+                }
+            }
+        }
+
+        // Event handler metotları ekleyin
+        private void TxtSearchRentals_TextChanged(object sender, EventArgs e)
+        {
+            SearchRentals(txtSearchRentals.Text);
+        }
+
+        private void BtnRefreshRentals_Click(object sender, EventArgs e)
+        {
+            LoadRentalsData();
+            txtSearchRentals.Clear();
+        }
+
+        private void BtnAddRental_Click(object sender, EventArgs e)
+        {
+            RentalAddForm rentalForm = new RentalAddForm();
+            rentalForm.RentalAdded += (s, args) => {
+                // Kiralama eklendiğinde listeyi yenile
+                LoadRentalsData();
+            };
+
+            rentalForm.ShowDialog();
+        }
+
         private void ActivateButton(IconButton button)
         {
             if (button != null)
@@ -873,6 +1024,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlCustomers.Visible = false;
             pnlBranches.Visible = false;
             pnlStaff.Visible = false;
+            pnlRentals.Visible = false;
 
             // Show selected panel
             if (panel != null)
@@ -946,7 +1098,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private void BtnRentals_Click(object sender, EventArgs e)
         {
             ActivateButton(sender as IconButton);
-            ShowPanel(null);
+            ShowPanel(pnlRentals);
+            LoadRentalsData();
             lblPageTitle.Text = "Kiralamalar";
         }
 
@@ -1092,7 +1245,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     LoadStaffData();
                     txtSearchStaff.Clear();
                 }
-
+                else if (pnlRentals.Visible)
+                {
+                    LoadRentalsData();
+                    txtSearchRentals.Clear();
+                }
             }
             catch (Exception ex)
             {

@@ -55,8 +55,15 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblPageTitle = new Label();
             btnLogout = new IconButton();
             btnRefresh = new IconButton();
-            pnlTopbar.Controls.Add(btnRefresh);
             pnlContent = new Panel();
+            pnlRentals = new Panel();
+            pnlRentalsContent = new Panel();
+            dgvRentals = new DataGridView();
+            pnlRentalsHeader = new Panel();
+            lblRentalsTitle = new Label();
+            btnAddRental = new IconButton();
+            btnRefreshRentals = new IconButton();
+            txtSearchRentals = new TextBox();
             pnlStaff = new Panel();
             pnlStaffContent = new Panel();
             dgvStaff = new DataGridView();
@@ -98,6 +105,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlLogo.SuspendLayout();
             pnlTopbar.SuspendLayout();
             pnlContent.SuspendLayout();
+            pnlRentals.SuspendLayout();
+            pnlRentalsContent.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvRentals).BeginInit();
+            pnlRentalsHeader.SuspendLayout();
             pnlStaff.SuspendLayout();
             pnlStaffContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvStaff).BeginInit();
@@ -457,6 +468,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlTopbar.Controls.Add(lblBranchName);
             pnlTopbar.Controls.Add(lblPageTitle);
             pnlTopbar.Controls.Add(btnLogout);
+            pnlTopbar.Controls.Add(btnRefresh);
             pnlTopbar.Dock = DockStyle.Top;
             pnlTopbar.Location = new Point(250, 0);
             pnlTopbar.Name = "pnlTopbar";
@@ -526,6 +538,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // pnlContent
             // 
             pnlContent.BackColor = Color.FromArgb(245, 245, 250);
+            pnlContent.Controls.Add(pnlRentals);
             pnlContent.Controls.Add(pnlStaff);
             pnlContent.Controls.Add(pnlDashboard);
             pnlContent.Controls.Add(pnlBranches);
@@ -537,6 +550,116 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlContent.Padding = new Padding(20);
             pnlContent.Size = new Size(1050, 740);
             pnlContent.TabIndex = 2;
+            // 
+            // pnlRentals
+            // 
+            pnlRentals.Controls.Add(pnlRentalsContent);
+            pnlRentals.Controls.Add(pnlRentalsHeader);
+            pnlRentals.Dock = DockStyle.Fill;
+            pnlRentals.Location = new Point(20, 20);
+            pnlRentals.Name = "pnlRentals";
+            pnlRentals.Size = new Size(1010, 700);
+            pnlRentals.TabIndex = 5;
+            pnlRentals.Visible = false;
+            // 
+            // pnlRentalsContent
+            // 
+            pnlRentalsContent.Controls.Add(dgvRentals);
+            pnlRentalsContent.Dock = DockStyle.Fill;
+            pnlRentalsContent.Location = new Point(0, 80);
+            pnlRentalsContent.Name = "pnlRentalsContent";
+            pnlRentalsContent.Padding = new Padding(10);
+            pnlRentalsContent.Size = new Size(1010, 620);
+            pnlRentalsContent.TabIndex = 1;
+            // 
+            // dgvRentals
+            // 
+            dgvRentals.AllowUserToAddRows = false;
+            dgvRentals.AllowUserToDeleteRows = false;
+            dgvRentals.BackgroundColor = Color.White;
+            dgvRentals.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvRentals.Dock = DockStyle.Fill;
+            dgvRentals.Location = new Point(10, 10);
+            dgvRentals.Name = "dgvRentals";
+            dgvRentals.ReadOnly = true;
+            dgvRentals.Size = new Size(990, 600);
+            dgvRentals.TabIndex = 0;
+            // 
+            // pnlRentalsHeader
+            // 
+            pnlRentalsHeader.BackColor = Color.White;
+            pnlRentalsHeader.Controls.Add(lblRentalsTitle);
+            pnlRentalsHeader.Controls.Add(btnAddRental);
+            pnlRentalsHeader.Controls.Add(btnRefreshRentals);
+            pnlRentalsHeader.Controls.Add(txtSearchRentals);
+            pnlRentalsHeader.Dock = DockStyle.Top;
+            pnlRentalsHeader.Location = new Point(0, 0);
+            pnlRentalsHeader.Name = "pnlRentalsHeader";
+            pnlRentalsHeader.Size = new Size(1010, 80);
+            pnlRentalsHeader.TabIndex = 0;
+            // 
+            // lblRentalsTitle
+            // 
+            lblRentalsTitle.AutoSize = true;
+            lblRentalsTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblRentalsTitle.ForeColor = Color.FromArgb(49, 76, 143);
+            lblRentalsTitle.Location = new Point(23, 25);
+            lblRentalsTitle.Name = "lblRentalsTitle";
+            lblRentalsTitle.Size = new Size(178, 30);
+            lblRentalsTitle.TabIndex = 3;
+            lblRentalsTitle.Text = "Kiralama Listesi";
+            // 
+            // btnAddRental
+            // 
+            btnAddRental.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAddRental.BackColor = Color.FromArgb(40, 167, 69);
+            btnAddRental.FlatAppearance.BorderSize = 0;
+            btnAddRental.FlatStyle = FlatStyle.Flat;
+            btnAddRental.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnAddRental.ForeColor = Color.White;
+            btnAddRental.IconChar = IconChar.Add;
+            btnAddRental.IconColor = Color.White;
+            btnAddRental.IconFont = IconFont.Auto;
+            btnAddRental.IconSize = 20;
+            btnAddRental.Location = new Point(870, 20);
+            btnAddRental.Name = "btnAddRental";
+            btnAddRental.Size = new Size(120, 40);
+            btnAddRental.TabIndex = 2;
+            btnAddRental.Text = "Yeni Kiralama";
+            btnAddRental.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnAddRental.UseVisualStyleBackColor = false;
+            btnAddRental.Click += BtnAddRental_Click;
+            // 
+            // btnRefreshRentals
+            // 
+            btnRefreshRentals.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRefreshRentals.BackColor = Color.FromArgb(108, 117, 125);
+            btnRefreshRentals.FlatAppearance.BorderSize = 0;
+            btnRefreshRentals.FlatStyle = FlatStyle.Flat;
+            btnRefreshRentals.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            btnRefreshRentals.ForeColor = Color.White;
+            btnRefreshRentals.IconChar = IconChar.SyncAlt;
+            btnRefreshRentals.IconColor = Color.White;
+            btnRefreshRentals.IconFont = IconFont.Auto;
+            btnRefreshRentals.IconSize = 20;
+            btnRefreshRentals.Location = new Point(790, 20);
+            btnRefreshRentals.Name = "btnRefreshRentals";
+            btnRefreshRentals.Size = new Size(40, 40);
+            btnRefreshRentals.TabIndex = 1;
+            btnRefreshRentals.TextImageRelation = TextImageRelation.ImageBeforeText;
+            btnRefreshRentals.UseVisualStyleBackColor = false;
+            btnRefreshRentals.Click += BtnRefreshRentals_Click;
+            // 
+            // txtSearchRentals
+            // 
+            txtSearchRentals.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtSearchRentals.Font = new Font("Segoe UI", 12F);
+            txtSearchRentals.Location = new Point(475, 26);
+            txtSearchRentals.Name = "txtSearchRentals";
+            txtSearchRentals.PlaceholderText = "Arama...";
+            txtSearchRentals.Size = new Size(300, 29);
+            txtSearchRentals.TabIndex = 0;
+            txtSearchRentals.TextChanged += TxtSearchRentals_TextChanged;
             // 
             // pnlStaff
             // 
@@ -1018,6 +1141,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlTopbar.ResumeLayout(false);
             pnlTopbar.PerformLayout();
             pnlContent.ResumeLayout(false);
+            pnlRentals.ResumeLayout(false);
+            pnlRentalsContent.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvRentals).EndInit();
+            pnlRentalsHeader.ResumeLayout(false);
+            pnlRentalsHeader.PerformLayout();
             pnlStaff.ResumeLayout(false);
             pnlStaffContent.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dgvStaff).EndInit();
@@ -1102,5 +1230,13 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private IconButton btnAddStaff;
         private IconButton btnRefreshStaff;
         private TextBox txtSearchStaff;
+        private Panel pnlRentals;
+        private Panel pnlRentalsContent;
+        private DataGridView dgvRentals;
+        private Panel pnlRentalsHeader;
+        private Label lblRentalsTitle;
+        private IconButton btnAddRental;
+        private IconButton btnRefreshRentals;
+        private TextBox txtSearchRentals;
     }
 }
