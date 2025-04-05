@@ -12,8 +12,8 @@ namespace arac_kiralama_satis_desktop.Utils
     /// </summary>
     public partial class ConnectionStringEncryptor : Form
     {
-        // Şifreleme için kullanılacak anahtar ve IV - Uygulamada kullanılanla aynı olmalı
-        private static readonly byte[] EncryptionKey = Encoding.UTF8.GetBytes("Arac12345678910"); // 16 bytes key
+        // Şifreleme için kullanılacak anahtar ve IV - 16 bayt uzunluğunda olmalı
+        private static readonly byte[] EncryptionKey = Encoding.UTF8.GetBytes("Arac123456789101"); // 16 bytes key
         private static readonly byte[] IV = Encoding.UTF8.GetBytes("1234567890123456"); // 16 bytes IV
 
         public ConnectionStringEncryptor()
@@ -102,44 +102,6 @@ namespace arac_kiralama_satis_desktop.Utils
             {
                 Clipboard.SetText(txtEncryptedString.Text);
                 MessageBox.Show("Şifreli bağlantı dizesi panoya kopyalandı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        private void btnUpdateConfig_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(txtEncryptedString.Text) || cmbConnectionNames.SelectedItem == null)
-            {
-                MessageBox.Show("Önce bağlantı dizesini şifreleyin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                string selectedConnectionName = cmbConnectionNames.SelectedItem.ToString();
-                string configFilePath = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-
-                var config = ConfigurationManager.OpenExeConfiguration(configFilePath);
-
-                // AppSettings bölümüne şifreli bağlantı dizesini ekle
-                string key = $"Encrypted_{selectedConnectionName}";
-
-                if (config.AppSettings.Settings[key] != null)
-                {
-                    config.AppSettings.Settings[key].Value = txtEncryptedString.Text;
-                }
-                else
-                {
-                    config.AppSettings.Settings.Add(key, txtEncryptedString.Text);
-                }
-
-                config.Save(ConfigurationSaveMode.Modified);
-                ConfigurationManager.RefreshSection("appSettings");
-
-                MessageBox.Show("Şifreli bağlantı dizesi config dosyasına kaydedildi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Config dosyası güncellenirken bir hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
