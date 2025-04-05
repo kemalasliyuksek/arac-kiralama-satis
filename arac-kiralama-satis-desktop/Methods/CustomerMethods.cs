@@ -81,5 +81,48 @@ namespace arac_kiralama_satis_desktop.Methods
                 throw new Exception("Müşteri arama sırasında bir hata oluştu: " + ex.Message);
             }
         }
+
+        // DataTable dönüşümü için yardımcı metot
+        public static DataTable GetCustomersAsDataTable()
+        {
+            try
+            {
+                List<Customer> customers = _repository.GetAll();
+                DataTable dt = new DataTable();
+
+                // DataTable sütunlarını oluştur
+                dt.Columns.Add("MusteriID", typeof(int));
+                dt.Columns.Add("Ad", typeof(string));
+                dt.Columns.Add("Soyad", typeof(string));
+                dt.Columns.Add("TC", typeof(string));
+                dt.Columns.Add("Telefon", typeof(string));
+                dt.Columns.Add("Email", typeof(string));
+                dt.Columns.Add("MusteriTipi", typeof(string));
+                dt.Columns.Add("KayitTarihi", typeof(DateTime));
+                dt.Columns.Add("MusaitlikDurumu", typeof(bool));
+
+                // Müşterileri DataTable'a ekle
+                foreach (var customer in customers)
+                {
+                    dt.Rows.Add(
+                        customer.CustomerID,
+                        customer.FirstName,
+                        customer.LastName,
+                        customer.IdentityNumber,
+                        customer.FullPhoneNumber,
+                        customer.Email,
+                        customer.CustomerType,
+                        customer.RegistrationDate,
+                        customer.IsAvailable
+                    );
+                }
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Müşteriler DataTable'a dönüştürülürken bir hata oluştu: " + ex.Message);
+            }
+        }
     }
 }

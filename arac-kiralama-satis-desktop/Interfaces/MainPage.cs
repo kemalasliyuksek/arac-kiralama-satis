@@ -385,41 +385,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             {
                 Cursor = Cursors.WaitCursor;
 
-                List<Vehicle> vehicles = VehicleMethods.GetVehicles();
-                vehiclesTable = new DataTable();
-
-                // Add columns
-                vehiclesTable.Columns.Add("AracID", typeof(int));
-                vehiclesTable.Columns.Add("Plaka", typeof(string));
-                vehiclesTable.Columns.Add("Marka", typeof(string));
-                vehiclesTable.Columns.Add("Model", typeof(string));
-                vehiclesTable.Columns.Add("Yıl", typeof(int));
-                vehiclesTable.Columns.Add("Renk", typeof(string));
-                vehiclesTable.Columns.Add("Kilometre", typeof(int));
-                vehiclesTable.Columns.Add("Yakıt", typeof(string));
-                vehiclesTable.Columns.Add("Vites", typeof(string));
-                vehiclesTable.Columns.Add("Durum", typeof(string));
-                vehiclesTable.Columns.Add("Şube", typeof(string));
-                vehiclesTable.Columns.Add("Sınıf", typeof(string));
-
-                // Add rows from the vehicles list
-                foreach (var vehicle in vehicles)
-                {
-                    vehiclesTable.Rows.Add(
-                        vehicle.VehicleID,
-                        vehicle.Plate,
-                        vehicle.Brand,
-                        vehicle.Model,
-                        vehicle.Year,
-                        vehicle.Color,
-                        vehicle.Kilometers,
-                        vehicle.FuelType,
-                        vehicle.TransmissionType,
-                        vehicle.StatusName,
-                        vehicle.BranchName,
-                        vehicle.VehicleClassName
-                    );
-                }
+                vehiclesTable = VehicleMethods.GetVehiclesAsDataTable();
 
                 // Set DataSource
                 dgvVehicles.DataSource = vehiclesTable;
@@ -434,15 +400,15 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     dgvVehicles.Columns["Yıl"].Width = 60;
                     dgvVehicles.Columns["Renk"].Width = 80;
                     dgvVehicles.Columns["Kilometre"].Width = 100;
-                    dgvVehicles.Columns["Yakıt"].Width = 80;
-                    dgvVehicles.Columns["Vites"].Width = 80;
+                    dgvVehicles.Columns["YakitTipi"].Width = 80;
+                    dgvVehicles.Columns["VitesTipi"].Width = 80;
                     dgvVehicles.Columns["Durum"].Width = 100;
                     dgvVehicles.Columns["Şube"].Width = 120;
                     dgvVehicles.Columns["Sınıf"].Width = 100;
                 }
 
                 // Update count information
-                lblVehiclesTitle.Text = $"Araç Listesi ({vehicles.Count})";
+                lblVehiclesTitle.Text = $"Araç Listesi ({vehiclesTable.Rows.Count})";
             }
             catch (Exception ex)
             {
@@ -461,21 +427,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Get customer data from database
-                DataTable result = MainMethods.GetCustomerList();
-                customersTable = result.Copy();
+                // Müşteri verilerini DataTable olarak al
+                customersTable = CustomerMethods.GetCustomersAsDataTable();
 
-                // Rename columns for display
-                customersTable.Columns["MusteriID"].ColumnName = "MusteriID";
-                customersTable.Columns["Ad"].ColumnName = "Ad";
-                customersTable.Columns["Soyad"].ColumnName = "Soyad";
-                customersTable.Columns["TC"].ColumnName = "TC";
-                customersTable.Columns["Telefon"].ColumnName = "Telefon";
-                customersTable.Columns["Email"].ColumnName = "Email";
-                customersTable.Columns["MusteriTipi"].ColumnName = "Müşteri Tipi";
-                customersTable.Columns["KayitTarihi"].ColumnName = "Kayıt Tarihi";
-
-                // Set DataSource
+                // DataSource olarak ata
                 dgvCustomers.DataSource = customersTable;
 
                 // Format columns
@@ -487,9 +442,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     dgvCustomers.Columns["TC"].Width = 120;
                     dgvCustomers.Columns["Telefon"].Width = 120;
                     dgvCustomers.Columns["Email"].Width = 180;
-                    dgvCustomers.Columns["Müşteri Tipi"].Width = 100;
-                    dgvCustomers.Columns["Kayıt Tarihi"].Width = 120;
-                    dgvCustomers.Columns["Kayıt Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvCustomers.Columns["MusteriTipi"].Width = 100;
+                    dgvCustomers.Columns["KayitTarihi"].Width = 120;
+                    dgvCustomers.Columns["KayitTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    // Diğer formatlama ayarları...
                 }
 
                 // Update count information
@@ -512,35 +468,25 @@ namespace arac_kiralama_satis_desktop.Interfaces
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Get branch data from database
-                DataTable result = BranchMethods.GetBranchList();
-                branchesTable = result.Copy();
+                // Şube verilerini DataTable olarak al
+                branchesTable = BranchMethods.GetBranchesAsDataTable();
 
-                // Rename columns for display
-                branchesTable.Columns["SubeID"].ColumnName = "SubeID";
-                branchesTable.Columns["SubeAdi"].ColumnName = "Şube Adı";
-                branchesTable.Columns["Adres"].ColumnName = "Adres";
-                branchesTable.Columns["SehirPlaka"].ColumnName = "Şehir Plaka";
-                branchesTable.Columns["Telefon"].ColumnName = "Telefon";
-                branchesTable.Columns["Email"].ColumnName = "Email";
-                branchesTable.Columns["AktifMi"].ColumnName = "Aktif Mi";
-                branchesTable.Columns["OlusturmaTarihi"].ColumnName = "Oluşturma Tarihi";
-
-                // Set DataSource
+                // DataSource olarak ata
                 dgvBranches.DataSource = branchesTable;
 
                 // Format columns
                 if (dgvBranches.Columns.Count > 0)
                 {
                     dgvBranches.Columns["SubeID"].Visible = false;
-                    dgvBranches.Columns["Şube Adı"].Width = 150;
+                    dgvBranches.Columns["SubeAdi"].Width = 150;
                     dgvBranches.Columns["Adres"].Width = 250;
-                    dgvBranches.Columns["Şehir Plaka"].Width = 80;
+                    dgvBranches.Columns["SehirPlaka"].Width = 80;
                     dgvBranches.Columns["Telefon"].Width = 120;
                     dgvBranches.Columns["Email"].Width = 180;
-                    dgvBranches.Columns["Aktif Mi"].Width = 70;
-                    dgvBranches.Columns["Oluşturma Tarihi"].Width = 120;
-                    dgvBranches.Columns["Oluşturma Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvBranches.Columns["AktifMi"].Width = 70;
+                    dgvBranches.Columns["OlusturmaTarihi"].Width = 120;
+                    dgvBranches.Columns["OlusturmaTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    // Diğer formatlama ayarları...
                 }
 
                 // Update count information
@@ -563,47 +509,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Get staff data from database
-                DataTable result = MainMethods.GetStaffList();
-                staffTable = result.Copy();
+                // Personel verilerini DataTable olarak al
+                staffTable = StaffMethods.GetStaffAsDataTable();
 
-                // Rename columns for display
-                staffTable.Columns["KullaniciID"].ColumnName = "KullaniciID";
-                staffTable.Columns["Ad"].ColumnName = "Ad";
-                staffTable.Columns["Soyad"].ColumnName = "Soyad";
-                staffTable.Columns["KullaniciAdi"].ColumnName = "Kullanıcı Adı";
-                staffTable.Columns["Email"].ColumnName = "Email";
-                staffTable.Columns["Telefon"].ColumnName = "Telefon";
-                staffTable.Columns["RolAdi"].ColumnName = "Rol";
-                staffTable.Columns["SubeAdi"].ColumnName = "Şube";
-                staffTable.Columns["Durum"].ColumnName = "Durum";
-                staffTable.Columns["SonGirisTarihi"].ColumnName = "Son Giriş";
-                staffTable.Columns["OlusturmaTarihi"].ColumnName = "Kayıt Tarihi";
-
-                // Durum sütununu string türüne dönüştür (format hatası için önlem)
-                foreach (DataRow row in staffTable.Rows)
-                {
-                    // Ensure Durum is either "Aktif" or "Pasif"
-                    if (row["Durum"] == DBNull.Value || row["Durum"] == null)
-                    {
-                        row["Durum"] = "Pasif";
-                    }
-                    else if (!(row["Durum"].ToString() == "Aktif" || row["Durum"].ToString() == "Pasif"))
-                    {
-                        // Only convert if not already proper text
-                        bool aktifMi = false;
-                        if (row["Durum"] is bool)
-                            aktifMi = (bool)row["Durum"];
-                        else if (row["Durum"] is int)
-                            aktifMi = ((int)row["Durum"]) != 0;
-                        else if (row["Durum"] is string)
-                            aktifMi = row["Durum"].ToString().ToLower() == "true" || row["Durum"].ToString() == "1";
-
-                        row["Durum"] = aktifMi ? "Aktif" : "Pasif";
-                    }
-                }
-
-                // Set DataSource
+                // DataSource olarak ata 
                 dgvStaff.DataSource = staffTable;
 
                 // Format columns
@@ -612,18 +521,20 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     dgvStaff.Columns["KullaniciID"].Visible = false;
                     dgvStaff.Columns["Ad"].Width = 100;
                     dgvStaff.Columns["Soyad"].Width = 100;
-                    dgvStaff.Columns["Kullanıcı Adı"].Width = 120;
+                    dgvStaff.Columns["KullaniciAdi"].Width = 120;
                     dgvStaff.Columns["Email"].Width = 180;
                     dgvStaff.Columns["Telefon"].Width = 120;
-                    dgvStaff.Columns["Rol"].Width = 120;
-                    dgvStaff.Columns["Şube"].Width = 150;
+                    dgvStaff.Columns["RolID"].Visible = false;
+                    dgvStaff.Columns["RolAdi"].Width = 120;
+                    dgvStaff.Columns["SubeID"].Visible = false;
+                    dgvStaff.Columns["SubeAdi"].Width = 150;
                     dgvStaff.Columns["Durum"].Width = 80;
-                    dgvStaff.Columns["Son Giriş"].Width = 120;
-                    dgvStaff.Columns["Kayıt Tarihi"].Width = 120;
-                    dgvStaff.Columns["Son Giriş"].DefaultCellStyle.Format = "dd.MM.yyyy HH:mm";
-                    dgvStaff.Columns["Kayıt Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvStaff.Columns["SonGiris"].Width = 120;
+                    dgvStaff.Columns["KayitTarihi"].Width = 120;
+                    dgvStaff.Columns["SonGiris"].DefaultCellStyle.Format = "dd.MM.yyyy HH:mm";
+                    dgvStaff.Columns["KayitTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
 
-                    // Durum sütunu için renklendirme (hata alınan kısım düzeltildi)
+                    // Durum sütunu için renklendirme
                     dgvStaff.CellFormatting += (s, e) => {
                         try
                         {
@@ -659,6 +570,78 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 Cursor = Cursors.Default;
             }
         }
+
+
+        private void LoadRentalsData()
+        {
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+
+                // Kiralama verilerini DataTable olarak al
+                rentalsTable = RentalMethods.GetRentalsAsDataTable();
+
+                // DataSource olarak ata
+                dgvRentals.DataSource = rentalsTable;
+
+                // Format columns
+                if (dgvRentals.Columns.Count > 0)
+                {
+                    dgvRentals.Columns["KiralamaID"].Visible = false;
+                    dgvRentals.Columns["MusteriAdSoyad"].Width = 150;
+                    dgvRentals.Columns["Plaka"].Width = 80;
+                    dgvRentals.Columns["Marka"].Width = 100;
+                    dgvRentals.Columns["Model"].Width = 100;
+                    dgvRentals.Columns["BaslangicTarihi"].Width = 120;
+                    dgvRentals.Columns["BitisTarihi"].Width = 120;
+                    dgvRentals.Columns["TeslimTarihi"].Width = 120;
+                    dgvRentals.Columns["KiralamaTutari"].Width = 120;
+                    dgvRentals.Columns["OdemeTipi"].Width = 100;
+
+                    dgvRentals.Columns["BaslangicTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvRentals.Columns["BitisTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvRentals.Columns["TeslimTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                    dgvRentals.Columns["KiralamaTutari"].DefaultCellStyle.Format = "N2";
+                    dgvRentals.Columns["KiralamaTutari"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
+                    // Renk kodlaması ekle - aktif ve gecikmiş kiralamalar için
+                    dgvRentals.CellFormatting += (s, e) => {
+                        if (e.RowIndex >= 0)
+                        {
+                            DateTime baslangicTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["BaslangicTarihi"].Value);
+                            DateTime bitisTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["BitisTarihi"].Value);
+                            object teslimTarihiValue = dgvRentals.Rows[e.RowIndex].Cells["TeslimTarihi"].Value;
+
+                            bool teslimEdildi = teslimTarihiValue != DBNull.Value && teslimTarihiValue != null;
+                            bool aktifKiralama = DateTime.Now >= baslangicTarihi && DateTime.Now <= bitisTarihi && !teslimEdildi;
+                            bool gecikmisKiralama = DateTime.Now > bitisTarihi && !teslimEdildi;
+
+                            if (gecikmisKiralama)
+                            {
+                                dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 235, 235);
+                            }
+                            else if (aktifKiralama)
+                            {
+                                dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(235, 255, 235);
+                            }
+                        }
+                    };
+                }
+
+                // Update count information
+                lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Kiralama verileri yüklenirken bir hata oluştu: {ex.Message}",
+                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
 
         private void SearchVehicles(string searchText)
         {
@@ -833,89 +816,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
-        // Kiralama verilerini yüklemek için yeni metot ekleyin
-        private void LoadRentalsData()
-        {
-            try
-            {
-                Cursor = Cursors.WaitCursor;
-
-                // Get rental data from database
-                DataTable result = MainMethods.GetRentalList();
-                rentalsTable = result.Copy();
-
-                // Rename columns for display
-                rentalsTable.Columns["KiralamaID"].ColumnName = "KiralamaID";
-                rentalsTable.Columns["MusteriAdSoyad"].ColumnName = "Müşteri";
-                rentalsTable.Columns["Plaka"].ColumnName = "Plaka";
-                rentalsTable.Columns["Marka"].ColumnName = "Marka";
-                rentalsTable.Columns["Model"].ColumnName = "Model";
-                rentalsTable.Columns["BaslangicTarihi"].ColumnName = "Başlangıç Tarihi";
-                rentalsTable.Columns["BitisTarihi"].ColumnName = "Bitiş Tarihi";
-                rentalsTable.Columns["TeslimTarihi"].ColumnName = "Teslim Tarihi";
-                rentalsTable.Columns["KiralamaTutari"].ColumnName = "Kiralama Tutarı";
-                rentalsTable.Columns["OdemeTipi"].ColumnName = "Ödeme Tipi";
-
-                // Set DataSource
-                dgvRentals.DataSource = rentalsTable;
-
-                // Format columns
-                if (dgvRentals.Columns.Count > 0)
-                {
-                    dgvRentals.Columns["KiralamaID"].Visible = false;
-                    dgvRentals.Columns["Müşteri"].Width = 150;
-                    dgvRentals.Columns["Plaka"].Width = 80;
-                    dgvRentals.Columns["Marka"].Width = 100;
-                    dgvRentals.Columns["Model"].Width = 100;
-                    dgvRentals.Columns["Başlangıç Tarihi"].Width = 120;
-                    dgvRentals.Columns["Bitiş Tarihi"].Width = 120;
-                    dgvRentals.Columns["Teslim Tarihi"].Width = 120;
-                    dgvRentals.Columns["Kiralama Tutarı"].Width = 120;
-                    dgvRentals.Columns["Ödeme Tipi"].Width = 100;
-
-                    dgvRentals.Columns["Başlangıç Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                    dgvRentals.Columns["Bitiş Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                    dgvRentals.Columns["Teslim Tarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                    dgvRentals.Columns["Kiralama Tutarı"].DefaultCellStyle.Format = "N2";
-                    dgvRentals.Columns["Kiralama Tutarı"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                }
-
-                // Update count information
-                lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
-
-                // Renk kodlaması ekle - aktif ve gecikmiş kiralamalar için
-                dgvRentals.CellFormatting += (s, e) => {
-                    if (e.RowIndex >= 0)
-                    {
-                        DateTime baslangicTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["Başlangıç Tarihi"].Value);
-                        DateTime bitisTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["Bitiş Tarihi"].Value);
-                        object teslimTarihiValue = dgvRentals.Rows[e.RowIndex].Cells["Teslim Tarihi"].Value;
-
-                        bool teslimEdildi = teslimTarihiValue != DBNull.Value && teslimTarihiValue != null;
-                        bool aktifKiralama = DateTime.Now >= baslangicTarihi && DateTime.Now <= bitisTarihi && !teslimEdildi;
-                        bool gecikmisKiralama = DateTime.Now > bitisTarihi && !teslimEdildi;
-
-                        if (gecikmisKiralama)
-                        {
-                            dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 235, 235);
-                        }
-                        else if (aktifKiralama)
-                        {
-                            dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(235, 255, 235);
-                        }
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Kiralama verileri yüklenirken bir hata oluştu: {ex.Message}",
-                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
-        }
+        
 
         // Kiralama verileri içinde arama yapmak için metot ekleyin
         private void SearchRentals(string searchText)

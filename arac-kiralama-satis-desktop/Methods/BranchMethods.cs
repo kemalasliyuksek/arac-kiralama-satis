@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using arac_kiralama_satis_desktop.Models;
 using arac_kiralama_satis_desktop.Repositories;
 
@@ -9,7 +10,7 @@ namespace arac_kiralama_satis_desktop.Methods
     {
         private static readonly BranchRepository _repository = new BranchRepository();
 
-        public static List<Branch> GetBranchList()
+        public static List<Branch> GetBranches()
         {
             try
             {
@@ -17,7 +18,7 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Şube listesi alınırken bir hata oluştu: " + ex.Message);
+                throw new Exception("Şubeler listelenirken bir hata oluştu: " + ex.Message);
             }
         }
 
@@ -67,6 +68,53 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 throw new Exception("Şube silinirken bir hata oluştu: " + ex.Message);
             }
+        }
+
+        // DataTable dönüşümü için yardımcı metot
+        public static DataTable GetBranchesAsDataTable()
+        {
+            try
+            {
+                List<Branch> branches = _repository.GetAll();
+                DataTable dt = new DataTable();
+
+                // DataTable sütunlarını oluştur
+                dt.Columns.Add("SubeID", typeof(int));
+                dt.Columns.Add("SubeAdi", typeof(string));
+                dt.Columns.Add("Adres", typeof(string));
+                dt.Columns.Add("SehirPlaka", typeof(string));
+                dt.Columns.Add("Telefon", typeof(string));
+                dt.Columns.Add("Email", typeof(string));
+                dt.Columns.Add("AktifMi", typeof(bool));
+                dt.Columns.Add("OlusturmaTarihi", typeof(DateTime));
+
+                // Şubeleri DataTable'a ekle
+                foreach (var branch in branches)
+                {
+                    dt.Rows.Add(
+                        branch.BranchID,
+                        branch.BranchName,
+                        branch.Address,
+                        branch.CityCode,
+                        branch.FullPhoneNumber,
+                        branch.Email,
+                        branch.IsActive,
+                        branch.CreatedDate
+                    );
+                }
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Şubeler DataTable'a dönüştürülürken bir hata oluştu: " + ex.Message);
+            }
+        }
+
+        // Eski metodu koruyalım çağrılar bozulmasın
+        public static DataTable GetBranchList()
+        {
+            return GetBranchesAsDataTable();
         }
     }
 }

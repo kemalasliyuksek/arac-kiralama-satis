@@ -295,67 +295,25 @@ namespace arac_kiralama_satis_desktop.Methods
             return locationData;
         }
 
-        // Existing methods for lists remain unchanged
-        public static DataTable GetVehicleList()
-        {
-            try
-            {
-                string query = @"SELECT a.AracID, a.Plaka, a.Marka, a.Model, a.YapimYili, 
-                               a.Renk, a.Kilometre, a.YakitTipi, a.VitesTipi, 
-                               d.DurumAdi as Durum,
-                               s.SubeAdi as Sube,
-                               c.SinifAdi as AracSinifi
-                               FROM Araclar a
-                               LEFT JOIN AracDurumlari d ON a.DurumID = d.DurumID
-                               LEFT JOIN Subeler s ON a.SubeID = s.SubeID
-                               LEFT JOIN AracSiniflari c ON a.AracSinifID = c.AracSinifID
-                               ORDER BY a.AracID DESC";
-
-                return DatabaseConnection.ExecuteQuery(query);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Araç listesi alınırken bir hata oluştu: " + ex.Message);
-            }
-        }
-
+        // Farklı listeler için DataTable metodları
         public static DataTable GetCustomerList()
         {
-            try
-            {
-                string query = @"SELECT MusteriID, Ad, Soyad, TC, CONCAT(UlkeKodu, TelefonNo) as Telefon, 
-                               Email, MusteriTipi, KayitTarihi
-                               FROM Musteriler
-                               ORDER BY KayitTarihi DESC";
+            return CustomerMethods.GetCustomersAsDataTable();
+        }
 
-                return DatabaseConnection.ExecuteQuery(query);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Müşteri listesi alınırken bir hata oluştu: " + ex.Message);
-            }
+        public static DataTable GetVehicleList()
+        {
+            return VehicleMethods.GetVehiclesAsDataTable();
         }
 
         public static DataTable GetRentalList()
         {
-            try
-            {
-                string query = @"SELECT k.KiralamaID, 
-                               CONCAT(m.Ad, ' ', m.Soyad) as MusteriAdSoyad,
-                               a.Plaka, a.Marka, a.Model,
-                               k.BaslangicTarihi, k.BitisTarihi, k.TeslimTarihi,
-                               k.KiralamaTutari, k.OdemeTipi
-                               FROM Kiralamalar k
-                               JOIN Musteriler m ON k.MusteriID = m.MusteriID
-                               JOIN Araclar a ON k.AracID = a.AracID
-                               ORDER BY k.BaslangicTarihi DESC";
+            return RentalMethods.GetRentalsAsDataTable();
+        }
 
-                return DatabaseConnection.ExecuteQuery(query);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Kiralama listesi alınırken bir hata oluştu: " + ex.Message);
-            }
+        public static DataTable GetStaffList()
+        {
+            return StaffMethods.GetStaffAsDataTable();
         }
 
         public static DataTable GetSalesList()
@@ -399,91 +357,6 @@ namespace arac_kiralama_satis_desktop.Methods
             catch (Exception ex)
             {
                 throw new Exception("Bakım listesi alınırken bir hata oluştu: " + ex.Message);
-            }
-        }
-
-        // Personel listesini getiren metot
-        public static DataTable GetStaffList()
-        {
-            try
-            {
-                string query = @"SELECT 
-            k.KullaniciID, 
-            k.Ad, 
-            k.Soyad, 
-            k.KullaniciAdi, 
-            k.Email, 
-            CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
-            r.RolAdi, 
-            s.SubeAdi, 
-            IF(k.Durum, 'Aktif', 'Pasif') as Durum, 
-            k.SonGirisTarihi,
-            k.OlusturmaTarihi
-            FROM Kullanicilar k
-            LEFT JOIN Roller r ON k.RolID = r.RolID
-            LEFT JOIN Subeler s ON k.SubeID = s.SubeID
-            ORDER BY k.KullaniciID DESC";
-
-                return DatabaseConnection.ExecuteQuery(query);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Personel listesi alınırken bir hata oluştu: " + ex.Message);
-            }
-        }
-
-        // Personel arama metotu (ihtiyaç olursa daha sonra eklenebilir)
-        public static DataTable SearchStaffList(string searchText)
-        {
-            try
-            {
-                string query = @"SELECT k.KullaniciID, k.Ad, k.Soyad, k.KullaniciAdi, k.Email, 
-                               CONCAT(k.UlkeKodu, k.TelefonNo) as Telefon,
-                               r.RolAdi, s.SubeAdi, k.Durum, k.SonGirisTarihi,
-                               k.OlusturmaTarihi
-                               FROM Kullanicilar k
-                               LEFT JOIN Roller r ON k.RolID = r.RolID
-                               LEFT JOIN Subeler s ON k.SubeID = s.SubeID
-                               WHERE k.Ad LIKE @searchText 
-                               OR k.Soyad LIKE @searchText 
-                               OR k.KullaniciAdi LIKE @searchText 
-                               OR k.Email LIKE @searchText 
-                               OR CONCAT(k.UlkeKodu, k.TelefonNo) LIKE @searchText
-                               OR r.RolAdi LIKE @searchText
-                               OR s.SubeAdi LIKE @searchText
-                               ORDER BY k.KullaniciID DESC";
-
-                MySqlParameter[] parameters = new MySqlParameter[]
-                {
-                    new MySqlParameter("@searchText", "%" + searchText + "%")
-                };
-
-                return DatabaseConnection.ExecuteQuery(query, parameters);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Personel arama sırasında bir hata oluştu: " + ex.Message);
-            }
-        }
-
-        // Personel durumunu değiştiren metot
-        public static void ChangeStaffStatus(int staffId, bool isActive)
-        {
-            try
-            {
-                string query = "UPDATE Kullanicilar SET Durum = @durum WHERE KullaniciID = @kullaniciId";
-
-                MySqlParameter[] parameters = new MySqlParameter[]
-                {
-                    new MySqlParameter("@kullaniciId", staffId),
-                    new MySqlParameter("@durum", isActive)
-                };
-
-                DatabaseConnection.ExecuteNonQuery(query, parameters);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Personel durumu güncellenirken bir hata oluştu: " + ex.Message);
             }
         }
     }

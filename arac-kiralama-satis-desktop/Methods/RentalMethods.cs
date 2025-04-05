@@ -91,7 +91,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 DatabaseHelper.ExecuteNonQuery(query, parameters);
 
                 // Teslim alındığında araç durumunu güncelle
-                VehicleMethods.UpdateVehicleStatus(rental.VehicleID, 1);
+                VehicleMethods.UpdateVehicleStatus(rental.VehicleID, 1); // 1: Müsait durumu
 
                 // Araç kilometresini güncelle
                 string updateVehicleQuery = "UPDATE Araclar SET Kilometre = @kilometre WHERE AracID = @aracId";
@@ -108,6 +108,49 @@ namespace arac_kiralama_satis_desktop.Methods
             }
         }
 
-        // GetActiveRentals ve GetOverdueRentals gibi özel sorgular mevcut kalabilir.
+        // DataTable dönüşümü için yardımcı metot
+        public static DataTable GetRentalsAsDataTable()
+        {
+            try
+            {
+                List<Rental> rentals = _repository.GetAll();
+                DataTable dt = new DataTable();
+
+                // DataTable sütunlarını oluştur
+                dt.Columns.Add("KiralamaID", typeof(int));
+                dt.Columns.Add("MusteriAdSoyad", typeof(string));
+                dt.Columns.Add("Plaka", typeof(string));
+                dt.Columns.Add("Marka", typeof(string));
+                dt.Columns.Add("Model", typeof(string));
+                dt.Columns.Add("BaslangicTarihi", typeof(DateTime));
+                dt.Columns.Add("BitisTarihi", typeof(DateTime));
+                dt.Columns.Add("TeslimTarihi", typeof(DateTime));
+                dt.Columns.Add("KiralamaTutari", typeof(decimal));
+                dt.Columns.Add("OdemeTipi", typeof(string));
+
+                // Kiralamaları DataTable'a ekle
+                foreach (var rental in rentals)
+                {
+                    dt.Rows.Add(
+                        rental.RentalID,
+                        rental.CustomerFullName,
+                        rental.VehiclePlate,
+                        rental.VehicleBrand,
+                        rental.VehicleModel,
+                        rental.StartDate,
+                        rental.EndDate,
+                        rental.ReturnDate,
+                        rental.RentalAmount,
+                        rental.PaymentType
+                    );
+                }
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Kiralamalar DataTable'a dönüştürülürken bir hata oluştu: " + ex.Message);
+            }
+        }
     }
 }

@@ -97,7 +97,7 @@ namespace arac_kiralama_satis_desktop.Utils
         /// <summary>
         /// Aktif veritabanı bağlantısı tipini belirler (Local/Remote)
         /// </summary>
-        public static bool UseRemoteDatabase { get; set; } = true;
+        public static bool UseRemoteDatabase { get; set; } = false;
 
         /// <summary>
         /// Veritabanı bağlantı bilgilerini içeren sınıf
