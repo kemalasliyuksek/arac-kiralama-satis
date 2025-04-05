@@ -137,10 +137,10 @@
             metricPanel1.Controls.Add(metricTitle1);
             metricPanel1.Controls.Add(metricValue1);
             metricPanel1.Controls.Add(iconLabel1);
-            metricPanel1.Location = new Point(16, 40);
+            metricPanel1.Location = new Point(28, 40);
             metricPanel1.Margin = new Padding(10);
             metricPanel1.Name = "metricPanel1";
-            metricPanel1.Size = new Size(220, 120);
+            metricPanel1.Size = new Size(195, 120);
             metricPanel1.TabIndex = 10;
             // 
             // metricTitle1
@@ -170,7 +170,7 @@
             iconLabel1.AutoSize = true;
             iconLabel1.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel1.ForeColor = Color.FromArgb(83, 107, 168);
-            iconLabel1.Location = new Point(175, 35);
+            iconLabel1.Location = new Point(154, 35);
             iconLabel1.Name = "iconLabel1";
             iconLabel1.Size = new Size(38, 51);
             iconLabel1.TabIndex = 2;
@@ -183,10 +183,10 @@
             metricPanel2.Controls.Add(metricTitle2);
             metricPanel2.Controls.Add(metricValue2);
             metricPanel2.Controls.Add(iconLabel2);
-            metricPanel2.Location = new Point(268, 40);
+            metricPanel2.Location = new Point(280, 40);
             metricPanel2.Margin = new Padding(10);
             metricPanel2.Name = "metricPanel2";
-            metricPanel2.Size = new Size(220, 120);
+            metricPanel2.Size = new Size(195, 120);
             metricPanel2.TabIndex = 11;
             // 
             // metricTitle2
@@ -216,7 +216,7 @@
             iconLabel2.AutoSize = true;
             iconLabel2.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel2.ForeColor = Color.FromArgb(40, 167, 69);
-            iconLabel2.Location = new Point(175, 35);
+            iconLabel2.Location = new Point(154, 35);
             iconLabel2.Name = "iconLabel2";
             iconLabel2.Size = new Size(38, 51);
             iconLabel2.TabIndex = 2;
@@ -229,10 +229,10 @@
             metricPanel3.Controls.Add(metricTitle3);
             metricPanel3.Controls.Add(metricValue3);
             metricPanel3.Controls.Add(iconLabel3);
-            metricPanel3.Location = new Point(520, 40);
+            metricPanel3.Location = new Point(532, 40);
             metricPanel3.Margin = new Padding(10);
             metricPanel3.Name = "metricPanel3";
-            metricPanel3.Size = new Size(220, 120);
+            metricPanel3.Size = new Size(195, 120);
             metricPanel3.TabIndex = 12;
             // 
             // metricTitle3
@@ -262,7 +262,7 @@
             iconLabel3.AutoSize = true;
             iconLabel3.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel3.ForeColor = Color.FromArgb(255, 193, 7);
-            iconLabel3.Location = new Point(175, 35);
+            iconLabel3.Location = new Point(154, 35);
             iconLabel3.Name = "iconLabel3";
             iconLabel3.Size = new Size(38, 51);
             iconLabel3.TabIndex = 2;
@@ -275,10 +275,10 @@
             metricPanel4.Controls.Add(metricTitle4);
             metricPanel4.Controls.Add(metricValue4);
             metricPanel4.Controls.Add(iconLabel4);
-            metricPanel4.Location = new Point(773, 40);
+            metricPanel4.Location = new Point(785, 40);
             metricPanel4.Margin = new Padding(10);
             metricPanel4.Name = "metricPanel4";
-            metricPanel4.Size = new Size(220, 120);
+            metricPanel4.Size = new Size(195, 120);
             metricPanel4.TabIndex = 13;
             // 
             // metricTitle4
@@ -308,7 +308,7 @@
             iconLabel4.AutoSize = true;
             iconLabel4.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel4.ForeColor = Color.FromArgb(23, 162, 184);
-            iconLabel4.Location = new Point(175, 35);
+            iconLabel4.Location = new Point(154, 35);
             iconLabel4.Name = "iconLabel4";
             iconLabel4.Size = new Size(38, 51);
             iconLabel4.TabIndex = 2;
@@ -321,10 +321,10 @@
             metricPanel5.Controls.Add(metricTitle5);
             metricPanel5.Controls.Add(metricValue5);
             metricPanel5.Controls.Add(iconLabel5);
-            metricPanel5.Location = new Point(16, 240);
+            metricPanel5.Location = new Point(28, 240);
             metricPanel5.Margin = new Padding(10);
             metricPanel5.Name = "metricPanel5";
-            metricPanel5.Size = new Size(220, 120);
+            metricPanel5.Size = new Size(195, 120);
             metricPanel5.TabIndex = 14;
             // 
             // metricTitle5
@@ -354,7 +354,7 @@
             iconLabel5.AutoSize = true;
             iconLabel5.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel5.ForeColor = Color.FromArgb(220, 53, 69);
-            iconLabel5.Location = new Point(175, 35);
+            iconLabel5.Location = new Point(154, 35);
             iconLabel5.Name = "iconLabel5";
             iconLabel5.Size = new Size(38, 51);
             iconLabel5.TabIndex = 2;
@@ -367,10 +367,10 @@
             metricPanel6.Controls.Add(metricTitle6);
             metricPanel6.Controls.Add(metricValue6);
             metricPanel6.Controls.Add(iconLabel6);
-            metricPanel6.Location = new Point(268, 240);
+            metricPanel6.Location = new Point(280, 240);
             metricPanel6.Margin = new Padding(10);
             metricPanel6.Name = "metricPanel6";
-            metricPanel6.Size = new Size(220, 120);
+            metricPanel6.Size = new Size(195, 120);
             metricPanel6.TabIndex = 15;
             // 
             // metricTitle6
@@ -400,7 +400,7 @@
             iconLabel6.AutoSize = true;
             iconLabel6.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel6.ForeColor = Color.FromArgb(111, 66, 193);
-            iconLabel6.Location = new Point(175, 35);
+            iconLabel6.Location = new Point(154, 35);
             iconLabel6.Name = "iconLabel6";
             iconLabel6.Size = new Size(38, 51);
             iconLabel6.TabIndex = 2;
@@ -413,10 +413,10 @@
             metricPanel7.Controls.Add(metricTitle7);
             metricPanel7.Controls.Add(metricValue7);
             metricPanel7.Controls.Add(iconLabel7);
-            metricPanel7.Location = new Point(520, 240);
+            metricPanel7.Location = new Point(532, 240);
             metricPanel7.Margin = new Padding(10);
             metricPanel7.Name = "metricPanel7";
-            metricPanel7.Size = new Size(220, 120);
+            metricPanel7.Size = new Size(195, 120);
             metricPanel7.TabIndex = 16;
             // 
             // metricTitle7
@@ -446,7 +446,7 @@
             iconLabel7.AutoSize = true;
             iconLabel7.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel7.ForeColor = Color.FromArgb(253, 126, 20);
-            iconLabel7.Location = new Point(175, 35);
+            iconLabel7.Location = new Point(154, 35);
             iconLabel7.Name = "iconLabel7";
             iconLabel7.Size = new Size(38, 51);
             iconLabel7.TabIndex = 2;
@@ -459,10 +459,10 @@
             metricPanel8.Controls.Add(metricTitle8);
             metricPanel8.Controls.Add(metricValue8);
             metricPanel8.Controls.Add(iconLabel8);
-            metricPanel8.Location = new Point(773, 240);
+            metricPanel8.Location = new Point(785, 240);
             metricPanel8.Margin = new Padding(10);
             metricPanel8.Name = "metricPanel8";
-            metricPanel8.Size = new Size(220, 120);
+            metricPanel8.Size = new Size(195, 120);
             metricPanel8.TabIndex = 17;
             // 
             // metricTitle8
@@ -492,7 +492,7 @@
             iconLabel8.AutoSize = true;
             iconLabel8.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
             iconLabel8.ForeColor = Color.FromArgb(108, 117, 125);
-            iconLabel8.Location = new Point(175, 35);
+            iconLabel8.Location = new Point(154, 35);
             iconLabel8.Name = "iconLabel8";
             iconLabel8.Size = new Size(38, 51);
             iconLabel8.TabIndex = 2;

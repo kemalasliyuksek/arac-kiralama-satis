@@ -453,7 +453,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnLogout.Click += BtnLogout_Click;
             // 
             // btnRefresh
-            //
+            // 
             btnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnRefresh.Cursor = Cursors.Hand;
             btnRefresh.FlatAppearance.BorderSize = 0;
@@ -470,7 +470,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnRefresh.TabIndex = 1;
             btnRefresh.UseVisualStyleBackColor = true;
             btnRefresh.Click += BtnRefresh_Click;
-            //
+            // 
             // pnlContent
             // 
             pnlContent.BackColor = Color.FromArgb(245, 245, 250);
