@@ -4,7 +4,7 @@ using System.Configuration;
 using MySql.Data.MySqlClient;
 using System.Windows.Forms;
 
-namespace arac_kiralama_satis_desktop.Utils
+namespace arac_kiralama_satis_desktop._Backups
 {
     public static class DatabaseConnection
     {
