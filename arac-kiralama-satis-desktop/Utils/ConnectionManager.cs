@@ -15,7 +15,7 @@ namespace arac_kiralama_satis_desktop.Utils
     public static class ConnectionManager
     {
         // Şifreleme için kullanılacak anahtar ve IV
-        private static readonly byte[] EncryptionKey = Encoding.UTF8.GetBytes("Arac12345678910"); // 16 bytes key
+        private static readonly byte[] EncryptionKey = Encoding.UTF8.GetBytes("Arac123456789101"); // 16 bytes key
         private static readonly byte[] IV = Encoding.UTF8.GetBytes("1234567890123456"); // 16 bytes IV
 
         /// <summary>
@@ -52,8 +52,7 @@ namespace arac_kiralama_satis_desktop.Utils
             catch (Exception ex)
             {
                 Console.WriteLine("Decryption error: " + ex.Message);
-                // Şifre çözme başarısız olursa, varsayılan yerel bağlantı cümlesini döndür
-                return ConfigurationManager.ConnectionStrings["AracDB_Local"].ConnectionString;
+                throw new InvalidOperationException("Failed to decrypt connection string.", ex);
             }
         }
 
@@ -91,14 +90,14 @@ namespace arac_kiralama_satis_desktop.Utils
             catch (Exception ex)
             {
                 Console.WriteLine("Encryption error: " + ex.Message);
-                return connectionString; // Şifreleme başarısız olursa, plain text olarak döndür
+                throw new InvalidOperationException("Failed to encrypt connection string.", ex);
             }
         }
 
         /// <summary>
         /// Aktif veritabanı bağlantısı tipini belirler (Local/Remote)
         /// </summary>
-        public static bool UseRemoteDatabase { get; set; } = false;
+        public static bool UseRemoteDatabase { get; set; } = true;
 
         /// <summary>
         /// Veritabanı bağlantı bilgilerini içeren sınıf
@@ -121,51 +120,15 @@ namespace arac_kiralama_satis_desktop.Utils
         {
             string connectionName = UseRemoteDatabase ? "AracDB_Remote" : "AracDB_Local";
 
-            try
+            // Şifreli bağlantı cümlesini al
+            string encryptedConnectionString = ConfigurationManager.AppSettings[$"Encrypted_{connectionName}"];
+
+            if (string.IsNullOrEmpty(encryptedConnectionString))
             {
-                // Şifreli bağlantı cümlesini al
-                string encryptedConnectionString = ConfigurationManager.AppSettings[$"Encrypted_{connectionName}"];
-
-                // Eğer şifreli bağlantı cümlesi varsa çöz
-                if (!string.IsNullOrEmpty(encryptedConnectionString))
-                {
-                    return DecryptConnectionString(encryptedConnectionString);
-                }
-
-                // Şifreli bağlantı cümlesi yoksa, normal bağlantı cümlesini al
-                string connectionString = ConfigurationManager.ConnectionStrings[connectionName]?.ConnectionString;
-
-                // Config'de bağlantı dizesi bulunamazsa varsayılan değerlere dön
-                if (string.IsNullOrEmpty(connectionString))
-                {
-                    if (UseRemoteDatabase)
-                    {
-                        // Bu değerler gerçek uygulamada burada olmamalı
-                        // Sadece örnek olarak gösterilmiştir
-                        return "Server=database_server;Database=arac_kiralama_satis;Uid=secure_user;Pwd=********;Port=3306;SslMode=Required;CharSet=utf8mb4;";
-                    }
-                    else
-                    {
-                        return "Server=localhost;Database=arac_kiralama_satis;Uid=secure_user;Pwd=********;Port=3306;SslMode=Required;CharSet=utf8mb4;";
-                    }
-                }
-
-                return connectionString;
+                throw new InvalidOperationException($"Encrypted connection string is not available for {connectionName}.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Bağlantı dizesi alınırken hata: {ex.Message}");
 
-                // Hata durumunda varsayılan değer döndür
-                if (UseRemoteDatabase)
-                {
-                    return "Server=database_server;Database=arac_kiralama_satis;Uid=secure_user;Pwd=********;Port=3306;SslMode=Required;CharSet=utf8mb4;";
-                }
-                else
-                {
-                    return "Server=localhost;Database=arac_kiralama_satis;Uid=secure_user;Pwd=********;Port=3306;SslMode=Required;CharSet=utf8mb4;";
-                }
-            }
+            return DecryptConnectionString(encryptedConnectionString);
         }
 
         /// <summary>

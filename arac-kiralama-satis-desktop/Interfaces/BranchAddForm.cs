@@ -52,7 +52,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             txtPhoneNumber.KeyPress += TxtPhoneNumber_KeyPress;
             txtCityCode.KeyPress += TxtCityCode_KeyPress;
 
-            // Default ülke kodu
+            // Varsayılan ülke kodu
             txtCountryCode.Text = "+90";
         }
 
@@ -60,22 +60,12 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             try
             {
-                var branchData = BranchMethods.GetBranchById(branchId);
+                // BranchMethods.GetBranchById metodu Branch nesnesi döndürdüğü varsayılmaktadır.
+                Branch branchData = BranchMethods.GetBranchById(branchId);
                 if (branchData != null)
                 {
-                    currentBranch = new Branch
-                    {
-                        BranchID = branchId,
-                        BranchName = branchData["SubeAdi"].ToString(),
-                        Address = branchData["Adres"].ToString(),
-                        CountryCode = branchData["UlkeKodu"].ToString(),
-                        PhoneNumber = branchData["TelefonNo"].ToString(),
-                        Email = branchData["Email"] != DBNull.Value ? branchData["Email"].ToString() : string.Empty,
-                        CityCode = branchData["SehirPlaka"].ToString(),
-                        IsActive = Convert.ToBoolean(branchData["AktifMi"])
-                    };
-
-                    // Form alanlarını doldur
+                    currentBranch = branchData;
+                    // Form alanlarına Branch nesnesinin özelliklerinden verileri aktarın
                     txtBranchName.Text = currentBranch.BranchName;
                     txtAddress.Text = currentBranch.Address;
                     txtCountryCode.Text = currentBranch.CountryCode;
@@ -101,24 +91,18 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             // Sadece sayı ve kontrol karakterlerine izin ver
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
                 e.Handled = true;
-            }
         }
 
         private void TxtCityCode_KeyPress(object sender, KeyPressEventArgs e)
         {
             // Sadece sayı ve kontrol karakterlerine izin ver
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
                 e.Handled = true;
-            }
 
-            // Maximum 2 karakter
+            // Maksimum 2 karakter
             if (txtCityCode.Text.Length >= 2 && !char.IsControl(e.KeyChar))
-            {
                 e.Handled = true;
-            }
         }
 
         private bool ValidateForm()
@@ -126,21 +110,21 @@ namespace arac_kiralama_satis_desktop.Interfaces
             bool isValid = true;
             errorProvider.Clear();
 
-            // Şube Adı doğrulama
+            // Şube adı kontrolü
             if (string.IsNullOrWhiteSpace(txtBranchName.Text))
             {
                 errorProvider.SetError(txtBranchName, "Şube adı boş olamaz");
                 isValid = false;
             }
 
-            // Adres doğrulama
+            // Adres kontrolü
             if (string.IsNullOrWhiteSpace(txtAddress.Text))
             {
                 errorProvider.SetError(txtAddress, "Adres boş olamaz");
                 isValid = false;
             }
 
-            // Telefon numarası doğrulama
+            // Telefon numarası kontrolü
             if (string.IsNullOrWhiteSpace(txtPhoneNumber.Text))
             {
                 errorProvider.SetError(txtPhoneNumber, "Telefon numarası boş olamaz");
@@ -152,7 +136,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 isValid = false;
             }
 
-            // Şehir plaka kodu doğrulama
+            // Şehir plaka kodu kontrolü
             if (string.IsNullOrWhiteSpace(txtCityCode.Text))
             {
                 errorProvider.SetError(txtCityCode, "Şehir plaka kodu boş olamaz");
@@ -164,7 +148,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 isValid = false;
             }
 
-            // Email doğrulama (opsiyonel)
+            // E-posta kontrolü (opsiyonel)
             if (!string.IsNullOrWhiteSpace(txtEmail.Text))
             {
                 string emailPattern = @"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
@@ -186,7 +170,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
             try
             {
-                // Branch nesnesine form verilerini aktarma
+                // Form verilerini Branch nesnesine aktarın
                 currentBranch.BranchName = txtBranchName.Text.Trim();
                 currentBranch.Address = txtAddress.Text.Trim();
                 currentBranch.CountryCode = txtCountryCode.Text.Trim();
