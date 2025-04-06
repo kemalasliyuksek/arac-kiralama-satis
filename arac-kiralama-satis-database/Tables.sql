@@ -262,3 +262,49 @@ CREATE TABLE Loglar (
     IslemTarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (KullaniciID) REFERENCES Kullanicilar(KullaniciID)
 );
+
+
+-- Hata logları için tablo oluşturma script'i
+CREATE TABLE IF NOT EXISTS `HataLoglar` (
+  `HataID` VARCHAR(50) NOT NULL PRIMARY KEY COMMENT 'Benzersiz hata tanımlayıcısı',
+  `Tarih` DATETIME NOT NULL COMMENT 'Hatanın oluştuğu tarih ve saat',
+  `Seviye` VARCHAR(20) NOT NULL COMMENT 'Hata seviyesi (Critical, Error, Warning, Info)',
+  `Kaynak` VARCHAR(20) NOT NULL COMMENT 'Hatanın kaynağı (Database, UI, Business, vb.)',
+  `Mesaj` TEXT NOT NULL COMMENT 'Hata mesajı',
+  `Baglam` TEXT NULL COMMENT 'Hatanın oluştuğu bağlam bilgisi',
+  `StackTrace` TEXT NULL COMMENT 'Stack trace bilgisi',
+  `IcHata` TEXT NULL COMMENT 'İç hata mesajı (varsa)',
+  `CagiranMetod` VARCHAR(255) NULL COMMENT 'Hatanın oluştuğu metod',
+  `CagiranDosya` VARCHAR(255) NULL COMMENT 'Hatanın oluştuğu dosya',
+  `CagiranSatir` INT NULL COMMENT 'Hatanın oluştuğu satır numarası',
+  `KullaniciID` INT NULL COMMENT 'Hatanın oluştuğu anda aktif olan kullanıcı ID',
+  `KullaniciAdi` VARCHAR(100) NULL COMMENT 'Hatanın oluştuğu anda aktif olan kullanıcı adı',
+  `IPAdresi` VARCHAR(50) NULL COMMENT 'Kullanıcının IP adresi',
+  `EkBilgiler` TEXT NULL COMMENT 'JSON formatında ek bilgiler',
+  `KayitZamani` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Loglamanın yapıldığı zaman'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Uygulama hata loglarını saklar';
+
+-- Hatalar üzerinde aramaları hızlandırmak için indeksler
+CREATE INDEX `IX_HataLoglar_Tarih` ON `HataLoglar` (`Tarih`);
+CREATE INDEX `IX_HataLoglar_Seviye` ON `HataLoglar` (`Seviye`);
+CREATE INDEX `IX_HataLoglar_Kaynak` ON `HataLoglar` (`Kaynak`);
+CREATE INDEX `IX_HataLoglar_KullaniciID` ON `HataLoglar` (`KullaniciID`);
+
+-- Hata log işlemlerini yönetebilmek için bir temizleme procedürü
+DELIMITER //
+CREATE PROCEDURE `sp_HataLogTemizle` (
+    IN p_gunSayisi INT
+)
+BEGIN
+    -- Belirtilen gün sayısından eski kayıtları sil
+    DELETE FROM `HataLoglar` 
+    WHERE `Tarih` < DATE_SUB(NOW(), INTERVAL p_gunSayisi DAY);
+    
+    -- Silinen kayıt sayısını döndür
+    SELECT ROW_COUNT() AS 'SilinenKayitSayisi';
+END //
+DELIMITER ;
+
+-- Kullanım örneği: CALL sp_HataLogTemizle(30); -- 30 günden eski hata kayıtlarını temizler
+
+
