@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
-using arac_kiralama_satis_desktop.Utils; // _Backups yerine Utils kullan
+using arac_kiralama_satis_desktop.Utils;
 
 namespace arac_kiralama_satis_desktop.Methods
 {
@@ -14,7 +14,6 @@ namespace arac_kiralama_satis_desktop.Methods
 
             try
             {
-                // Get total car count
                 try
                 {
                     string carCountQuery = "SELECT COUNT(*) FROM Araclar";
@@ -27,7 +26,6 @@ namespace arac_kiralama_satis_desktop.Methods
                     dashboardData.TotalCarCount = 0;
                 }
 
-                // Get total branch count
                 try
                 {
                     string locationCountQuery = "SELECT COUNT(*) FROM Subeler WHERE AktifMi = 1";
@@ -40,7 +38,6 @@ namespace arac_kiralama_satis_desktop.Methods
                     dashboardData.LocationCount = 0;
                 }
 
-                // Get total customer count
                 try
                 {
                     string customerCountQuery = "SELECT COUNT(*) FROM Musteriler";
@@ -53,7 +50,6 @@ namespace arac_kiralama_satis_desktop.Methods
                     dashboardData.CustomerCount = 0;
                 }
 
-                // Get total revenue (from both rentals and sales)
                 try
                 {
                     string revenueQuery = @"
@@ -69,7 +65,6 @@ namespace arac_kiralama_satis_desktop.Methods
                     dashboardData.TotalRevenue = 0;
                 }
 
-                // Keep brand count and average rental price for compatibility
                 try
                 {
                     string brandCountQuery = "SELECT COUNT(DISTINCT Marka) FROM Araclar";
@@ -98,7 +93,6 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 Console.WriteLine($"Error getting dashboard data: {ex.Message}");
 
-                // Set all values to 0 on error
                 dashboardData.TotalCarCount = 0;
                 dashboardData.LocationCount = 0;
                 dashboardData.CustomerCount = 0;
@@ -114,7 +108,6 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                // Get count of active rentals (where end date is in the future and not returned yet)
                 string query = @"
                     SELECT COUNT(*) 
                     FROM Kiralamalar 
@@ -135,7 +128,6 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                // Get count of sales in the current month
                 string query = @"
                     SELECT COUNT(*) 
                     FROM Satislar 
@@ -156,7 +148,6 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                // Get count of pending service/maintenance records (where end date is null)
                 string query = @"
                     SELECT COUNT(*) 
                     FROM Bakimlar 
@@ -176,7 +167,6 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                // Get count of active employees
                 string query = @"
                     SELECT COUNT(*) 
                     FROM Kullanicilar 
@@ -223,7 +213,6 @@ namespace arac_kiralama_satis_desktop.Methods
 
             try
             {
-                // Get rental counts grouped by year
                 string query = @"
                     SELECT YEAR(BaslangicTarihi) as Year, COUNT(*) as Count 
                     FROM Kiralamalar 
@@ -239,7 +228,6 @@ namespace arac_kiralama_satis_desktop.Methods
                     yearlyRentals.Add(year, count);
                 }
 
-                // If no data found, provide sample data for demonstration
                 if (yearlyRentals.Count == 0)
                 {
                     int currentYear = DateTime.Now.Year;
@@ -253,7 +241,6 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 Console.WriteLine($"Error getting yearly rentals: {ex.Message}");
 
-                // Provide sample data on error
                 int currentYear = DateTime.Now.Year;
                 for (int i = -3; i <= 0; i++)
                 {
