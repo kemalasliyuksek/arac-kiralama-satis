@@ -51,8 +51,14 @@ namespace arac_kiralama_satis_desktop.Utils
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Decryption error: " + ex.Message);
-                throw new InvalidOperationException("Failed to decrypt connection string.", ex);
+                // ErrorManager ile hata yönetimi
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Bağlantı cümlesi şifre çözme hatası",
+                    ErrorSeverity.Critical,
+                    ErrorSource.Database);
+
+                throw new InvalidOperationException("Bağlantı cümlesi şifresi çözülemedi.", ex);
             }
         }
 
@@ -89,8 +95,14 @@ namespace arac_kiralama_satis_desktop.Utils
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Encryption error: " + ex.Message);
-                throw new InvalidOperationException("Failed to encrypt connection string.", ex);
+                // ErrorManager ile hata yönetimi
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Bağlantı cümlesi şifreleme hatası",
+                    ErrorSeverity.Critical,
+                    ErrorSource.Database);
+
+                throw new InvalidOperationException("Bağlantı cümlesi şifrelenemiyor.", ex);
             }
         }
 
@@ -118,17 +130,40 @@ namespace arac_kiralama_satis_desktop.Utils
         /// </summary>
         public static string GetConnectionString()
         {
-            string connectionName = UseRemoteDatabase ? "AracDB_Remote" : "AracDB_Local";
-
-            // Şifreli bağlantı cümlesini al
-            string encryptedConnectionString = ConfigurationManager.AppSettings[$"Encrypted_{connectionName}"];
-
-            if (string.IsNullOrEmpty(encryptedConnectionString))
+            try
             {
-                throw new InvalidOperationException($"Encrypted connection string is not available for {connectionName}.");
-            }
+                string connectionName = UseRemoteDatabase ? "AracDB_Remote" : "AracDB_Local";
 
-            return DecryptConnectionString(encryptedConnectionString);
+                // Şifreli bağlantı cümlesini al
+                string encryptedConnectionString = ConfigurationManager.AppSettings[$"Encrypted_{connectionName}"];
+
+                if (string.IsNullOrEmpty(encryptedConnectionString))
+                {
+                    string errorMessage = $"Şifreli bağlantı cümlesi bulunamadı: {connectionName}.";
+
+                    // ErrorManager ile hata bilgisi
+                    ErrorManager.Instance.HandleException(
+                        new InvalidOperationException(errorMessage),
+                        "Bağlantı yapılandırması eksik",
+                        ErrorSeverity.Critical,
+                        ErrorSource.Database);
+
+                    throw new InvalidOperationException(errorMessage);
+                }
+
+                return DecryptConnectionString(encryptedConnectionString);
+            }
+            catch (Exception ex) when (!(ex is InvalidOperationException))
+            {
+                // Zaten işlenmiş InvalidOperationException hatalarını tekrar işleme
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Bağlantı cümlesi alınırken beklenmeyen hata",
+                    ErrorSeverity.Critical,
+                    ErrorSource.Database);
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -143,80 +178,80 @@ namespace arac_kiralama_satis_desktop.Utils
             }
             catch (MySqlException ex)
             {
-                HandleDatabaseException(ex, "Veritabanı bağlantısı kurulamadı");
+                // MySQL hata numarasına göre özel bilgiler ekle
+                Dictionary<string, object> additionalData = new Dictionary<string, object>
+                {
+                    { "MySqlErrorNumber", ex.Number },
+                    { "ConnectionString", GetSanitizedConnectionString() }
+                };
+
+                string context = GetDatabaseErrorContext(ex);
+
+                // ErrorManager ile hata yönetimi
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    context,
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw;
+            }
+            catch (Exception ex) when (!(ex is InvalidOperationException))
+            {
+                // Diğer hatalar için
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Veritabanı bağlantısı oluşturulurken beklenmeyen hata",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
                 throw;
             }
         }
 
         /// <summary>
-        /// Veritabanı hatalarını ele alır
+        /// Bağlantı cümlesinin hassas bilgilerini gizler
         /// </summary>
-        private static void HandleDatabaseException(MySqlException ex, string contextMessage)
-        {
-            string detailMessage = $"{contextMessage}: {ex.Message}";
-
-            // Specific MySQL error handling
-            switch (ex.Number)
-            {
-                case 1042: // Unable to connect to server
-                    detailMessage = "Veritabanı sunucusuna bağlanılamıyor. Sunucu çalışıyor ve erişilebilir durumda mı kontrol edin.";
-                    break;
-                case 1045: // Invalid username/password
-                    detailMessage = "Veritabanı kullanıcı adı veya şifresi geçersiz.";
-                    break;
-                case 1049: // Unknown database
-                    detailMessage = "Belirtilen veritabanı bulunamadı.";
-                    break;
-                case 1130: // Host not allowed
-                    detailMessage = "Bu IP adresi veritabanı sunucusuna erişim için yetkilendirilmemiş.";
-                    break;
-                case 1064: // SQL Syntax error
-                    detailMessage = "SQL sözdizimi hatası: " + ex.Message;
-                    break;
-            }
-
-            if (ex.InnerException != null)
-            {
-                detailMessage += $" | İç hata: {ex.InnerException.Message}";
-            }
-
-            // Log the error
-            LogError(detailMessage, ex);
-
-            // Show a user-friendly message
-            MessageBox.Show(detailMessage, "Veritabanı Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        /// <summary>
-        /// Hata loglaması yapar
-        /// </summary>
-        private static void LogError(string message, Exception ex)
+        private static string GetSanitizedConnectionString()
         {
             try
             {
-                string logPath = Path.Combine(Application.StartupPath, "Logs");
-                if (!Directory.Exists(logPath))
-                {
-                    Directory.CreateDirectory(logPath);
-                }
-
-                string logFile = Path.Combine(logPath, $"db_error_{DateTime.Now:yyyyMMdd}.log");
-                string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}\r\n";
-                if (ex != null)
-                {
-                    logEntry += $"Exception: {ex.GetType().Name}\r\nMessage: {ex.Message}\r\nStack Trace: {ex.StackTrace}\r\n";
-                    if (ex.InnerException != null)
-                    {
-                        logEntry += $"Inner Exception: {ex.InnerException.Message}\r\n";
-                    }
-                }
-                logEntry += new string('-', 80) + "\r\n";
-
-                File.AppendAllText(logFile, logEntry);
+                string connectionString = GetConnectionString();
+                // Şifreyi gizle
+                return connectionString.Replace(
+                    System.Text.RegularExpressions.Regex.Match(
+                        connectionString,
+                        "(?<=Password=).*?(?=;|$)",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                    ).Value,
+                    "********"
+                );
             }
             catch
             {
-                // Logging should not throw exceptions
+                return "Bağlantı cümlesi alınamadı";
+            }
+        }
+
+        /// <summary>
+        /// MySQL hata numarasına göre uygun hata bağlamını döndürür
+        /// </summary>
+        private static string GetDatabaseErrorContext(MySqlException ex)
+        {
+            switch (ex.Number)
+            {
+                case 1042: // Unable to connect to server
+                    return "Veritabanı sunucusuna bağlanılamıyor. Sunucu çalışıyor ve erişilebilir durumda mı kontrol edin.";
+                case 1045: // Invalid username/password
+                    return "Veritabanı kullanıcı adı veya şifresi geçersiz.";
+                case 1049: // Unknown database
+                    return "Belirtilen veritabanı bulunamadı.";
+                case 1130: // Host not allowed
+                    return "Bu IP adresi veritabanı sunucusuna erişim için yetkilendirilmemiş.";
+                case 1064: // SQL Syntax error
+                    return "SQL sözdizimi hatası: " + ex.Message;
+                default:
+                    return $"Veritabanı bağlantı hatası: {ex.Message}";
             }
         }
     }

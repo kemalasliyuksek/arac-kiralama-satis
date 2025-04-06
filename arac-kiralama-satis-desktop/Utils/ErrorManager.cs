@@ -495,6 +495,26 @@ namespace arac_kiralama_satis_desktop.Utils
         }
 
         /// <summary>
+        /// Alternatif bir veritabanı bağlantısı döndürür (birincil bağlantı başarısız olduğunda)
+        /// </summary>
+        private MySqlConnection GetAlternativeConnection()
+        {
+            // Gerçek bağlantı bilgilerinizi kullanın, varsayılan bağlantı yerine
+            try
+            {
+                string connectionString = ConnectionManager.GetConnectionString();
+                return new MySqlConnection(connectionString);
+            }
+            catch
+            {
+                // Bu satıra asla ulaşılmaması için yukarıdaki kodu düzenleyin
+                // Ancak yine de bir yedek hazırlayalım
+                string connectionString = "Server=localhost;Database=arac_kiralama;Uid=root;Pwd=2307;";
+                return new MySqlConnection(connectionString);
+            }
+        }
+
+        /// <summary>
         /// Hata bilgisini veritabanına loglar
         /// </summary>
         /// <param name="errorInfo">Hata bilgisi</param>
@@ -515,16 +535,25 @@ namespace arac_kiralama_satis_desktop.Utils
                             SaveErrorLog(connection, errorInfo);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Alternatif bağlantı da başarısız olursa çık
+                        // Alternatif bağlantı da başarısız olursa, hatayı logla ve çık
+                        LogBackupErrorRecord(errorInfo, new Exception("Alternatif bağlantı hatası: " + ex.Message));
                         return;
                     }
                 }
                 else
                 {
-                    // Normal veritabanı bağlantısı ile logla
-                    string query = @"INSERT INTO HataLoglar 
+                    // Veritabanı hatası sonsuz döngüye neden olabilir, o nedenle try-catch kullanıyoruz
+                    try
+                    {
+                        using (MySqlConnection connection = GetAlternativeConnection())
+                        {
+                            // Normal veritabanı bağlantısı ile logla ama DatabaseHelper kullanma
+                            // Doğrudan MySqlCommand kullan
+                            connection.Open();
+
+                            string query = @"INSERT INTO HataLoglar 
                                   (HataID, Tarih, Seviye, Kaynak, Mesaj, Baglam, StackTrace, 
                                    IcHata, CagiranMetod, CagiranDosya, CagiranSatir, 
                                    KullaniciID, KullaniciAdi, IPAdresi, EkBilgiler)
@@ -533,51 +562,59 @@ namespace arac_kiralama_satis_desktop.Utils
                                    @icHata, @cagiranMetod, @cagiranDosya, @cagiranSatir, 
                                    @kullaniciId, @kullaniciAdi, @ipAdresi, @ekBilgiler)";
 
-                    // Oturum açmış kullanıcı bilgilerini al (eğer varsa)
-                    int? userId = null;
-                    string username = "";
-                    try
-                    {
-                        if (CurrentSession.UserID > 0)
-                        {
-                            userId = CurrentSession.UserID;
-                            username = CurrentSession.UserName;
+                            // Oturum açmış kullanıcı bilgilerini al (eğer varsa)
+                            int? userId = null;
+                            string username = "";
+                            try
+                            {
+                                if (CurrentSession.UserID > 0)
+                                {
+                                    userId = CurrentSession.UserID;
+                                    username = CurrentSession.UserName;
+                                }
+                            }
+                            catch { /* Kullanıcı bilgisi alınamazsa dikkate alma */ }
+
+                            // IP adresini al
+                            string ipAddress = GetUserIpAddress();
+
+                            // Ek bilgileri JSON formatında serialize et
+                            string additionalData = SerializeAdditionalData(errorInfo);
+
+                            // İç hata mesajı
+                            string innerExceptionMessage = errorInfo.Exception.InnerException != null
+                                ? errorInfo.Exception.InnerException.Message
+                                : null;
+
+                            using (MySqlCommand command = new MySqlCommand(query, connection))
+                            {
+                                // DatabaseHelper kullanmadan parametreleri ekle
+                                command.Parameters.AddWithValue("@hataId", errorInfo.ErrorId);
+                                command.Parameters.AddWithValue("@tarih", errorInfo.Timestamp);
+                                command.Parameters.AddWithValue("@seviye", errorInfo.Severity.ToString());
+                                command.Parameters.AddWithValue("@kaynak", errorInfo.Source.ToString());
+                                command.Parameters.AddWithValue("@mesaj", errorInfo.Exception.Message);
+                                command.Parameters.AddWithValue("@baglam", errorInfo.Context ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@stackTrace", errorInfo.Exception.StackTrace ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@icHata", innerExceptionMessage ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@cagiranMetod", errorInfo.CallerMemberName ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@cagiranDosya", errorInfo.CallerFilePath ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@cagiranSatir", errorInfo.CallerLineNumber);
+                                command.Parameters.AddWithValue("@kullaniciId", userId.HasValue ? (object)userId.Value : DBNull.Value);
+                                command.Parameters.AddWithValue("@kullaniciAdi", string.IsNullOrEmpty(username) ? (object)DBNull.Value : username);
+                                command.Parameters.AddWithValue("@ipAdresi", ipAddress ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@ekBilgiler", additionalData ?? (object)DBNull.Value);
+
+                                command.ExecuteNonQuery();
+                            }
                         }
                     }
-                    catch { /* Kullanıcı bilgisi alınamazsa dikkate alma */ }
-
-                    // IP adresini al
-                    string ipAddress = GetUserIpAddress();
-
-                    // Ek bilgileri JSON formatında serialize et
-                    string additionalData = SerializeAdditionalData(errorInfo);
-
-                    // İç hata mesajı
-                    string innerExceptionMessage = errorInfo.Exception.InnerException != null
-                        ? errorInfo.Exception.InnerException.Message
-                        : null;
-
-                    MySqlParameter[] parameters = new MySqlParameter[]
+                    catch (Exception ex)
                     {
-                        DatabaseHelper.CreateParameter("@hataId", errorInfo.ErrorId),
-                        DatabaseHelper.CreateParameter("@tarih", errorInfo.Timestamp),
-                        DatabaseHelper.CreateParameter("@seviye", errorInfo.Severity.ToString()),
-                        DatabaseHelper.CreateParameter("@kaynak", errorInfo.Source.ToString()),
-                        DatabaseHelper.CreateParameter("@mesaj", errorInfo.Exception.Message),
-                        DatabaseHelper.CreateParameter("@baglam", errorInfo.Context),
-                        DatabaseHelper.CreateParameter("@stackTrace", errorInfo.Exception.StackTrace),
-                        DatabaseHelper.CreateParameter("@icHata", innerExceptionMessage),
-                        DatabaseHelper.CreateParameter("@cagiranMetod", errorInfo.CallerMemberName),
-                        DatabaseHelper.CreateParameter("@cagiranDosya", errorInfo.CallerFilePath),
-                        DatabaseHelper.CreateParameter("@cagiranSatir", errorInfo.CallerLineNumber),
-                        DatabaseHelper.CreateParameter("@kullaniciId", userId),
-                        DatabaseHelper.CreateParameter("@kullaniciAdi", username),
-                        DatabaseHelper.CreateParameter("@ipAdresi", ipAddress),
-                        DatabaseHelper.CreateParameter("@ekBilgiler", additionalData)
-                    };
-
-                    // Veritabanına kaydet
-                    DatabaseHelper.ExecuteNonQuery(query, parameters);
+                        // Loglama hatası, bunu sadece konsola ve dosyaya yaz
+                        Console.WriteLine($"Failed to log error to database: {ex.Message}");
+                        LogBackupErrorRecord(errorInfo, ex);
+                    }
                 }
             }
             catch (Exception ex)
@@ -586,18 +623,6 @@ namespace arac_kiralama_satis_desktop.Utils
                 Console.WriteLine($"Failed to log error to database: {ex.Message}");
                 LogBackupErrorRecord(errorInfo, ex);
             }
-        }
-
-        /// <summary>
-        /// Alternatif bir veritabanı bağlantısı döndürür (birincil bağlantı başarısız olduğunda)
-        /// </summary>
-        private MySqlConnection GetAlternativeConnection()
-        {
-            // Uygulama ayarlarından alternatif bir bağlantı cümlesi alınabilir
-            // Veya sabit kodlanmış bir yedek bağlantıya başvurulabilir
-            // Bu örnekte basit bir bağlantı oluşturulmuştur
-            string connectionString = "Server=localhost;Database=yedek_logdb;Uid=log_user;Pwd=log_password;";
-            return new MySqlConnection(connectionString);
         }
 
         /// <summary>

@@ -40,7 +40,14 @@ namespace arac_kiralama_satis_desktop.Utils
                 }
                 catch (MySqlException ex)
                 {
-                    throw new DatabaseException("Sorgu çalıştırma hatası", ex, query, parameters);
+                    // ErrorManager ile hata yönetimi
+                    DatabaseException dbEx = new DatabaseException("Sorgu çalıştırma hatası", ex, query, parameters);
+                    ErrorManager.Instance.HandleException(
+                        dbEx,
+                        "SELECT sorgusu çalıştırılırken hata oluştu",
+                        ErrorSeverity.Error,
+                        ErrorSource.Database);
+                    throw dbEx;
                 }
                 finally
                 {
@@ -78,7 +85,14 @@ namespace arac_kiralama_satis_desktop.Utils
                 }
                 catch (MySqlException ex)
                 {
-                    throw new DatabaseException("Komut çalıştırma hatası", ex, query, parameters);
+                    // ErrorManager ile hata yönetimi
+                    DatabaseException dbEx = new DatabaseException("Komut çalıştırma hatası", ex, query, parameters);
+                    ErrorManager.Instance.HandleException(
+                        dbEx,
+                        "Veri değiştirme sorgusu çalıştırılırken hata oluştu",
+                        ErrorSeverity.Error,
+                        ErrorSource.Database);
+                    throw dbEx;
                 }
                 finally
                 {
@@ -116,7 +130,14 @@ namespace arac_kiralama_satis_desktop.Utils
                 }
                 catch (MySqlException ex)
                 {
-                    throw new DatabaseException("Scalar sorgu hatası", ex, query, parameters);
+                    // ErrorManager ile hata yönetimi
+                    DatabaseException dbEx = new DatabaseException("Scalar sorgu hatası", ex, query, parameters);
+                    ErrorManager.Instance.HandleException(
+                        dbEx,
+                        "Scalar sorgusu çalıştırılırken hata oluştu",
+                        ErrorSeverity.Error,
+                        ErrorSource.Database);
+                    throw dbEx;
                 }
                 finally
                 {
@@ -181,8 +202,13 @@ namespace arac_kiralama_satis_desktop.Utils
                     return (T)Convert.ChangeType(value, targetType);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                // ErrorManager ile dönüşüm hatasını logla
+                ErrorManager.Instance.LogWarning(
+                    $"'{columnName}' sütunundaki '{value}' değeri '{targetType.Name}' tipine dönüştürülemedi: {ex.Message}",
+                    "DatabaseHelper.GetValue");
+
                 return default(T);
             }
         }
