@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
-using arac_kiralama_satis_desktop._Backups;
+using arac_kiralama_satis_desktop.Utils; // _Backups yerine Utils kullan
 
 namespace arac_kiralama_satis_desktop.Methods
 {
@@ -18,7 +18,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 try
                 {
                     string carCountQuery = "SELECT COUNT(*) FROM Araclar";
-                    object carCountResult = DatabaseConnection.ExecuteScalar(carCountQuery);
+                    object carCountResult = DatabaseHelper.ExecuteScalar(carCountQuery);
                     dashboardData.TotalCarCount = Convert.ToInt32(carCountResult);
                 }
                 catch (Exception ex)
@@ -31,7 +31,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 try
                 {
                     string locationCountQuery = "SELECT COUNT(*) FROM Subeler WHERE AktifMi = 1";
-                    object locationCountResult = DatabaseConnection.ExecuteScalar(locationCountQuery);
+                    object locationCountResult = DatabaseHelper.ExecuteScalar(locationCountQuery);
                     dashboardData.LocationCount = Convert.ToInt32(locationCountResult);
                 }
                 catch (Exception ex)
@@ -44,7 +44,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 try
                 {
                     string customerCountQuery = "SELECT COUNT(*) FROM Musteriler";
-                    object customerCountResult = DatabaseConnection.ExecuteScalar(customerCountQuery);
+                    object customerCountResult = DatabaseHelper.ExecuteScalar(customerCountQuery);
                     dashboardData.CustomerCount = Convert.ToInt32(customerCountResult);
                 }
                 catch (Exception ex)
@@ -60,7 +60,7 @@ namespace arac_kiralama_satis_desktop.Methods
                         SELECT 
                             IFNULL((SELECT SUM(KiralamaTutari) FROM Kiralamalar), 0) + 
                             IFNULL((SELECT SUM(SatisTutari) FROM Satislar), 0) AS TotalRevenue";
-                    object revenueResult = DatabaseConnection.ExecuteScalar(revenueQuery);
+                    object revenueResult = DatabaseHelper.ExecuteScalar(revenueQuery);
                     dashboardData.TotalRevenue = Convert.ToDecimal(revenueResult);
                 }
                 catch (Exception ex)
@@ -73,7 +73,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 try
                 {
                     string brandCountQuery = "SELECT COUNT(DISTINCT Marka) FROM Araclar";
-                    object brandCountResult = DatabaseConnection.ExecuteScalar(brandCountQuery);
+                    object brandCountResult = DatabaseHelper.ExecuteScalar(brandCountQuery);
                     dashboardData.BrandCount = Convert.ToInt32(brandCountResult);
                 }
                 catch (Exception ex)
@@ -85,7 +85,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 try
                 {
                     string avgPriceQuery = "SELECT AVG(Fiyat) FROM KiraFiyatlari WHERE KiralamaTipi = 'Günlük'";
-                    object avgPriceResult = DatabaseConnection.ExecuteScalar(avgPriceQuery);
+                    object avgPriceResult = DatabaseHelper.ExecuteScalar(avgPriceQuery);
                     dashboardData.AverageRentalPrice = avgPriceResult != DBNull.Value ? Convert.ToDouble(avgPriceResult) : 0;
                 }
                 catch (Exception ex)
@@ -121,7 +121,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     WHERE BitisTarihi >= CURRENT_DATE() 
                     AND (TeslimTarihi IS NULL)";
 
-                object result = DatabaseConnection.ExecuteScalar(query);
+                object result = DatabaseHelper.ExecuteScalar(query);
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
@@ -142,7 +142,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     WHERE MONTH(SatisTarihi) = MONTH(CURRENT_DATE()) 
                     AND YEAR(SatisTarihi) = YEAR(CURRENT_DATE())";
 
-                object result = DatabaseConnection.ExecuteScalar(query);
+                object result = DatabaseHelper.ExecuteScalar(query);
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
@@ -162,7 +162,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     FROM Bakimlar 
                     WHERE BitisTarihi IS NULL";
 
-                object result = DatabaseConnection.ExecuteScalar(query);
+                object result = DatabaseHelper.ExecuteScalar(query);
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
@@ -182,7 +182,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     FROM Kullanicilar 
                     WHERE Durum = 1";
 
-                object result = DatabaseConnection.ExecuteScalar(query);
+                object result = DatabaseHelper.ExecuteScalar(query);
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
@@ -200,7 +200,7 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 string query = "SELECT Marka, COUNT(*) as Adet FROM Araclar GROUP BY Marka ORDER BY Adet DESC";
 
-                DataTable result = DatabaseConnection.ExecuteQuery(query);
+                DataTable result = DatabaseHelper.ExecuteQuery(query);
 
                 foreach (DataRow row in result.Rows)
                 {
@@ -230,7 +230,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     GROUP BY YEAR(BaslangicTarihi)
                     ORDER BY Year";
 
-                DataTable result = DatabaseConnection.ExecuteQuery(query);
+                DataTable result = DatabaseHelper.ExecuteQuery(query);
 
                 foreach (DataRow row in result.Rows)
                 {
@@ -278,7 +278,7 @@ namespace arac_kiralama_satis_desktop.Methods
                     GROUP BY s.SubeAdi
                     ORDER BY AracSayisi DESC";
 
-                DataTable result = DatabaseConnection.ExecuteQuery(query);
+                DataTable result = DatabaseHelper.ExecuteQuery(query);
 
                 foreach (DataRow row in result.Rows)
                 {
@@ -330,7 +330,7 @@ namespace arac_kiralama_satis_desktop.Methods
                                JOIN Araclar a ON s.AracID = a.AracID
                                ORDER BY s.SatisTarihi DESC";
 
-                return DatabaseConnection.ExecuteQuery(query);
+                return DatabaseHelper.ExecuteQuery(query);
             }
             catch (Exception ex)
             {
@@ -352,7 +352,7 @@ namespace arac_kiralama_satis_desktop.Methods
                                LEFT JOIN Servisler s ON b.ServisID = s.ServisID
                                ORDER BY b.BaslamaTarihi DESC";
 
-                return DatabaseConnection.ExecuteQuery(query);
+                return DatabaseHelper.ExecuteQuery(query);
             }
             catch (Exception ex)
             {
