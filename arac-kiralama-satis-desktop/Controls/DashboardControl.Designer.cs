@@ -1,4 +1,9 @@
-﻿namespace arac_kiralama_satis_desktop.Controls
+﻿using System;
+using System.Windows.Forms;
+using System.Drawing;
+using FontAwesome.Sharp;
+
+namespace arac_kiralama_satis_desktop.Controls
 {
     partial class DashboardControl
     {
@@ -28,543 +33,688 @@
         /// </summary>
         private void InitializeComponent()
         {
-            pnlDashboard = new Panel();
-            pnlCharts = new Panel();
-            MetricsPanel = new Panel();
-            tableLayoutMetrics = new TableLayoutPanel();
-            metricPanel1 = new Panel();
-            metricTitle1 = new Label();
-            metricValue1 = new Label();
-            iconLabel1 = new Label();
-            metricPanel2 = new Panel();
-            metricTitle2 = new Label();
-            metricValue2 = new Label();
-            iconLabel2 = new Label();
-            metricPanel3 = new Panel();
-            metricTitle3 = new Label();
-            metricValue3 = new Label();
-            iconLabel3 = new Label();
-            metricPanel4 = new Panel();
-            metricTitle4 = new Label();
-            metricValue4 = new Label();
-            iconLabel4 = new Label();
-            metricPanel5 = new Panel();
-            metricTitle5 = new Label();
-            metricValue5 = new Label();
-            iconLabel5 = new Label();
-            metricPanel6 = new Panel();
-            metricTitle6 = new Label();
-            metricValue6 = new Label();
-            iconLabel6 = new Label();
-            metricPanel7 = new Panel();
-            metricTitle7 = new Label();
-            metricValue7 = new Label();
-            iconLabel7 = new Label();
-            metricPanel8 = new Panel();
-            metricTitle8 = new Label();
-            metricValue8 = new Label();
-            iconLabel8 = new Label();
-            pnlDashboard.SuspendLayout();
-            pnlCharts.SuspendLayout();
-            MetricsPanel.SuspendLayout();
-            tableLayoutMetrics.SuspendLayout();
-            metricPanel1.SuspendLayout();
-            metricPanel2.SuspendLayout();
-            metricPanel3.SuspendLayout();
-            metricPanel4.SuspendLayout();
-            metricPanel5.SuspendLayout();
-            metricPanel6.SuspendLayout();
-            metricPanel7.SuspendLayout();
-            metricPanel8.SuspendLayout();
-            SuspendLayout();
+            // Main container
+            this.pnlMain = new System.Windows.Forms.Panel();
+
+            // Welcome panel
+            this.pnlWelcome = new System.Windows.Forms.Panel();
+            this.lblWelcomeUser = new System.Windows.Forms.Label();
+            this.lblDateTime = new System.Windows.Forms.Label();
+            this.lblWelcomeSubtitle = new System.Windows.Forms.Label();
+
+            // Top stats flow layout
+            this.flpStatCards = new System.Windows.Forms.FlowLayoutPanel();
+
+            // Stat cards
+            this.pnlTotalVehicles = new System.Windows.Forms.Panel();
+            this.lblTotalVehiclesValue = new System.Windows.Forms.Label();
+            this.lblTotalVehiclesTitle = new System.Windows.Forms.Label();
+            this.icnTotalVehicles = new FontAwesome.Sharp.IconPictureBox();
+
+            this.pnlActiveRentals = new System.Windows.Forms.Panel();
+            this.lblActiveRentalsValue = new System.Windows.Forms.Label();
+            this.lblActiveRentalsTitle = new System.Windows.Forms.Label();
+            this.icnActiveRentals = new FontAwesome.Sharp.IconPictureBox();
+
+            this.pnlMonthlySales = new System.Windows.Forms.Panel();
+            this.lblMonthlySalesValue = new System.Windows.Forms.Label();
+            this.lblMonthlySalesTitle = new System.Windows.Forms.Label();
+            this.icnMonthlySales = new FontAwesome.Sharp.IconPictureBox();
+
+            this.pnlPendingServices = new System.Windows.Forms.Panel();
+            this.lblPendingServicesValue = new System.Windows.Forms.Label();
+            this.lblPendingServicesTitle = new System.Windows.Forms.Label();
+            this.icnPendingServices = new FontAwesome.Sharp.IconPictureBox();
+
+            // Charts layout
+            this.pnlCharts = new System.Windows.Forms.Panel();
+
+            // Brand Distribution Chart Panel
+            this.pnlBrandDistribution = new System.Windows.Forms.Panel();
+            this.pnlBrandChartContent = new System.Windows.Forms.Panel();
+            this.lblNoBrandData = new System.Windows.Forms.Label();
+            this.lblBrandDistributionTitle = new System.Windows.Forms.Label();
+
+            // Location Distribution Chart Panel
+            this.pnlLocationDistribution = new System.Windows.Forms.Panel();
+            this.pnlLocationChartContent = new System.Windows.Forms.Panel();
+            this.lblNoLocationData = new System.Windows.Forms.Label();
+            this.lblLocationDistributionTitle = new System.Windows.Forms.Label();
+
+            // Revenue Panel
+            this.pnlRevenue = new System.Windows.Forms.Panel();
+            this.lblTotalRevenue = new System.Windows.Forms.Label();
+            this.lblTotalRevenueValue = new System.Windows.Forms.Label();
+            this.lblRevenueTitle = new System.Windows.Forms.Label();
+            this.lblRevenueSubtitle = new System.Windows.Forms.Label();
+            this.icnRevenue = new FontAwesome.Sharp.IconPictureBox();
+
+            // Recent Activities Panel
+            this.pnlRecentActivity = new System.Windows.Forms.Panel();
+            this.lvwRecentActivity = new System.Windows.Forms.ListView();
+            this.lblRecentActivityTitle = new System.Windows.Forms.Label();
+
+            // Initialize all components
+            this.pnlMain.SuspendLayout();
+            this.pnlWelcome.SuspendLayout();
+            this.flpStatCards.SuspendLayout();
+            this.pnlTotalVehicles.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnTotalVehicles)).BeginInit();
+            this.pnlActiveRentals.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnActiveRentals)).BeginInit();
+            this.pnlMonthlySales.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnMonthlySales)).BeginInit();
+            this.pnlPendingServices.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnPendingServices)).BeginInit();
+            this.pnlCharts.SuspendLayout();
+            this.pnlBrandDistribution.SuspendLayout();
+            this.pnlLocationDistribution.SuspendLayout();
+            this.pnlRevenue.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnRevenue)).BeginInit();
+            this.pnlRecentActivity.SuspendLayout();
+            this.SuspendLayout();
+
             // 
-            // pnlDashboard
+            // pnlMain
             // 
-            pnlDashboard.BackColor = Color.FromArgb(245, 245, 250);
-            pnlDashboard.Controls.Add(pnlCharts);
-            pnlDashboard.Dock = DockStyle.Fill;
-            pnlDashboard.Location = new Point(0, 0);
-            pnlDashboard.Name = "pnlDashboard";
-            pnlDashboard.Size = new Size(1010, 700);
-            pnlDashboard.TabIndex = 0;
+            this.pnlMain.Controls.Add(this.pnlCharts);
+            this.pnlMain.Controls.Add(this.flpStatCards);
+            this.pnlMain.Controls.Add(this.pnlWelcome);
+            this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlMain.Location = new System.Drawing.Point(0, 0);
+            this.pnlMain.Name = "pnlMain";
+            this.pnlMain.Padding = new System.Windows.Forms.Padding(15);
+            this.pnlMain.Size = new System.Drawing.Size(1000, 700);
+            this.pnlMain.TabIndex = 0;
+
+            // 
+            // pnlWelcome
+            // 
+            this.pnlWelcome.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.pnlWelcome.Controls.Add(this.lblWelcomeSubtitle);
+            this.pnlWelcome.Controls.Add(this.lblDateTime);
+            this.pnlWelcome.Controls.Add(this.lblWelcomeUser);
+            this.pnlWelcome.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlWelcome.Location = new System.Drawing.Point(15, 15);
+            this.pnlWelcome.Name = "pnlWelcome";
+            this.pnlWelcome.Size = new System.Drawing.Size(970, 70);
+            this.pnlWelcome.TabIndex = 0;
+
+            // 
+            // lblWelcomeUser
+            // 
+            this.lblWelcomeUser.AutoSize = true;
+            this.lblWelcomeUser.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblWelcomeUser.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(76)))), ((int)(((byte)(143)))));
+            this.lblWelcomeUser.Location = new System.Drawing.Point(10, 10);
+            this.lblWelcomeUser.Name = "lblWelcomeUser";
+            this.lblWelcomeUser.Size = new System.Drawing.Size(168, 30);
+            this.lblWelcomeUser.TabIndex = 0;
+            this.lblWelcomeUser.Text = "Hoş Geldiniz, ";
+
+            // 
+            // lblDateTime
+            // 
+            this.lblDateTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblDateTime.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblDateTime.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblDateTime.Location = new System.Drawing.Point(770, 18);
+            this.lblDateTime.Name = "lblDateTime";
+            this.lblDateTime.Size = new System.Drawing.Size(190, 19);
+            this.lblDateTime.TabIndex = 1;
+            this.lblDateTime.Text = "01 Nisan 2023, 09:00";
+            this.lblDateTime.TextAlign = System.Drawing.ContentAlignment.TopRight;
+
+            // 
+            // lblWelcomeSubtitle
+            // 
+            this.lblWelcomeSubtitle.AutoSize = true;
+            this.lblWelcomeSubtitle.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblWelcomeSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblWelcomeSubtitle.Location = new System.Drawing.Point(12, 40);
+            this.lblWelcomeSubtitle.Name = "lblWelcomeSubtitle";
+            this.lblWelcomeSubtitle.Size = new System.Drawing.Size(337, 19);
+            this.lblWelcomeSubtitle.TabIndex = 2;
+            this.lblWelcomeSubtitle.Text = "İşletme durumunu görebileceğiniz dashboard paneli";
+
+            // 
+            // flpStatCards
+            // 
+            this.flpStatCards.AutoSize = true;
+            this.flpStatCards.Controls.Add(this.pnlTotalVehicles);
+            this.flpStatCards.Controls.Add(this.pnlActiveRentals);
+            this.flpStatCards.Controls.Add(this.pnlMonthlySales);
+            this.flpStatCards.Controls.Add(this.pnlPendingServices);
+            this.flpStatCards.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flpStatCards.Location = new System.Drawing.Point(15, 85);
+            this.flpStatCards.Name = "flpStatCards";
+            this.flpStatCards.Size = new System.Drawing.Size(970, 120);
+            this.flpStatCards.TabIndex = 1;
+            this.flpStatCards.WrapContents = false;
+
+            // 
+            // pnlTotalVehicles
+            // 
+            this.pnlTotalVehicles.BackColor = System.Drawing.Color.White;
+            this.pnlTotalVehicles.Controls.Add(this.icnTotalVehicles);
+            this.pnlTotalVehicles.Controls.Add(this.lblTotalVehiclesTitle);
+            this.pnlTotalVehicles.Controls.Add(this.lblTotalVehiclesValue);
+            this.pnlTotalVehicles.Location = new System.Drawing.Point(3, 3);
+            this.pnlTotalVehicles.Margin = new System.Windows.Forms.Padding(3, 3, 15, 3);
+            this.pnlTotalVehicles.Name = "pnlTotalVehicles";
+            this.pnlTotalVehicles.Size = new System.Drawing.Size(222, 100);
+            this.pnlTotalVehicles.TabIndex = 0;
+
+            // 
+            // lblTotalVehiclesValue
+            // 
+            this.lblTotalVehiclesValue.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblTotalVehiclesValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(76)))), ((int)(((byte)(143)))));
+            this.lblTotalVehiclesValue.Location = new System.Drawing.Point(10, 40);
+            this.lblTotalVehiclesValue.Name = "lblTotalVehiclesValue";
+            this.lblTotalVehiclesValue.Size = new System.Drawing.Size(128, 37);
+            this.lblTotalVehiclesValue.TabIndex = 0;
+            this.lblTotalVehiclesValue.Text = "50";
+
+            // 
+            // lblTotalVehiclesTitle
+            // 
+            this.lblTotalVehiclesTitle.AutoSize = true;
+            this.lblTotalVehiclesTitle.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblTotalVehiclesTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblTotalVehiclesTitle.Location = new System.Drawing.Point(12, 15);
+            this.lblTotalVehiclesTitle.Name = "lblTotalVehiclesTitle";
+            this.lblTotalVehiclesTitle.Size = new System.Drawing.Size(101, 20);
+            this.lblTotalVehiclesTitle.TabIndex = 1;
+            this.lblTotalVehiclesTitle.Text = "Toplam Araç";
+
+            // 
+            // icnTotalVehicles
+            // 
+            this.icnTotalVehicles.BackColor = System.Drawing.Color.White;
+            this.icnTotalVehicles.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(76)))), ((int)(((byte)(143)))));
+            this.icnTotalVehicles.IconChar = FontAwesome.Sharp.IconChar.Car;
+            this.icnTotalVehicles.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(76)))), ((int)(((byte)(143)))));
+            this.icnTotalVehicles.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            this.icnTotalVehicles.IconSize = 50;
+            this.icnTotalVehicles.Location = new System.Drawing.Point(153, 30);
+            this.icnTotalVehicles.Name = "icnTotalVehicles";
+            this.icnTotalVehicles.Size = new System.Drawing.Size(50, 50);
+            this.icnTotalVehicles.TabIndex = 2;
+            this.icnTotalVehicles.TabStop = false;
+
+            // 
+            // pnlActiveRentals
+            // 
+            this.pnlActiveRentals.BackColor = System.Drawing.Color.White;
+            this.pnlActiveRentals.Controls.Add(this.icnActiveRentals);
+            this.pnlActiveRentals.Controls.Add(this.lblActiveRentalsTitle);
+            this.pnlActiveRentals.Controls.Add(this.lblActiveRentalsValue);
+            this.pnlActiveRentals.Location = new System.Drawing.Point(243, 3);
+            this.pnlActiveRentals.Margin = new System.Windows.Forms.Padding(3, 3, 15, 3);
+            this.pnlActiveRentals.Name = "pnlActiveRentals";
+            this.pnlActiveRentals.Size = new System.Drawing.Size(222, 100);
+            this.pnlActiveRentals.TabIndex = 1;
+
+            // 
+            // lblActiveRentalsValue
+            // 
+            this.lblActiveRentalsValue.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblActiveRentalsValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.lblActiveRentalsValue.Location = new System.Drawing.Point(10, 40);
+            this.lblActiveRentalsValue.Name = "lblActiveRentalsValue";
+            this.lblActiveRentalsValue.Size = new System.Drawing.Size(128, 37);
+            this.lblActiveRentalsValue.TabIndex = 0;
+            this.lblActiveRentalsValue.Text = "12";
+
+            // 
+            // lblActiveRentalsTitle
+            // 
+            this.lblActiveRentalsTitle.AutoSize = true;
+            this.lblActiveRentalsTitle.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblActiveRentalsTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblActiveRentalsTitle.Location = new System.Drawing.Point(12, 15);
+            this.lblActiveRentalsTitle.Name = "lblActiveRentalsTitle";
+            this.lblActiveRentalsTitle.Size = new System.Drawing.Size(112, 20);
+            this.lblActiveRentalsTitle.TabIndex = 1;
+            this.lblActiveRentalsTitle.Text = "Aktif Kiralama";
+
+            // 
+            // icnActiveRentals
+            // 
+            this.icnActiveRentals.BackColor = System.Drawing.Color.White;
+            this.icnActiveRentals.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.icnActiveRentals.IconChar = FontAwesome.Sharp.IconChar.CalendarCheck;
+            this.icnActiveRentals.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.icnActiveRentals.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            this.icnActiveRentals.IconSize = 50;
+            this.icnActiveRentals.Location = new System.Drawing.Point(153, 30);
+            this.icnActiveRentals.Name = "icnActiveRentals";
+            this.icnActiveRentals.Size = new System.Drawing.Size(50, 50);
+            this.icnActiveRentals.TabIndex = 2;
+            this.icnActiveRentals.TabStop = false;
+
+            // 
+            // pnlMonthlySales
+            // 
+            this.pnlMonthlySales.BackColor = System.Drawing.Color.White;
+            this.pnlMonthlySales.Controls.Add(this.icnMonthlySales);
+            this.pnlMonthlySales.Controls.Add(this.lblMonthlySalesTitle);
+            this.pnlMonthlySales.Controls.Add(this.lblMonthlySalesValue);
+            this.pnlMonthlySales.Location = new System.Drawing.Point(483, 3);
+            this.pnlMonthlySales.Margin = new System.Windows.Forms.Padding(3, 3, 15, 3);
+            this.pnlMonthlySales.Name = "pnlMonthlySales";
+            this.pnlMonthlySales.Size = new System.Drawing.Size(222, 100);
+            this.pnlMonthlySales.TabIndex = 2;
+
+            // 
+            // lblMonthlySalesValue
+            // 
+            this.lblMonthlySalesValue.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblMonthlySalesValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(123)))), ((int)(((byte)(255)))));
+            this.lblMonthlySalesValue.Location = new System.Drawing.Point(10, 40);
+            this.lblMonthlySalesValue.Name = "lblMonthlySalesValue";
+            this.lblMonthlySalesValue.Size = new System.Drawing.Size(128, 37);
+            this.lblMonthlySalesValue.TabIndex = 0;
+            this.lblMonthlySalesValue.Text = "8";
+
+            // 
+            // lblMonthlySalesTitle
+            // 
+            this.lblMonthlySalesTitle.AutoSize = true;
+            this.lblMonthlySalesTitle.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblMonthlySalesTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblMonthlySalesTitle.Location = new System.Drawing.Point(12, 15);
+            this.lblMonthlySalesTitle.Name = "lblMonthlySalesTitle";
+            this.lblMonthlySalesTitle.Size = new System.Drawing.Size(87, 20);
+            this.lblMonthlySalesTitle.TabIndex = 1;
+            this.lblMonthlySalesTitle.Text = "Aylık Satış";
+
+            // 
+            // icnMonthlySales
+            // 
+            this.icnMonthlySales.BackColor = System.Drawing.Color.White;
+            this.icnMonthlySales.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(123)))), ((int)(((byte)(255)))));
+            this.icnMonthlySales.IconChar = FontAwesome.Sharp.IconChar.ChartLine;
+            this.icnMonthlySales.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(123)))), ((int)(((byte)(255)))));
+            this.icnMonthlySales.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            this.icnMonthlySales.IconSize = 50;
+            this.icnMonthlySales.Location = new System.Drawing.Point(153, 30);
+            this.icnMonthlySales.Name = "icnMonthlySales";
+            this.icnMonthlySales.Size = new System.Drawing.Size(50, 50);
+            this.icnMonthlySales.TabIndex = 2;
+            this.icnMonthlySales.TabStop = false;
+
+            // 
+            // pnlPendingServices
+            // 
+            this.pnlPendingServices.BackColor = System.Drawing.Color.White;
+            this.pnlPendingServices.Controls.Add(this.icnPendingServices);
+            this.pnlPendingServices.Controls.Add(this.lblPendingServicesTitle);
+            this.pnlPendingServices.Controls.Add(this.lblPendingServicesValue);
+            this.pnlPendingServices.Location = new System.Drawing.Point(723, 3);
+            this.pnlPendingServices.Name = "pnlPendingServices";
+            this.pnlPendingServices.Size = new System.Drawing.Size(222, 100);
+            this.pnlPendingServices.TabIndex = 3;
+
+            // 
+            // lblPendingServicesValue
+            // 
+            this.lblPendingServicesValue.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblPendingServicesValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(193)))), ((int)(((byte)(7)))));
+            this.lblPendingServicesValue.Location = new System.Drawing.Point(10, 40);
+            this.lblPendingServicesValue.Name = "lblPendingServicesValue";
+            this.lblPendingServicesValue.Size = new System.Drawing.Size(128, 37);
+            this.lblPendingServicesValue.TabIndex = 0;
+            this.lblPendingServicesValue.Text = "3";
+
+            // 
+            // lblPendingServicesTitle
+            // 
+            this.lblPendingServicesTitle.AutoSize = true;
+            this.lblPendingServicesTitle.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblPendingServicesTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblPendingServicesTitle.Location = new System.Drawing.Point(12, 15);
+            this.lblPendingServicesTitle.Name = "lblPendingServicesTitle";
+            this.lblPendingServicesTitle.Size = new System.Drawing.Size(124, 20);
+            this.lblPendingServicesTitle.TabIndex = 1;
+            this.lblPendingServicesTitle.Text = "Bekleyen Servis";
+
+            // 
+            // icnPendingServices
+            // 
+            this.icnPendingServices.BackColor = System.Drawing.Color.White;
+            this.icnPendingServices.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(193)))), ((int)(((byte)(7)))));
+            this.icnPendingServices.IconChar = FontAwesome.Sharp.IconChar.Wrench;
+            this.icnPendingServices.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(193)))), ((int)(((byte)(7)))));
+            this.icnPendingServices.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            this.icnPendingServices.IconSize = 50;
+            this.icnPendingServices.Location = new System.Drawing.Point(153, 30);
+            this.icnPendingServices.Name = "icnPendingServices";
+            this.icnPendingServices.Size = new System.Drawing.Size(50, 50);
+            this.icnPendingServices.TabIndex = 2;
+            this.icnPendingServices.TabStop = false;
+
             // 
             // pnlCharts
             // 
-            pnlCharts.Controls.Add(MetricsPanel);
-            pnlCharts.Dock = DockStyle.Fill;
-            pnlCharts.Location = new Point(0, 0);
-            pnlCharts.Name = "pnlCharts";
-            pnlCharts.Size = new Size(1010, 700);
-            pnlCharts.TabIndex = 1;
-            // 
-            // MetricsPanel
-            // 
-            MetricsPanel.Controls.Add(tableLayoutMetrics);
-            MetricsPanel.Dock = DockStyle.Top;
-            MetricsPanel.Location = new Point(0, 0);
-            MetricsPanel.Name = "MetricsPanel";
-            MetricsPanel.Size = new Size(1010, 400);
-            MetricsPanel.TabIndex = 0;
-            // 
-            // tableLayoutMetrics
-            // 
-            tableLayoutMetrics.ColumnCount = 4;
-            tableLayoutMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutMetrics.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            tableLayoutMetrics.Controls.Add(metricPanel1, 0, 0);
-            tableLayoutMetrics.Controls.Add(metricPanel2, 1, 0);
-            tableLayoutMetrics.Controls.Add(metricPanel3, 2, 0);
-            tableLayoutMetrics.Controls.Add(metricPanel4, 3, 0);
-            tableLayoutMetrics.Controls.Add(metricPanel5, 0, 1);
-            tableLayoutMetrics.Controls.Add(metricPanel6, 1, 1);
-            tableLayoutMetrics.Controls.Add(metricPanel7, 2, 1);
-            tableLayoutMetrics.Controls.Add(metricPanel8, 3, 1);
-            tableLayoutMetrics.Dock = DockStyle.Fill;
-            tableLayoutMetrics.Location = new Point(0, 0);
-            tableLayoutMetrics.Name = "tableLayoutMetrics";
-            tableLayoutMetrics.RowCount = 2;
-            tableLayoutMetrics.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutMetrics.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutMetrics.Size = new Size(1010, 400);
-            tableLayoutMetrics.TabIndex = 0;
-            // 
-            // metricPanel1
-            // 
-            metricPanel1.Anchor = AnchorStyles.None;
-            metricPanel1.BackColor = Color.White;
-            metricPanel1.Controls.Add(metricTitle1);
-            metricPanel1.Controls.Add(metricValue1);
-            metricPanel1.Controls.Add(iconLabel1);
-            metricPanel1.Location = new Point(28, 40);
-            metricPanel1.Margin = new Padding(10);
-            metricPanel1.Name = "metricPanel1";
-            metricPanel1.Size = new Size(195, 120);
-            metricPanel1.TabIndex = 10;
-            // 
-            // metricTitle1
-            // 
-            metricTitle1.AutoSize = true;
-            metricTitle1.Font = new Font("Segoe UI", 10F);
-            metricTitle1.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle1.Location = new Point(15, 15);
-            metricTitle1.Name = "metricTitle1";
-            metricTitle1.Size = new Size(84, 19);
-            metricTitle1.TabIndex = 0;
-            metricTitle1.Text = "Toplam Araç";
-            // 
-            // metricValue1
-            // 
-            metricValue1.AutoSize = true;
-            metricValue1.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue1.ForeColor = Color.FromArgb(83, 107, 168);
-            metricValue1.Location = new Point(15, 45);
-            metricValue1.Name = "metricValue1";
-            metricValue1.Size = new Size(35, 41);
-            metricValue1.TabIndex = 1;
-            metricValue1.Text = "0";
-            // 
-            // iconLabel1
-            // 
-            iconLabel1.AutoSize = true;
-            iconLabel1.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel1.ForeColor = Color.FromArgb(83, 107, 168);
-            iconLabel1.Location = new Point(154, 35);
-            iconLabel1.Name = "iconLabel1";
-            iconLabel1.Size = new Size(38, 51);
-            iconLabel1.TabIndex = 2;
-            iconLabel1.Text = "•";
-            // 
-            // metricPanel2
-            // 
-            metricPanel2.Anchor = AnchorStyles.None;
-            metricPanel2.BackColor = Color.White;
-            metricPanel2.Controls.Add(metricTitle2);
-            metricPanel2.Controls.Add(metricValue2);
-            metricPanel2.Controls.Add(iconLabel2);
-            metricPanel2.Location = new Point(280, 40);
-            metricPanel2.Margin = new Padding(10);
-            metricPanel2.Name = "metricPanel2";
-            metricPanel2.Size = new Size(195, 120);
-            metricPanel2.TabIndex = 11;
-            // 
-            // metricTitle2
-            // 
-            metricTitle2.AutoSize = true;
-            metricTitle2.Font = new Font("Segoe UI", 10F);
-            metricTitle2.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle2.Location = new Point(15, 15);
-            metricTitle2.Name = "metricTitle2";
-            metricTitle2.Size = new Size(76, 19);
-            metricTitle2.TabIndex = 0;
-            metricTitle2.Text = "Şube Sayısı";
-            // 
-            // metricValue2
-            // 
-            metricValue2.AutoSize = true;
-            metricValue2.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue2.ForeColor = Color.FromArgb(40, 167, 69);
-            metricValue2.Location = new Point(15, 45);
-            metricValue2.Name = "metricValue2";
-            metricValue2.Size = new Size(35, 41);
-            metricValue2.TabIndex = 1;
-            metricValue2.Text = "0";
-            // 
-            // iconLabel2
-            // 
-            iconLabel2.AutoSize = true;
-            iconLabel2.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel2.ForeColor = Color.FromArgb(40, 167, 69);
-            iconLabel2.Location = new Point(154, 35);
-            iconLabel2.Name = "iconLabel2";
-            iconLabel2.Size = new Size(38, 51);
-            iconLabel2.TabIndex = 2;
-            iconLabel2.Text = "•";
-            // 
-            // metricPanel3
-            // 
-            metricPanel3.Anchor = AnchorStyles.None;
-            metricPanel3.BackColor = Color.White;
-            metricPanel3.Controls.Add(metricTitle3);
-            metricPanel3.Controls.Add(metricValue3);
-            metricPanel3.Controls.Add(iconLabel3);
-            metricPanel3.Location = new Point(532, 40);
-            metricPanel3.Margin = new Padding(10);
-            metricPanel3.Name = "metricPanel3";
-            metricPanel3.Size = new Size(195, 120);
-            metricPanel3.TabIndex = 12;
-            // 
-            // metricTitle3
-            // 
-            metricTitle3.AutoSize = true;
-            metricTitle3.Font = new Font("Segoe UI", 10F);
-            metricTitle3.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle3.Location = new Point(15, 15);
-            metricTitle3.Name = "metricTitle3";
-            metricTitle3.Size = new Size(93, 19);
-            metricTitle3.TabIndex = 0;
-            metricTitle3.Text = "Müşteri Sayısı";
-            // 
-            // metricValue3
-            // 
-            metricValue3.AutoSize = true;
-            metricValue3.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue3.ForeColor = Color.FromArgb(255, 193, 7);
-            metricValue3.Location = new Point(15, 45);
-            metricValue3.Name = "metricValue3";
-            metricValue3.Size = new Size(35, 41);
-            metricValue3.TabIndex = 1;
-            metricValue3.Text = "0";
-            // 
-            // iconLabel3
-            // 
-            iconLabel3.AutoSize = true;
-            iconLabel3.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel3.ForeColor = Color.FromArgb(255, 193, 7);
-            iconLabel3.Location = new Point(154, 35);
-            iconLabel3.Name = "iconLabel3";
-            iconLabel3.Size = new Size(38, 51);
-            iconLabel3.TabIndex = 2;
-            iconLabel3.Text = "•";
-            // 
-            // metricPanel4
-            // 
-            metricPanel4.Anchor = AnchorStyles.None;
-            metricPanel4.BackColor = Color.White;
-            metricPanel4.Controls.Add(metricTitle4);
-            metricPanel4.Controls.Add(metricValue4);
-            metricPanel4.Controls.Add(iconLabel4);
-            metricPanel4.Location = new Point(785, 40);
-            metricPanel4.Margin = new Padding(10);
-            metricPanel4.Name = "metricPanel4";
-            metricPanel4.Size = new Size(195, 120);
-            metricPanel4.TabIndex = 13;
-            // 
-            // metricTitle4
-            // 
-            metricTitle4.AutoSize = true;
-            metricTitle4.Font = new Font("Segoe UI", 10F);
-            metricTitle4.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle4.Location = new Point(15, 15);
-            metricTitle4.Name = "metricTitle4";
-            metricTitle4.Size = new Size(105, 19);
-            metricTitle4.TabIndex = 0;
-            metricTitle4.Text = "Toplam Gelir (₺)";
-            // 
-            // metricValue4
-            // 
-            metricValue4.AutoSize = true;
-            metricValue4.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue4.ForeColor = Color.FromArgb(23, 162, 184);
-            metricValue4.Location = new Point(15, 45);
-            metricValue4.Name = "metricValue4";
-            metricValue4.Size = new Size(35, 41);
-            metricValue4.TabIndex = 1;
-            metricValue4.Text = "0";
-            // 
-            // iconLabel4
-            // 
-            iconLabel4.AutoSize = true;
-            iconLabel4.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel4.ForeColor = Color.FromArgb(23, 162, 184);
-            iconLabel4.Location = new Point(154, 35);
-            iconLabel4.Name = "iconLabel4";
-            iconLabel4.Size = new Size(38, 51);
-            iconLabel4.TabIndex = 2;
-            iconLabel4.Text = "•";
-            // 
-            // metricPanel5
-            // 
-            metricPanel5.Anchor = AnchorStyles.None;
-            metricPanel5.BackColor = Color.White;
-            metricPanel5.Controls.Add(metricTitle5);
-            metricPanel5.Controls.Add(metricValue5);
-            metricPanel5.Controls.Add(iconLabel5);
-            metricPanel5.Location = new Point(28, 240);
-            metricPanel5.Margin = new Padding(10);
-            metricPanel5.Name = "metricPanel5";
-            metricPanel5.Size = new Size(195, 120);
-            metricPanel5.TabIndex = 14;
-            // 
-            // metricTitle5
-            // 
-            metricTitle5.AutoSize = true;
-            metricTitle5.Font = new Font("Segoe UI", 10F);
-            metricTitle5.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle5.Location = new Point(15, 15);
-            metricTitle5.Name = "metricTitle5";
-            metricTitle5.Size = new Size(108, 19);
-            metricTitle5.TabIndex = 0;
-            metricTitle5.Text = "Aktif Kiralamalar";
-            // 
-            // metricValue5
-            // 
-            metricValue5.AutoSize = true;
-            metricValue5.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue5.ForeColor = Color.FromArgb(220, 53, 69);
-            metricValue5.Location = new Point(15, 45);
-            metricValue5.Name = "metricValue5";
-            metricValue5.Size = new Size(35, 41);
-            metricValue5.TabIndex = 1;
-            metricValue5.Text = "0";
-            // 
-            // iconLabel5
-            // 
-            iconLabel5.AutoSize = true;
-            iconLabel5.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel5.ForeColor = Color.FromArgb(220, 53, 69);
-            iconLabel5.Location = new Point(154, 35);
-            iconLabel5.Name = "iconLabel5";
-            iconLabel5.Size = new Size(38, 51);
-            iconLabel5.TabIndex = 2;
-            iconLabel5.Text = "•";
-            // 
-            // metricPanel6
-            // 
-            metricPanel6.Anchor = AnchorStyles.None;
-            metricPanel6.BackColor = Color.White;
-            metricPanel6.Controls.Add(metricTitle6);
-            metricPanel6.Controls.Add(metricValue6);
-            metricPanel6.Controls.Add(iconLabel6);
-            metricPanel6.Location = new Point(280, 240);
-            metricPanel6.Margin = new Padding(10);
-            metricPanel6.Name = "metricPanel6";
-            metricPanel6.Size = new Size(195, 120);
-            metricPanel6.TabIndex = 15;
-            // 
-            // metricTitle6
-            // 
-            metricTitle6.AutoSize = true;
-            metricTitle6.Font = new Font("Segoe UI", 10F);
-            metricTitle6.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle6.Location = new Point(15, 15);
-            metricTitle6.Name = "metricTitle6";
-            metricTitle6.Size = new Size(92, 19);
-            metricTitle6.TabIndex = 0;
-            metricTitle6.Text = "Bu Ay Satışlar";
-            // 
-            // metricValue6
-            // 
-            metricValue6.AutoSize = true;
-            metricValue6.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue6.ForeColor = Color.FromArgb(111, 66, 193);
-            metricValue6.Location = new Point(15, 45);
-            metricValue6.Name = "metricValue6";
-            metricValue6.Size = new Size(35, 41);
-            metricValue6.TabIndex = 1;
-            metricValue6.Text = "0";
-            // 
-            // iconLabel6
-            // 
-            iconLabel6.AutoSize = true;
-            iconLabel6.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel6.ForeColor = Color.FromArgb(111, 66, 193);
-            iconLabel6.Location = new Point(154, 35);
-            iconLabel6.Name = "iconLabel6";
-            iconLabel6.Size = new Size(38, 51);
-            iconLabel6.TabIndex = 2;
-            iconLabel6.Text = "•";
-            // 
-            // metricPanel7
-            // 
-            metricPanel7.Anchor = AnchorStyles.None;
-            metricPanel7.BackColor = Color.White;
-            metricPanel7.Controls.Add(metricTitle7);
-            metricPanel7.Controls.Add(metricValue7);
-            metricPanel7.Controls.Add(iconLabel7);
-            metricPanel7.Location = new Point(532, 240);
-            metricPanel7.Margin = new Padding(10);
-            metricPanel7.Name = "metricPanel7";
-            metricPanel7.Size = new Size(195, 120);
-            metricPanel7.TabIndex = 16;
-            // 
-            // metricTitle7
-            // 
-            metricTitle7.AutoSize = true;
-            metricTitle7.Font = new Font("Segoe UI", 10F);
-            metricTitle7.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle7.Location = new Point(15, 15);
-            metricTitle7.Name = "metricTitle7";
-            metricTitle7.Size = new Size(102, 19);
-            metricTitle7.TabIndex = 0;
-            metricTitle7.Text = "Servis Bekleyen";
-            // 
-            // metricValue7
-            // 
-            metricValue7.AutoSize = true;
-            metricValue7.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue7.ForeColor = Color.FromArgb(253, 126, 20);
-            metricValue7.Location = new Point(15, 45);
-            metricValue7.Name = "metricValue7";
-            metricValue7.Size = new Size(35, 41);
-            metricValue7.TabIndex = 1;
-            metricValue7.Text = "0";
-            // 
-            // iconLabel7
-            // 
-            iconLabel7.AutoSize = true;
-            iconLabel7.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel7.ForeColor = Color.FromArgb(253, 126, 20);
-            iconLabel7.Location = new Point(154, 35);
-            iconLabel7.Name = "iconLabel7";
-            iconLabel7.Size = new Size(38, 51);
-            iconLabel7.TabIndex = 2;
-            iconLabel7.Text = "•";
-            // 
-            // metricPanel8
-            // 
-            metricPanel8.Anchor = AnchorStyles.None;
-            metricPanel8.BackColor = Color.White;
-            metricPanel8.Controls.Add(metricTitle8);
-            metricPanel8.Controls.Add(metricValue8);
-            metricPanel8.Controls.Add(iconLabel8);
-            metricPanel8.Location = new Point(785, 240);
-            metricPanel8.Margin = new Padding(10);
-            metricPanel8.Name = "metricPanel8";
-            metricPanel8.Size = new Size(195, 120);
-            metricPanel8.TabIndex = 17;
-            // 
-            // metricTitle8
-            // 
-            metricTitle8.AutoSize = true;
-            metricTitle8.Font = new Font("Segoe UI", 10F);
-            metricTitle8.ForeColor = Color.FromArgb(100, 100, 100);
-            metricTitle8.Location = new Point(15, 15);
-            metricTitle8.Name = "metricTitle8";
-            metricTitle8.Size = new Size(80, 19);
-            metricTitle8.TabIndex = 0;
-            metricTitle8.Text = "Ekip Üyeleri";
-            // 
-            // metricValue8
-            // 
-            metricValue8.AutoSize = true;
-            metricValue8.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
-            metricValue8.ForeColor = Color.FromArgb(108, 117, 125);
-            metricValue8.Location = new Point(15, 45);
-            metricValue8.Name = "metricValue8";
-            metricValue8.Size = new Size(35, 41);
-            metricValue8.TabIndex = 1;
-            metricValue8.Text = "0";
-            // 
-            // iconLabel8
-            // 
-            iconLabel8.AutoSize = true;
-            iconLabel8.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
-            iconLabel8.ForeColor = Color.FromArgb(108, 117, 125);
-            iconLabel8.Location = new Point(154, 35);
-            iconLabel8.Name = "iconLabel8";
-            iconLabel8.Size = new Size(38, 51);
-            iconLabel8.TabIndex = 2;
-            iconLabel8.Text = "•";
+            this.pnlCharts.Controls.Add(this.pnlRecentActivity);
+            this.pnlCharts.Controls.Add(this.pnlRevenue);
+            this.pnlCharts.Controls.Add(this.pnlLocationDistribution);
+            this.pnlCharts.Controls.Add(this.pnlBrandDistribution);
+            this.pnlCharts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlCharts.Location = new System.Drawing.Point(15, 205);
+            this.pnlCharts.Name = "pnlCharts";
+            this.pnlCharts.Size = new System.Drawing.Size(970, 480);
+            this.pnlCharts.TabIndex = 2;
+
+            // 
+            // pnlBrandDistribution
+            // 
+            this.pnlBrandDistribution.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBrandDistribution.BackColor = System.Drawing.Color.White;
+            this.pnlBrandDistribution.Controls.Add(this.lblBrandDistributionTitle);
+            this.pnlBrandDistribution.Controls.Add(this.lblNoBrandData);
+            this.pnlBrandDistribution.Controls.Add(this.pnlBrandChartContent);
+            this.pnlBrandDistribution.Location = new System.Drawing.Point(3, 3);
+            this.pnlBrandDistribution.Name = "pnlBrandDistribution";
+            this.pnlBrandDistribution.Size = new System.Drawing.Size(470, 230);
+            this.pnlBrandDistribution.TabIndex = 0;
+
+            // 
+            // pnlBrandChartContent
+            // 
+            this.pnlBrandChartContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlBrandChartContent.Location = new System.Drawing.Point(15, 50);
+            this.pnlBrandChartContent.Name = "pnlBrandChartContent";
+            this.pnlBrandChartContent.Size = new System.Drawing.Size(440, 165);
+            this.pnlBrandChartContent.TabIndex = 0;
+
+            // 
+            // lblNoBrandData
+            // 
+            this.lblNoBrandData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblNoBrandData.BackColor = System.Drawing.Color.Transparent;
+            this.lblNoBrandData.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblNoBrandData.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblNoBrandData.Location = new System.Drawing.Point(15, 120);
+            this.lblNoBrandData.Name = "lblNoBrandData";
+            this.lblNoBrandData.Size = new System.Drawing.Size(440, 23);
+            this.lblNoBrandData.TabIndex = 1;
+            this.lblNoBrandData.Text = "Yeterli veri bulunmamaktadır.";
+            this.lblNoBrandData.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblNoBrandData.Visible = false;
+
+            // 
+            // lblBrandDistributionTitle
+            // 
+            this.lblBrandDistributionTitle.AutoSize = true;
+            this.lblBrandDistributionTitle.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.lblBrandDistributionTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(76)))), ((int)(((byte)(143)))));
+            this.lblBrandDistributionTitle.Location = new System.Drawing.Point(15, 15);
+            this.lblBrandDistributionTitle.Name = "lblBrandDistributionTitle";
+            this.lblBrandDistributionTitle.Size = new System.Drawing.Size(146, 21);
+            this.lblBrandDistributionTitle.TabIndex = 2;
+            this.lblBrandDistributionTitle.Text = "Marka Dağılımları";
+
+            // 
+            // pnlLocationDistribution
+            // 
+            this.pnlLocationDistribution.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlLocationDistribution.BackColor = System.Drawing.Color.White;
+            this.pnlLocationDistribution.Controls.Add(this.lblLocationDistributionTitle);
+            this.pnlLocationDistribution.Controls.Add(this.lblNoLocationData);
+            this.pnlLocationDistribution.Controls.Add(this.pnlLocationChartContent);
+            this.pnlLocationDistribution.Location = new System.Drawing.Point(497, 3);
+            this.pnlLocationDistribution.Name = "pnlLocationDistribution";
+            this.pnlLocationDistribution.Size = new System.Drawing.Size(470, 230);
+            this.pnlLocationDistribution.TabIndex = 1;
+
+            // 
+            // pnlLocationChartContent
+            // 
+            this.pnlLocationChartContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlLocationChartContent.Location = new System.Drawing.Point(15, 50);
+            this.pnlLocationChartContent.Name = "pnlLocationChartContent";
+            this.pnlLocationChartContent.Size = new System.Drawing.Size(440, 165);
+            this.pnlLocationChartContent.TabIndex = 0;
+
+            // 
+            // lblNoLocationData
+            // 
+            this.lblNoLocationData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblNoLocationData.BackColor = System.Drawing.Color.Transparent;
+            this.lblNoLocationData.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblNoLocationData.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
+            this.lblNoLocationData.Location = new System.Drawing.Point(15, 120);
+            this.lblNoLocationData.Name = "lblNoLocationData";
+            this.lblNoLocationData.Size = new System.Drawing.Size(440, 23);
+            this.lblNoLocationData.TabIndex = 1;
+            this.lblNoLocationData.Text = "Yeterli veri bulunmamaktadır.";
+            this.lblNoLocationData.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblNoLocationData.Visible = false;
+
+            // 
+            // lblLocationDistributionTitle
+            // 
+            this.lblLocationDistributionTitle.AutoSize = true;
+            this.lblLocationDistributionTitle.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.lblLocationDistributionTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(76)))), ((int)(((byte)(143)))));
+            this.lblLocationDistributionTitle.Location = new System.Drawing.Point(15, 15);
+            this.lblLocationDistributionTitle.Name = "lblLocationDistributionTitle";
+            this.lblLocationDistributionTitle.Size = new System.Drawing.Size(126, 21);
+            this.lblLocationDistributionTitle.TabIndex = 2;
+            this.lblLocationDistributionTitle.Text = "Şube Dağılımları";
+
+            // 
+            // pnlRevenue
+            // 
+            this.pnlRevenue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.pnlRevenue.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.pnlRevenue.Controls.Add(this.icnRevenue);
+            this.pnlRevenue.Controls.Add(this.lblRevenueSubtitle);
+            this.pnlRevenue.Controls.Add(this.lblRevenueTitle);
+            this.pnlRevenue.Controls.Add(this.lblTotalRevenueValue);
+            this.pnlRevenue.Controls.Add(this.lblTotalRevenue);
+            this.pnlRevenue.Location = new System.Drawing.Point(3, 247);
+            this.pnlRevenue.Name = "pnlRevenue";
+            this.pnlRevenue.Size = new System.Drawing.Size(470, 230);
+            this.pnlRevenue.TabIndex = 2;
+
+            // 
+            // lblTotalRevenue
+            // 
+            this.lblTotalRevenue.AutoSize = true;
+            this.lblTotalRevenue.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblTotalRevenue.ForeColor = System.Drawing.Color.White;
+            this.lblTotalRevenue.Location = new System.Drawing.Point(15, 65);
+            this.lblTotalRevenue.Name = "lblTotalRevenue";
+            this.lblTotalRevenue.Size = new System.Drawing.Size(114, 20);
+            this.lblTotalRevenue.TabIndex = 0;
+            this.lblTotalRevenue.Text = "Toplam Kazanç";
+
+            // 
+            // lblTotalRevenueValue
+            // 
+            this.lblTotalRevenueValue.Font = new System.Drawing.Font("Segoe UI", 28F, System.Drawing.FontStyle.Bold);
+            this.lblTotalRevenueValue.ForeColor = System.Drawing.Color.White;
+            this.lblTotalRevenueValue.Location = new System.Drawing.Point(15, 95);
+            this.lblTotalRevenueValue.Name = "lblTotalRevenueValue";
+            this.lblTotalRevenueValue.Size = new System.Drawing.Size(350, 50);
+            this.lblTotalRevenueValue.TabIndex = 1;
+            this.lblTotalRevenueValue.Text = "₺120,350.00";
+
+            // 
+            // lblRevenueTitle
+            // 
+            this.lblRevenueTitle.AutoSize = true;
+            this.lblRevenueTitle.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.lblRevenueTitle.ForeColor = System.Drawing.Color.White;
+            this.lblRevenueTitle.Location = new System.Drawing.Point(15, 15);
+            this.lblRevenueTitle.Name = "lblRevenueTitle";
+            this.lblRevenueTitle.Size = new System.Drawing.Size(70, 21);
+            this.lblRevenueTitle.TabIndex = 2;
+            this.lblRevenueTitle.Text = "Finansal";
+
+            // 
+            // lblRevenueSubtitle
+            // 
+            this.lblRevenueSubtitle.AutoSize = true;
+            this.lblRevenueSubtitle.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblRevenueSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(255)))), ((int)(((byte)(220)))));
+            this.lblRevenueSubtitle.Location = new System.Drawing.Point(16, 145);
+            this.lblRevenueSubtitle.Name = "lblRevenueSubtitle";
+            this.lblRevenueSubtitle.Size = new System.Drawing.Size(242, 15);
+            this.lblRevenueSubtitle.TabIndex = 3;
+            this.lblRevenueSubtitle.Text = "Kiralamalar ve satışlardan elde edilen kazanç";
+
+            // 
+            // icnRevenue
+            // 
+            this.icnRevenue.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.icnRevenue.ForeColor = System.Drawing.Color.White;
+            this.icnRevenue.IconChar = FontAwesome.Sharp.IconChar.MoneyBillWave;
+            this.icnRevenue.IconColor = System.Drawing.Color.White;
+            this.icnRevenue.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            this.icnRevenue.IconSize = 80;
+            this.icnRevenue.Location = new System.Drawing.Point(370, 75);
+            this.icnRevenue.Name = "icnRevenue";
+            this.icnRevenue.Size = new System.Drawing.Size(80, 80);
+            this.icnRevenue.TabIndex = 4;
+            this.icnRevenue.TabStop = false;
+
+            // 
+            // pnlRecentActivity
+            // 
+            this.pnlRecentActivity.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlRecentActivity.BackColor = System.Drawing.Color.White;
+            this.pnlRecentActivity.Controls.Add(this.lblRecentActivityTitle);
+            this.pnlRecentActivity.Controls.Add(this.lvwRecentActivity);
+            this.pnlRecentActivity.Location = new System.Drawing.Point(497, 247);
+            this.pnlRecentActivity.Name = "pnlRecentActivity";
+            this.pnlRecentActivity.Size = new System.Drawing.Size(470, 230);
+            this.pnlRecentActivity.TabIndex = 3;
+
+            // 
+            // lvwRecentActivity
+            // 
+            this.lvwRecentActivity.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lvwRecentActivity.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lvwRecentActivity.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lvwRecentActivity.HideSelection = false;
+            this.lvwRecentActivity.Location = new System.Drawing.Point(15, 50);
+            this.lvwRecentActivity.Name = "lvwRecentActivity";
+            this.lvwRecentActivity.Size = new System.Drawing.Size(440, 165);
+            this.lvwRecentActivity.TabIndex = 0;
+            this.lvwRecentActivity.UseCompatibleStateImageBehavior = false;
+            this.lvwRecentActivity.View = System.Windows.Forms.View.List;
+
+            // 
+            // lblRecentActivityTitle
+            // 
+            this.lblRecentActivityTitle.AutoSize = true;
+            this.lblRecentActivityTitle.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.lblRecentActivityTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(76)))), ((int)(((byte)(143)))));
+            this.lblRecentActivityTitle.Location = new System.Drawing.Point(15, 15);
+            this.lblRecentActivityTitle.Name = "lblRecentActivityTitle";
+            this.lblRecentActivityTitle.Size = new System.Drawing.Size(153, 21);
+            this.lblRecentActivityTitle.TabIndex = 1;
+            this.lblRecentActivityTitle.Text = "Son Gerçekleşenler";
+
             // 
             // DashboardControl
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(pnlDashboard);
-            Name = "DashboardControl";
-            Size = new Size(1010, 700);
-            pnlDashboard.ResumeLayout(false);
-            pnlCharts.ResumeLayout(false);
-            MetricsPanel.ResumeLayout(false);
-            tableLayoutMetrics.ResumeLayout(false);
-            metricPanel1.ResumeLayout(false);
-            metricPanel1.PerformLayout();
-            metricPanel2.ResumeLayout(false);
-            metricPanel2.PerformLayout();
-            metricPanel3.ResumeLayout(false);
-            metricPanel3.PerformLayout();
-            metricPanel4.ResumeLayout(false);
-            metricPanel4.PerformLayout();
-            metricPanel5.ResumeLayout(false);
-            metricPanel5.PerformLayout();
-            metricPanel6.ResumeLayout(false);
-            metricPanel6.PerformLayout();
-            metricPanel7.ResumeLayout(false);
-            metricPanel7.PerformLayout();
-            metricPanel8.ResumeLayout(false);
-            metricPanel8.PerformLayout();
-            ResumeLayout(false);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(245)))), ((int)(((byte)(250)))));
+            this.Controls.Add(this.pnlMain);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.Name = "DashboardControl";
+            this.Size = new System.Drawing.Size(1000, 700);
+            this.pnlMain.ResumeLayout(false);
+            this.pnlMain.PerformLayout();
+            this.pnlWelcome.ResumeLayout(false);
+            this.pnlWelcome.PerformLayout();
+            this.flpStatCards.ResumeLayout(false);
+            this.pnlTotalVehicles.ResumeLayout(false);
+            this.pnlTotalVehicles.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnTotalVehicles)).EndInit();
+            this.pnlActiveRentals.ResumeLayout(false);
+            this.pnlActiveRentals.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnActiveRentals)).EndInit();
+            this.pnlMonthlySales.ResumeLayout(false);
+            this.pnlMonthlySales.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnMonthlySales)).EndInit();
+            this.pnlPendingServices.ResumeLayout(false);
+            this.pnlPendingServices.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnPendingServices)).EndInit();
+            this.pnlCharts.ResumeLayout(false);
+            this.pnlBrandDistribution.ResumeLayout(false);
+            this.pnlBrandDistribution.PerformLayout();
+            this.pnlLocationDistribution.ResumeLayout(false);
+            this.pnlLocationDistribution.PerformLayout();
+            this.pnlRevenue.ResumeLayout(false);
+            this.pnlRevenue.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.icnRevenue)).EndInit();
+            this.pnlRecentActivity.ResumeLayout(false);
+            this.pnlRecentActivity.PerformLayout();
+            this.ResumeLayout(false);
+
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel pnlDashboard;
+        private System.Windows.Forms.Panel pnlMain;
+        private System.Windows.Forms.Panel pnlWelcome;
+        private System.Windows.Forms.Label lblWelcomeUser;
+        private System.Windows.Forms.Label lblDateTime;
+        private System.Windows.Forms.Label lblWelcomeSubtitle;
+        private System.Windows.Forms.FlowLayoutPanel flpStatCards;
+        private System.Windows.Forms.Panel pnlTotalVehicles;
+        private FontAwesome.Sharp.IconPictureBox icnTotalVehicles;
+        private System.Windows.Forms.Label lblTotalVehiclesTitle;
+        private System.Windows.Forms.Label lblTotalVehiclesValue;
+        private System.Windows.Forms.Panel pnlActiveRentals;
+        private FontAwesome.Sharp.IconPictureBox icnActiveRentals;
+        private System.Windows.Forms.Label lblActiveRentalsTitle;
+        private System.Windows.Forms.Label lblActiveRentalsValue;
+        private System.Windows.Forms.Panel pnlMonthlySales;
+        private FontAwesome.Sharp.IconPictureBox icnMonthlySales;
+        private System.Windows.Forms.Label lblMonthlySalesTitle;
+        private System.Windows.Forms.Label lblMonthlySalesValue;
+        private System.Windows.Forms.Panel pnlPendingServices;
+        private FontAwesome.Sharp.IconPictureBox icnPendingServices;
+        private System.Windows.Forms.Label lblPendingServicesTitle;
+        private System.Windows.Forms.Label lblPendingServicesValue;
         private System.Windows.Forms.Panel pnlCharts;
-        private Panel MetricsPanel;
-        private TableLayoutPanel tableLayoutMetrics;
-        private Panel metricPanel1;
-        private Label metricTitle1;
-        private Label metricValue1;
-        private Label iconLabel1;
-        private Panel metricPanel2;
-        private Label metricTitle2;
-        private Label metricValue2;
-        private Label iconLabel2;
-        private Panel metricPanel3;
-        private Label metricTitle3;
-        private Label metricValue3;
-        private Label iconLabel3;
-        private Panel metricPanel4;
-        private Label metricTitle4;
-        private Label metricValue4;
-        private Label iconLabel4;
-        private Panel metricPanel5;
-        private Label metricTitle5;
-        private Label metricValue5;
-        private Label iconLabel5;
-        private Panel metricPanel6;
-        private Label metricTitle6;
-        private Label metricValue6;
-        private Label iconLabel6;
-        private Panel metricPanel7;
-        private Label metricTitle7;
-        private Label metricValue7;
-        private Label iconLabel7;
-        private Panel metricPanel8;
-        private Label metricTitle8;
-        private Label metricValue8;
-        private Label iconLabel8;
+        private System.Windows.Forms.Panel pnlRecentActivity;
+        private System.Windows.Forms.Label lblRecentActivityTitle;
+        private System.Windows.Forms.ListView lvwRecentActivity;
+        private System.Windows.Forms.Panel pnlRevenue;
+        private FontAwesome.Sharp.IconPictureBox icnRevenue;
+        private System.Windows.Forms.Label lblRevenueSubtitle;
+        private System.Windows.Forms.Label lblRevenueTitle;
+        private System.Windows.Forms.Label lblTotalRevenueValue;
+        private System.Windows.Forms.Label lblTotalRevenue;
+        private System.Windows.Forms.Panel pnlLocationDistribution;
+        private System.Windows.Forms.Label lblLocationDistributionTitle;
+        private System.Windows.Forms.Label lblNoLocationData;
+        private System.Windows.Forms.Panel pnlLocationChartContent;
+        private System.Windows.Forms.Panel pnlBrandDistribution;
+        private System.Windows.Forms.Label lblBrandDistributionTitle;
+        private System.Windows.Forms.Label lblNoBrandData;
+        private System.Windows.Forms.Panel pnlBrandChartContent;
     }
 }
