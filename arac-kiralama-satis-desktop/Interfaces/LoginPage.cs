@@ -20,6 +20,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             InitializeComponent();
             CustomizeComponents();
 
+            // Eğer varsa kayıtlı kullanıcı adını yükler
             string savedUsername = LoginMethods.LoadSavedUsername();
             if (!string.IsNullOrEmpty(savedUsername))
             {
@@ -34,6 +35,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             txtUsername.SetPlaceholder("Kullanıcı Adı");
             txtPassword.SetPlaceholder("Şifre");
 
+            // Logo yükleme
             try
             {
                 string projectPath = Application.StartupPath;
