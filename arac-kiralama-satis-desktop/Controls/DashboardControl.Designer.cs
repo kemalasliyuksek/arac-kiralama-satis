@@ -1,4 +1,7 @@
-﻿namespace arac_kiralama_satis_desktop.Controls
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace arac_kiralama_satis_desktop.Controls
 {
     partial class DashboardControl
     {

@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using arac_kiralama_satis_desktop.Methods;
 using arac_kiralama_satis_desktop.Utils;
+using arac_kiralama_satis_desktop.Models;
 
 namespace arac_kiralama_satis_desktop.Controls
 {
@@ -17,12 +18,18 @@ namespace arac_kiralama_satis_desktop.Controls
             this.Resize += DashboardControl_Resize;
         }
 
+        /// <summary>
+        /// Dashboard verilerini yükler
+        /// </summary>
         public void LoadData()
         {
             InitializeDashboard();
             LoadDashboardData();
         }
 
+        /// <summary>
+        /// Dashboard görsel öğelerini ayarlar
+        /// </summary>
         private void InitializeDashboard()
         {
             // Apply shadow effects to all metric panels
@@ -40,6 +47,9 @@ namespace arac_kiralama_satis_desktop.Controls
             tableLayoutMetrics.Padding = new Padding(15);
         }
 
+        /// <summary>
+        /// Dashboard verilerini yükler ve gösterir
+        /// </summary>
         private void LoadDashboardData()
         {
             try
@@ -48,7 +58,7 @@ namespace arac_kiralama_satis_desktop.Controls
                 Cursor = Cursors.WaitCursor;
 
                 // Get dashboard data from database
-                var dashboardData = MainMethods.GetDashboardData();
+                DashboardData dashboardData = DashboardMethods.GetDashboardData();
 
                 // Update metric values
                 metricValue1.Text = dashboardData.TotalCarCount.ToString("N0");
@@ -56,17 +66,11 @@ namespace arac_kiralama_satis_desktop.Controls
                 metricValue3.Text = dashboardData.CustomerCount.ToString("N0");
                 metricValue4.Text = dashboardData.TotalRevenue.ToString("N0");
 
-                // Get additional metrics from database
-                int activeRentals = MainMethods.GetActiveRentalsCount();
-                int monthlySales = MainMethods.GetMonthlySalesCount();
-                int pendingService = MainMethods.GetPendingServiceCount();
-                int teamMembers = MainMethods.GetTeamMembersCount();
-
                 // Update additional metrics
-                metricValue5.Text = activeRentals.ToString("N0");
-                metricValue6.Text = monthlySales.ToString("N0");
-                metricValue7.Text = pendingService.ToString("N0");
-                metricValue8.Text = teamMembers.ToString("N0");
+                metricValue5.Text = dashboardData.ActiveRentalsCount.ToString("N0");
+                metricValue6.Text = dashboardData.MonthlySalesCount.ToString("N0");
+                metricValue7.Text = dashboardData.PendingServiceCount.ToString("N0");
+                metricValue8.Text = dashboardData.TeamMembersCount.ToString("N0");
             }
             catch (Exception ex)
             {
@@ -80,6 +84,9 @@ namespace arac_kiralama_satis_desktop.Controls
             }
         }
 
+        /// <summary>
+        /// Dashboard boyutu değiştiğinde çağrılır
+        /// </summary>
         private void DashboardControl_Resize(object sender, EventArgs e)
         {
             // TableLayoutPanel kullanıldığı için otomatik olarak paneller yeniden boyutlandırılacak
