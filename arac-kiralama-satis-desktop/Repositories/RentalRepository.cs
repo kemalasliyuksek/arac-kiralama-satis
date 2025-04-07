@@ -28,12 +28,23 @@ namespace arac_kiralama_satis_desktop.Repositories
                                  JOIN Araclar a ON k.AracID = a.AracID
                                  JOIN Kullanicilar ku ON k.KullaniciID = ku.KullaniciID
                                  ORDER BY k.KiralamaID DESC";
+
+                ErrorManager.Instance.LogInfo("Tüm kiralama kayıtları getiriliyor", "RentalRepository.GetAll");
                 DataTable dt = DatabaseHelper.ExecuteQuery(query);
-                return MapDataTableToRentals(dt);
+                List<Rental> rentals = MapDataTableToRentals(dt);
+                ErrorManager.Instance.LogInfo($"{rentals.Count} kiralama kaydı başarıyla listelendi", "RentalRepository.GetAll");
+
+                return rentals;
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralamalar listelenirken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralamalar listelenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Kiralamalar listelenirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -57,15 +68,31 @@ namespace arac_kiralama_satis_desktop.Repositories
                 MySqlParameter[] parameters = {
                     DatabaseHelper.CreateParameter("@id", id)
                 };
+
+                ErrorManager.Instance.LogInfo($"Kiralama ID: {id} ile aranıyor", "RentalRepository.GetById");
                 DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
+
                 if (dt.Rows.Count > 0)
-                    return MapDataRowToRental(dt.Rows[0]);
+                {
+                    Rental rental = MapDataRowToRental(dt.Rows[0]);
+                    ErrorManager.Instance.LogInfo($"Kiralama bulundu: ID: {rental.RentalID}, Müşteri: {rental.CustomerFullName}, Araç: {rental.VehiclePlate}", "RentalRepository.GetById");
+                    return rental;
+                }
                 else
-                    throw new Exception("Kiralama bulunamadı.");
+                {
+                    ErrorManager.Instance.LogWarning($"Kiralama bulunamadı. ID: {id}", "RentalRepository.GetById");
+                    throw new Exception($"ID: {id} ile kiralama bulunamadı.");
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama bilgisi alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama bilgisi alınırken bir hata oluştu (ID: {id})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Kiralama bilgisi alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -99,12 +126,28 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@kulId", entity.UserID)
                 };
 
+                int days = (entity.EndDate - entity.StartDate).Days + 1;
+                ErrorManager.Instance.LogInfo($"Yeni kiralama ekleniyor: Müşteri ID: {entity.CustomerID}, Araç ID: {entity.VehicleID}, " +
+                    $"Süre: {days} gün ({entity.StartDate:dd.MM.yyyy} - {entity.EndDate:dd.MM.yyyy}), " +
+                    $"Tutar: {entity.RentalAmount:C2}", "RentalRepository.Add");
+
                 object result = DatabaseHelper.ExecuteScalar(query, parameters);
-                return Convert.ToInt32(result);
+                int newId = Convert.ToInt32(result);
+
+                ErrorManager.Instance.LogInfo($"Yeni kiralama başarıyla eklendi. ID: {newId}, Müşteri ID: {entity.CustomerID}, " +
+                    $"Araç ID: {entity.VehicleID}, Tutar: {entity.RentalAmount:C2}", "RentalRepository.Add");
+
+                return newId;
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama eklenirken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama eklenirken bir hata oluştu: Müşteri ID: {entity.CustomerID}, Araç ID: {entity.VehicleID}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Kiralama eklenirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -125,7 +168,8 @@ namespace arac_kiralama_satis_desktop.Repositories
                                   OdemeTipi = @odeme,
                                   KiralamaNotuID = @notId,
                                   SozlesmeID = @sozlesmeId,
-                                  KullaniciID = @kulId
+                                  KullaniciID = @kulId,
+                                  GuncellenmeTarihi = NOW()
                                   WHERE KiralamaID = @id";
 
                 MySqlParameter[] parameters = {
@@ -145,11 +189,32 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@kulId", entity.UserID)
                 };
 
-                DatabaseHelper.ExecuteNonQuery(query, parameters);
+                string teslimDurumu = entity.ReturnDate.HasValue ?
+                    $"Teslim edildi: {entity.ReturnDate.Value:dd.MM.yyyy}" : "Teslim edilmedi";
+
+                ErrorManager.Instance.LogInfo($"Kiralama güncelleniyor. ID: {entity.RentalID}, Müşteri: {entity.CustomerFullName}, " +
+                    $"Araç: {entity.VehiclePlate}, {teslimDurumu}", "RentalRepository.Update");
+
+                int affectedRows = DatabaseHelper.ExecuteNonQuery(query, parameters);
+
+                if (affectedRows > 0)
+                {
+                    ErrorManager.Instance.LogInfo($"Kiralama başarıyla güncellendi. ID: {entity.RentalID}, Müşteri: {entity.CustomerFullName}", "RentalRepository.Update");
+                }
+                else
+                {
+                    ErrorManager.Instance.LogWarning($"Kiralama güncellenemedi, kayıt bulunamadı. ID: {entity.RentalID}", "RentalRepository.Update");
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama güncellenirken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama güncellenirken bir hata oluştu. ID: {entity.RentalID}, Müşteri: {entity.CustomerFullName}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Kiralama güncellenirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -157,7 +222,19 @@ namespace arac_kiralama_satis_desktop.Repositories
         {
             try
             {
-                // Araç durumunu vs. kontrol etmek isterseniz önce VehicleID alabilirsiniz.
+                // Önce kiralama bilgilerini al
+                Rental rental = null;
+                try
+                {
+                    rental = GetById(id);
+                    ErrorManager.Instance.LogInfo($"Kiralama silme işlemi için veri alındı. ID: {id}, Müşteri: {rental.CustomerFullName}, Araç: {rental.VehiclePlate}", "RentalRepository.Delete");
+                }
+                catch
+                {
+                    ErrorManager.Instance.LogWarning($"Silinecek kiralama kaydı bulunamadı. ID: {id}", "RentalRepository.Delete");
+                }
+
+                // Kiralama kaydını sil
                 string query = $@"DELETE FROM {TABLE_NAME} 
                                   WHERE KiralamaID = @id";
 
@@ -165,17 +242,35 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@id", id)
                 };
 
-                DatabaseHelper.ExecuteNonQuery(query, parameters);
+                ErrorManager.Instance.LogInfo($"Kiralama siliniyor. ID: {id}", "RentalRepository.Delete");
+                int affectedRows = DatabaseHelper.ExecuteNonQuery(query, parameters);
+
+                if (affectedRows > 0)
+                {
+                    string rentalInfo = rental != null ?
+                        $", Müşteri: {rental.CustomerFullName}, Araç: {rental.VehiclePlate}" : "";
+
+                    ErrorManager.Instance.LogInfo($"Kiralama başarıyla silindi. ID: {id}{rentalInfo}", "RentalRepository.Delete");
+                }
+                else
+                {
+                    ErrorManager.Instance.LogWarning($"Kiralama silinemedi, kayıt bulunamadı. ID: {id}", "RentalRepository.Delete");
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama silinirken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama silinirken bir hata oluştu. ID: {id}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Kiralama silinirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
         public List<Rental> Search(string searchText)
         {
-            // Örnek olarak müşteri adı/soyadı veya plaka üzerinden arama yapabilirsiniz.
             try
             {
                 string query = $@"SELECT k.KiralamaID, k.MusteriID, 
@@ -197,51 +292,220 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@search", "%" + searchText + "%")
                 };
 
+                ErrorManager.Instance.LogInfo($"Kiralama arama yapılıyor. Arama metni: '{searchText}'", "RentalRepository.Search");
                 DataTable dt = DatabaseHelper.ExecuteQuery(query, parameters);
-                return MapDataTableToRentals(dt);
+                List<Rental> rentals = MapDataTableToRentals(dt);
+
+                ErrorManager.Instance.LogInfo($"Kiralama araması tamamlandı. '{searchText}' için {rentals.Count} sonuç bulundu", "RentalRepository.Search");
+                return rentals;
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama arama sırasında bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama arama sırasında bir hata oluştu. Arama metni: '{searchText}'",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Kiralama arama sırasında bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
+        }
+
+        /// <summary>
+        /// Teslim edilmemiş ve tarihi geçmiş kiralamaları getirir
+        /// </summary>
+        public List<Rental> GetOverdueRentals()
+        {
+            try
+            {
+                string query = $@"SELECT k.KiralamaID, k.MusteriID, 
+                                        CONCAT(m.Ad, ' ', m.Soyad) AS MusteriAdSoyad,
+                                        k.AracID, a.Plaka, a.Marka, a.Model,
+                                        k.BaslangicTarihi, k.BitisTarihi, k.TeslimTarihi,
+                                        k.BaslangicKm, k.BitisKm, k.KiralamaTutari, k.DepozitTutari, k.OdemeTipi,
+                                        k.KiralamaNotuID, k.SozlesmeID, k.KullaniciID, 
+                                        CONCAT(ku.Ad, ' ', ku.Soyad) AS KullaniciAdSoyad,
+                                        k.OlusturmaTarihi, k.GuncellenmeTarihi
+                                 FROM {TABLE_NAME} k
+                                 JOIN Musteriler m ON k.MusteriID = m.MusteriID
+                                 JOIN Araclar a ON k.AracID = a.AracID
+                                 JOIN Kullanicilar ku ON k.KullaniciID = ku.KullaniciID
+                                 WHERE BitisTarihi < CURRENT_DATE() 
+                                 AND TeslimTarihi IS NULL
+                                 ORDER BY BitisTarihi ASC";
+
+                ErrorManager.Instance.LogInfo("Gecikmiş kiralamalar getiriliyor", "RentalRepository.GetOverdueRentals");
+                DataTable dt = DatabaseHelper.ExecuteQuery(query);
+                List<Rental> rentals = MapDataTableToRentals(dt);
+
+                ErrorManager.Instance.LogInfo($"{rentals.Count} gecikmiş kiralama kaydı bulundu", "RentalRepository.GetOverdueRentals");
+                return rentals;
+            }
+            catch (Exception ex)
+            {
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Gecikmiş kiralamalar listelenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Gecikmiş kiralamalar listelenirken bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
+        }
+
+        /// <summary>
+        /// Aktif kiralamaları getirir (henüz teslim edilmemiş ve süresi devam eden)
+        /// </summary>
+        public List<Rental> GetActiveRentals()
+        {
+            try
+            {
+                string query = $@"SELECT k.KiralamaID, k.MusteriID, 
+                                        CONCAT(m.Ad, ' ', m.Soyad) AS MusteriAdSoyad,
+                                        k.AracID, a.Plaka, a.Marka, a.Model,
+                                        k.BaslangicTarihi, k.BitisTarihi, k.TeslimTarihi,
+                                        k.BaslangicKm, k.BitisKm, k.KiralamaTutari, k.DepozitTutari, k.OdemeTipi,
+                                        k.KiralamaNotuID, k.SozlesmeID, k.KullaniciID, 
+                                        CONCAT(ku.Ad, ' ', ku.Soyad) AS KullaniciAdSoyad,
+                                        k.OlusturmaTarihi, k.GuncellenmeTarihi
+                                 FROM {TABLE_NAME} k
+                                 JOIN Musteriler m ON k.MusteriID = m.MusteriID
+                                 JOIN Araclar a ON k.AracID = a.AracID
+                                 JOIN Kullanicilar ku ON k.KullaniciID = ku.KullaniciID
+                                 WHERE BitisTarihi >= CURRENT_DATE() 
+                                 AND BaslangicTarihi <= CURRENT_DATE()
+                                 AND TeslimTarihi IS NULL
+                                 ORDER BY BitisTarihi ASC";
+
+                ErrorManager.Instance.LogInfo("Aktif kiralamalar getiriliyor", "RentalRepository.GetActiveRentals");
+                DataTable dt = DatabaseHelper.ExecuteQuery(query);
+                List<Rental> rentals = MapDataTableToRentals(dt);
+
+                ErrorManager.Instance.LogInfo($"{rentals.Count} aktif kiralama kaydı bulundu", "RentalRepository.GetActiveRentals");
+                return rentals;
+            }
+            catch (Exception ex)
+            {
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Aktif kiralamalar listelenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Aktif kiralamalar listelenirken bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
+        }
+
+        /// <summary>
+        /// Araç teslim işlemini yapar
+        /// </summary>
+        public void ReturnVehicle(int rentalId, int endKm, DateTime returnDate)
+        {
+            try
+            {
+                string query = $@"UPDATE {TABLE_NAME} SET 
+                                  TeslimTarihi = @teslimTarihi,
+                                  BitisKm = @bitisKm,
+                                  GuncellenmeTarihi = NOW()
+                                  WHERE KiralamaID = @id";
+
+                MySqlParameter[] parameters = {
+                    DatabaseHelper.CreateParameter("@id", rentalId),
+                    DatabaseHelper.CreateParameter("@teslimTarihi", returnDate),
+                    DatabaseHelper.CreateParameter("@bitisKm", endKm)
+                };
+
+                ErrorManager.Instance.LogInfo($"Araç teslim alınıyor. Kiralama ID: {rentalId}, Teslim Tarihi: {returnDate:dd.MM.yyyy}, Bitiş Km: {endKm}", "RentalRepository.ReturnVehicle");
+                int affectedRows = DatabaseHelper.ExecuteNonQuery(query, parameters);
+
+                if (affectedRows > 0)
+                {
+                    ErrorManager.Instance.LogInfo($"Araç başarıyla teslim alındı. Kiralama ID: {rentalId}, Teslim Tarihi: {returnDate:dd.MM.yyyy}, Bitiş Km: {endKm}", "RentalRepository.ReturnVehicle");
+                }
+                else
+                {
+                    ErrorManager.Instance.LogWarning($"Araç teslim işlemi yapılamadı, kiralama kaydı bulunamadı. ID: {rentalId}", "RentalRepository.ReturnVehicle");
+                    throw new Exception($"Kiralama kaydı bulunamadı. ID: {rentalId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Araç teslim işlemi sırasında bir hata oluştu. Kiralama ID: {rentalId}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Araç teslim işlemi sırasında bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
         private List<Rental> MapDataTableToRentals(DataTable dt)
         {
-            var rentals = new List<Rental>();
-            foreach (DataRow row in dt.Rows)
+            try
             {
-                rentals.Add(MapDataRowToRental(row));
+                var rentals = new List<Rental>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    rentals.Add(MapDataRowToRental(row));
+                }
+                return rentals;
             }
-            return rentals;
+            catch (Exception ex)
+            {
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama verileri dönüştürülürken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business);
+
+                throw new Exception($"Kiralama verileri dönüştürülürken bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
         }
 
         private Rental MapDataRowToRental(DataRow row)
         {
-            return new Rental
+            try
             {
-                RentalID = row.GetValue<int>("KiralamaID"),
-                CustomerID = row.GetValue<int>("MusteriID"),
-                CustomerFullName = row.GetValue<string>("MusteriAdSoyad"),
-                VehicleID = row.GetValue<int>("AracID"),
-                VehiclePlate = row.GetValue<string>("Plaka"),
-                VehicleBrand = row.GetValue<string>("Marka"),
-                VehicleModel = row.GetValue<string>("Model"),
-                StartDate = row.GetValue<DateTime>("BaslangicTarihi"),
-                EndDate = row.GetValue<DateTime>("BitisTarihi"),
-                ReturnDate = row.GetValue<DateTime?>("TeslimTarihi"),
-                StartKm = row.GetValue<int>("BaslangicKm"),
-                EndKm = row.GetValue<int?>("BitisKm"),
-                RentalAmount = row.GetValue<decimal>("KiralamaTutari"),
-                DepositAmount = row.GetValue<decimal?>("DepozitTutari"),
-                PaymentType = row.GetValue<string>("OdemeTipi"),
-                NoteID = row.GetValue<int?>("KiralamaNotuID"),
-                ContractID = row.GetValue<int?>("SozlesmeID"),
-                UserID = row.GetValue<int>("KullaniciID"),
-                UserFullName = row.GetValue<string>("KullaniciAdSoyad"),
-                CreatedDate = row.GetValue<DateTime>("OlusturmaTarihi"),
-                UpdatedDate = row.GetValue<DateTime?>("GuncellenmeTarihi")
-            };
+                return new Rental
+                {
+                    RentalID = row.GetValue<int>("KiralamaID"),
+                    CustomerID = row.GetValue<int>("MusteriID"),
+                    CustomerFullName = row.GetValue<string>("MusteriAdSoyad"),
+                    VehicleID = row.GetValue<int>("AracID"),
+                    VehiclePlate = row.GetValue<string>("Plaka"),
+                    VehicleBrand = row.GetValue<string>("Marka"),
+                    VehicleModel = row.GetValue<string>("Model"),
+                    StartDate = row.GetValue<DateTime>("BaslangicTarihi"),
+                    EndDate = row.GetValue<DateTime>("BitisTarihi"),
+                    ReturnDate = row.GetValue<DateTime?>("TeslimTarihi"),
+                    StartKm = row.GetValue<int>("BaslangicKm"),
+                    EndKm = row.GetValue<int?>("BitisKm"),
+                    RentalAmount = row.GetValue<decimal>("KiralamaTutari"),
+                    DepositAmount = row.GetValue<decimal?>("DepozitTutari"),
+                    PaymentType = row.GetValue<string>("OdemeTipi"),
+                    NoteID = row.GetValue<int?>("KiralamaNotuID"),
+                    ContractID = row.GetValue<int?>("SozlesmeID"),
+                    UserID = row.GetValue<int>("KullaniciID"),
+                    UserFullName = row.GetValue<string>("KullaniciAdSoyad"),
+                    CreatedDate = row.GetValue<DateTime>("OlusturmaTarihi"),
+                    UpdatedDate = row.GetValue<DateTime?>("GuncellenmeTarihi")
+                };
+            }
+            catch (Exception ex)
+            {
+                // Hangi kiralama kaydıyla ilgili sorun olduğunu belirlemek için
+                int rentalId = 0;
+                try { rentalId = row.GetValue<int>("KiralamaID"); } catch { }
+
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama verisi dönüştürme sırasında hata oluştu (KiralamaID: {rentalId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business);
+
+                throw new Exception($"Kiralama verisi dönüştürülürken bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
         }
     }
 }

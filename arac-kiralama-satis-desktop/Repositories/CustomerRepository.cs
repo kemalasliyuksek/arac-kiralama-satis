@@ -27,12 +27,22 @@ namespace arac_kiralama_satis_desktop.Repositories
                                FROM {TABLE_NAME}
                                ORDER BY MusteriID DESC";
 
+                ErrorManager.Instance.LogInfo("Tüm müşteriler getiriliyor", "CustomerRepository.GetAll");
                 DataTable result = DatabaseHelper.ExecuteQuery(query);
-                return MapDataTableToCustomers(result);
+                List<Customer> customers = MapDataTableToCustomers(result);
+                ErrorManager.Instance.LogInfo($"{customers.Count} müşteri başarıyla listelendi", "CustomerRepository.GetAll");
+
+                return customers;
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteriler listelenirken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteriler listelenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteriler listelenirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -54,20 +64,30 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@musteriId", customerId)
                 };
 
+                ErrorManager.Instance.LogInfo($"Müşteri ID: {customerId} ile aranıyor", "CustomerRepository.GetById");
                 DataTable result = DatabaseHelper.ExecuteQuery(query, parameters);
 
                 if (result.Rows.Count > 0)
                 {
-                    return MapDataRowToCustomer(result.Rows[0]);
+                    Customer customer = MapDataRowToCustomer(result.Rows[0]);
+                    ErrorManager.Instance.LogInfo($"Müşteri bulundu: {customer.FirstName} {customer.LastName} (ID: {customer.CustomerID})", "CustomerRepository.GetById");
+                    return customer;
                 }
                 else
                 {
-                    throw new Exception("Müşteri bulunamadı.");
+                    ErrorManager.Instance.LogWarning($"Müşteri bulunamadı. ID: {customerId}", "CustomerRepository.GetById");
+                    throw new Exception($"ID: {customerId} ile müşteri bulunamadı.");
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri bilgisi alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri bilgisi alınırken bir hata oluştu (ID: {customerId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri bilgisi alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -103,12 +123,22 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@musteriTipi", customer.CustomerType)
                 };
 
+                ErrorManager.Instance.LogInfo($"Yeni müşteri ekleniyor: {customer.FirstName} {customer.LastName}", "CustomerRepository.Add");
                 object result = DatabaseHelper.ExecuteScalar(query, parameters);
-                return Convert.ToInt32(result);
+                int newId = Convert.ToInt32(result);
+
+                ErrorManager.Instance.LogInfo($"Yeni müşteri başarıyla eklendi. ID: {newId}, Ad: {customer.FirstName} {customer.LastName}", "CustomerRepository.Add");
+                return newId;
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri eklenirken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri eklenirken bir hata oluştu: {customer.FirstName} {customer.LastName}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri eklenirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -132,7 +162,8 @@ namespace arac_kiralama_satis_desktop.Repositories
                                Email = @email, 
                                Adres = @adres, 
                                MusaitlikDurumu = @musaitlikDurumu, 
-                               MusteriTipi = @musteriTipi
+                               MusteriTipi = @musteriTipi,
+                               GuncellenmeTarihi = NOW()
                                WHERE MusteriID = @musteriId";
 
                 MySqlParameter[] parameters = new MySqlParameter[]
@@ -153,11 +184,27 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@musteriTipi", customer.CustomerType)
                 };
 
-                DatabaseHelper.ExecuteNonQuery(query, parameters);
+                ErrorManager.Instance.LogInfo($"Müşteri güncelleniyor. ID: {customer.CustomerID}, Ad: {customer.FirstName} {customer.LastName}", "CustomerRepository.Update");
+                int affectedRows = DatabaseHelper.ExecuteNonQuery(query, parameters);
+
+                if (affectedRows > 0)
+                {
+                    ErrorManager.Instance.LogInfo($"Müşteri başarıyla güncellendi. ID: {customer.CustomerID}, Ad: {customer.FirstName} {customer.LastName}", "CustomerRepository.Update");
+                }
+                else
+                {
+                    ErrorManager.Instance.LogWarning($"Müşteri güncellenemedi, kayıt bulunamadı. ID: {customer.CustomerID}", "CustomerRepository.Update");
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri güncellenirken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri güncellenirken bir hata oluştu. ID: {customer.CustomerID}, Ad: {customer.FirstName} {customer.LastName}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri güncellenirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -168,7 +215,10 @@ namespace arac_kiralama_satis_desktop.Repositories
         {
             try
             {
-                string query = $"UPDATE {TABLE_NAME} SET MusaitlikDurumu = @musaitlikDurumu WHERE MusteriID = @musteriId";
+                string query = $@"UPDATE {TABLE_NAME} 
+                               SET MusaitlikDurumu = @musaitlikDurumu,
+                               GuncellenmeTarihi = NOW()
+                               WHERE MusteriID = @musteriId";
 
                 MySqlParameter[] parameters = new MySqlParameter[]
                 {
@@ -176,11 +226,30 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@musaitlikDurumu", isAvailable)
                 };
 
-                DatabaseHelper.ExecuteNonQuery(query, parameters);
+                string statusText = isAvailable ? "aktif" : "pasif";
+                ErrorManager.Instance.LogInfo($"Müşteri durumu {statusText} olarak güncelleniyor. ID: {customerId}", "CustomerRepository.SetAvailability");
+
+                int affectedRows = DatabaseHelper.ExecuteNonQuery(query, parameters);
+
+                if (affectedRows > 0)
+                {
+                    ErrorManager.Instance.LogInfo($"Müşteri durumu başarıyla {statusText} olarak güncellendi. ID: {customerId}", "CustomerRepository.SetAvailability");
+                }
+                else
+                {
+                    ErrorManager.Instance.LogWarning($"Müşteri durumu güncellenemedi, kayıt bulunamadı. ID: {customerId}", "CustomerRepository.SetAvailability");
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri durumu güncellenirken bir hata oluştu: " + ex.Message, ex);
+                string statusText = isAvailable ? "aktif" : "pasif";
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri {statusText} durumuna getirilirken bir hata oluştu (ID: {customerId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri durumu güncellenirken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -207,12 +276,22 @@ namespace arac_kiralama_satis_desktop.Repositories
                     DatabaseHelper.CreateParameter("@searchText", "%" + searchText + "%")
                 };
 
+                ErrorManager.Instance.LogInfo($"Müşteri arama yapılıyor. Arama metni: '{searchText}'", "CustomerRepository.Search");
                 DataTable result = DatabaseHelper.ExecuteQuery(query, parameters);
-                return MapDataTableToCustomers(result);
+                List<Customer> customers = MapDataTableToCustomers(result);
+
+                ErrorManager.Instance.LogInfo($"Müşteri araması tamamlandı. '{searchText}' için {customers.Count} sonuç bulundu", "CustomerRepository.Search");
+                return customers;
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri arama sırasında bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri arama sırasında bir hata oluştu. Arama metni: '{searchText}'",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri arama sırasında bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -223,14 +302,27 @@ namespace arac_kiralama_satis_desktop.Repositories
         /// </summary>
         private List<Customer> MapDataTableToCustomers(DataTable dataTable)
         {
-            List<Customer> customers = new List<Customer>();
-
-            foreach (DataRow row in dataTable.Rows)
+            try
             {
-                customers.Add(MapDataRowToCustomer(row));
-            }
+                List<Customer> customers = new List<Customer>();
 
-            return customers;
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    customers.Add(MapDataRowToCustomer(row));
+                }
+
+                return customers;
+            }
+            catch (Exception ex)
+            {
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteri verileri dönüştürülürken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business);
+
+                throw new Exception($"Müşteri verileri dönüştürülürken bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
         }
 
         /// <summary>
@@ -238,25 +330,42 @@ namespace arac_kiralama_satis_desktop.Repositories
         /// </summary>
         private Customer MapDataRowToCustomer(DataRow row)
         {
-            return new Customer
+            try
             {
-                CustomerID = row.GetValue<int>("MusteriID"),
-                FirstName = row.GetValue<string>("Ad"),
-                LastName = row.GetValue<string>("Soyad"),
-                IdentityNumber = row.GetValue<string>("TC"),
-                BirthDate = row.GetValue<DateTime?>("DogumTarihi"),
-                LicenseNumber = row.GetValue<string>("EhliyetNo"),
-                LicenseClass = row.GetValue<string>("EhliyetSinifi"),
-                LicenseDate = row.GetValue<DateTime?>("EhliyetTarihi"),
-                CountryCode = row.GetValue<string>("UlkeKodu"),
-                PhoneNumber = row.GetValue<string>("TelefonNo"),
-                Email = row.GetValue<string>("Email"),
-                Address = row.GetValue<string>("Adres"),
-                RegistrationDate = row.GetValue<DateTime>("KayitTarihi"),
-                IsAvailable = row.GetValue<bool>("MusaitlikDurumu"),
-                CustomerType = row.GetValue<string>("MusteriTipi"),
-                UpdatedDate = row.GetValue<DateTime?>("GuncellenmeTarihi")
-            };
+                return new Customer
+                {
+                    CustomerID = row.GetValue<int>("MusteriID"),
+                    FirstName = row.GetValue<string>("Ad"),
+                    LastName = row.GetValue<string>("Soyad"),
+                    IdentityNumber = row.GetValue<string>("TC"),
+                    BirthDate = row.GetValue<DateTime?>("DogumTarihi"),
+                    LicenseNumber = row.GetValue<string>("EhliyetNo"),
+                    LicenseClass = row.GetValue<string>("EhliyetSinifi"),
+                    LicenseDate = row.GetValue<DateTime?>("EhliyetTarihi"),
+                    CountryCode = row.GetValue<string>("UlkeKodu"),
+                    PhoneNumber = row.GetValue<string>("TelefonNo"),
+                    Email = row.GetValue<string>("Email"),
+                    Address = row.GetValue<string>("Adres"),
+                    RegistrationDate = row.GetValue<DateTime>("KayitTarihi"),
+                    IsAvailable = row.GetValue<bool>("MusaitlikDurumu"),
+                    CustomerType = row.GetValue<string>("MusteriTipi"),
+                    UpdatedDate = row.GetValue<DateTime?>("GuncellenmeTarihi")
+                };
+            }
+            catch (Exception ex)
+            {
+                // Hangi satırla ilgili sorun olduğunu belirlemek için
+                int customerId = 0;
+                try { customerId = row.GetValue<int>("MusteriID"); } catch { }
+
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri verisi dönüştürme sırasında hata oluştu (MusteriID: {customerId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business);
+
+                throw new Exception($"Müşteri verisi dönüştürülürken bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
 using arac_kiralama_satis_desktop.Utils;
+using arac_kiralama_satis_desktop.Models;
 
 namespace arac_kiralama_satis_desktop.Repositories
 {
@@ -16,11 +17,24 @@ namespace arac_kiralama_satis_desktop.Repositories
             try
             {
                 string query = "SELECT COUNT(*) FROM Araclar";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Toplam araç sayısı getiriliyor", "DashboardRepository.GetVehicleCount");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"Toplam araç sayısı: {count}", "DashboardRepository.GetVehicleCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Araç sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Araç sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Araç sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -32,11 +46,24 @@ namespace arac_kiralama_satis_desktop.Repositories
             try
             {
                 string query = "SELECT COUNT(*) FROM Subeler WHERE AktifMi = 1";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Aktif şube sayısı getiriliyor", "DashboardRepository.GetBranchCount");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"Aktif şube sayısı: {count}", "DashboardRepository.GetBranchCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Şube sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Şube sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Şube sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -48,11 +75,24 @@ namespace arac_kiralama_satis_desktop.Repositories
             try
             {
                 string query = "SELECT COUNT(*) FROM Musteriler";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Toplam müşteri sayısı getiriliyor", "DashboardRepository.GetCustomerCount");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"Toplam müşteri sayısı: {count}", "DashboardRepository.GetCustomerCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteri sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -67,11 +107,24 @@ namespace arac_kiralama_satis_desktop.Repositories
                     SELECT 
                         IFNULL((SELECT SUM(KiralamaTutari) FROM Kiralamalar), 0) + 
                         IFNULL((SELECT SUM(SatisTutari) FROM Satislar), 0) AS TotalRevenue";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Toplam gelir hesaplanıyor", "DashboardRepository.GetTotalRevenue");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                decimal revenue = Convert.ToDecimal(result);
+                ErrorManager.Instance.LogInfo($"Toplam gelir: {revenue:C2}", "DashboardRepository.GetTotalRevenue");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Toplam gelir alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Toplam gelir alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Toplam gelir alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -87,11 +140,24 @@ namespace arac_kiralama_satis_desktop.Repositories
                     FROM Kiralamalar 
                     WHERE BitisTarihi >= CURRENT_DATE() 
                     AND (TeslimTarihi IS NULL)";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Aktif kiralama sayısı getiriliyor", "DashboardRepository.GetActiveRentalsCount");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"Aktif kiralama sayısı: {count}", "DashboardRepository.GetActiveRentalsCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Aktif kiralamalar sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Aktif kiralamalar sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Aktif kiralamalar sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -107,11 +173,26 @@ namespace arac_kiralama_satis_desktop.Repositories
                     FROM Satislar 
                     WHERE MONTH(SatisTarihi) = MONTH(CURRENT_DATE()) 
                     AND YEAR(SatisTarihi) = YEAR(CURRENT_DATE())";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                string currentMonth = DateTime.Now.ToString("MMMM yyyy");
+                ErrorManager.Instance.LogInfo($"{currentMonth} için aylık satış sayısı getiriliyor", "DashboardRepository.GetMonthlySalesCount");
+
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"{currentMonth} için aylık satış sayısı: {count}", "DashboardRepository.GetMonthlySalesCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Aylık satış sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Aylık satış sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Aylık satış sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -126,11 +207,24 @@ namespace arac_kiralama_satis_desktop.Repositories
                     SELECT COUNT(*) 
                     FROM Bakimlar 
                     WHERE BitisTarihi IS NULL";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Servis bekleyen araç sayısı getiriliyor", "DashboardRepository.GetPendingServiceCount");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"Servis bekleyen araç sayısı: {count}", "DashboardRepository.GetPendingServiceCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Bekleyen servis sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Bekleyen servis sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Bekleyen servis sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -145,11 +239,24 @@ namespace arac_kiralama_satis_desktop.Repositories
                     SELECT COUNT(*) 
                     FROM Kullanicilar 
                     WHERE Durum = 1";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Aktif personel sayısı getiriliyor", "DashboardRepository.GetTeamMembersCount");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"Aktif personel sayısı: {count}", "DashboardRepository.GetTeamMembersCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Ekip üyesi sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Ekip üyesi sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Ekip üyesi sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -161,11 +268,23 @@ namespace arac_kiralama_satis_desktop.Repositories
             try
             {
                 string query = "SELECT Marka, COUNT(*) as Adet FROM Araclar GROUP BY Marka ORDER BY Adet DESC";
-                return DatabaseHelper.ExecuteQuery(query);
+
+                ErrorManager.Instance.LogInfo("Araç markalarının dağılımı getiriliyor", "DashboardRepository.GetBrandDistribution");
+                DataTable result = DatabaseHelper.ExecuteQuery(query);
+
+                ErrorManager.Instance.LogInfo($"Araç markaları dağılımı: {result.Rows.Count} farklı marka bulundu", "DashboardRepository.GetBrandDistribution");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Marka dağılımı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Marka dağılımı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Marka dağılımı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -181,11 +300,23 @@ namespace arac_kiralama_satis_desktop.Repositories
                     FROM Kiralamalar 
                     GROUP BY YEAR(BaslangicTarihi)
                     ORDER BY Year";
-                return DatabaseHelper.ExecuteQuery(query);
+
+                ErrorManager.Instance.LogInfo("Yıllık kiralama istatistikleri getiriliyor", "DashboardRepository.GetYearlyRentals");
+                DataTable result = DatabaseHelper.ExecuteQuery(query);
+
+                ErrorManager.Instance.LogInfo($"Yıllık kiralama istatistikleri: {result.Rows.Count} yıl için veri bulundu", "DashboardRepository.GetYearlyRentals");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Yıllık kiralamalar alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Yıllık kiralamalar alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Yıllık kiralamalar alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -203,11 +334,23 @@ namespace arac_kiralama_satis_desktop.Repositories
                     WHERE s.AktifMi = 1
                     GROUP BY s.SubeAdi
                     ORDER BY AracSayisi DESC";
-                return DatabaseHelper.ExecuteQuery(query);
+
+                ErrorManager.Instance.LogInfo("Şubelerdeki araç dağılımı getiriliyor", "DashboardRepository.GetLocationData");
+                DataTable result = DatabaseHelper.ExecuteQuery(query);
+
+                ErrorManager.Instance.LogInfo($"Şubelerdeki araç dağılımı: {result.Rows.Count} şube için veri bulundu", "DashboardRepository.GetLocationData");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Konum verisi alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Konum verisi alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Konum verisi alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -219,11 +362,24 @@ namespace arac_kiralama_satis_desktop.Repositories
             try
             {
                 string query = "SELECT COUNT(DISTINCT Marka) FROM Araclar";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Farklı marka sayısı getiriliyor", "DashboardRepository.GetBrandCount");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                int count = Convert.ToInt32(result);
+                ErrorManager.Instance.LogInfo($"Farklı marka sayısı: {count}", "DashboardRepository.GetBrandCount");
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Marka sayısı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Marka sayısı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Marka sayısı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -235,11 +391,74 @@ namespace arac_kiralama_satis_desktop.Repositories
             try
             {
                 string query = "SELECT AVG(Fiyat) FROM KiraFiyatlari WHERE KiralamaTipi = 'Günlük'";
-                return DatabaseHelper.ExecuteScalar(query);
+
+                ErrorManager.Instance.LogInfo("Ortalama günlük kiralama fiyatı getiriliyor", "DashboardRepository.GetAverageRentalPrice");
+                object result = DatabaseHelper.ExecuteScalar(query);
+
+                if (result != DBNull.Value && result != null)
+                {
+                    decimal avgPrice = Convert.ToDecimal(result);
+                    ErrorManager.Instance.LogInfo($"Ortalama günlük kiralama fiyatı: {avgPrice:C2}", "DashboardRepository.GetAverageRentalPrice");
+                }
+                else
+                {
+                    ErrorManager.Instance.LogWarning("Ortalama günlük kiralama fiyatı hesaplanamadı, veri bulunamadı", "DashboardRepository.GetAverageRentalPrice");
+                    result = 0;
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Ortalama kiralama fiyatı alınırken bir hata oluştu: " + ex.Message, ex);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Ortalama kiralama fiyatı alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Ortalama kiralama fiyatı alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
+            }
+        }
+
+        /// <summary>
+        /// Dashboard için tüm istatistikleri tek seferde getirir
+        /// </summary>
+        public DashboardData GetAllDashboardData()
+        {
+            try
+            {
+                ErrorManager.Instance.LogInfo("Dashboard için tüm veriler getiriliyor", "DashboardRepository.GetAllDashboardData");
+
+                DashboardData dashboardData = new DashboardData();
+
+                // Tüm verileri tek bir işlemde toparlama
+                dashboardData.TotalCarCount = Convert.ToInt32(GetVehicleCount());
+                dashboardData.LocationCount = Convert.ToInt32(GetBranchCount());
+                dashboardData.CustomerCount = Convert.ToInt32(GetCustomerCount());
+                dashboardData.TotalRevenue = Convert.ToDecimal(GetTotalRevenue());
+                dashboardData.BrandCount = Convert.ToInt32(GetBrandCount());
+
+                object avgPrice = GetAverageRentalPrice();
+                dashboardData.AverageRentalPrice = avgPrice != DBNull.Value ? Convert.ToDouble(avgPrice) : 0;
+
+                dashboardData.ActiveRentalsCount = Convert.ToInt32(GetActiveRentalsCount());
+                dashboardData.MonthlySalesCount = Convert.ToInt32(GetMonthlySalesCount());
+                dashboardData.PendingServiceCount = Convert.ToInt32(GetPendingServiceCount());
+                dashboardData.TeamMembersCount = Convert.ToInt32(GetTeamMembersCount());
+
+                ErrorManager.Instance.LogInfo("Dashboard verileri başarıyla toplandı", "DashboardRepository.GetAllDashboardData");
+
+                return dashboardData;
+            }
+            catch (Exception ex)
+            {
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Dashboard verileri alınırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Dashboard verileri alınırken bir hata oluştu. (Hata ID: {errorId})", ex);
             }
         }
     }
