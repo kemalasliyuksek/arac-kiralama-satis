@@ -1,43 +1,43 @@
 ﻿using System;
-using System.Data;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Globalization;
 using MySql.Data.MySqlClient;
 
 namespace arac_kiralama_satis_desktop.Utils
 {
     /// <summary>
-    /// Hata seviyelerini tanımlayan enum
+    /// Hata türünü belirleyen enum
     /// </summary>
     public enum ErrorSeverity
     {
         /// <summary>
-        /// Kritik hatalar - Uygulamanın çalışmasını engelleyecek durumlar
+        /// Bilgilendirme mesajı, hata değil
         /// </summary>
-        Critical = 0,
+        Info,
 
         /// <summary>
-        /// Standart hatalar - İşlemin tamamlanmasını engelleyen durumlar
+        /// Düşük öncelikli hata, sistem çalışmaya devam edebilir
         /// </summary>
-        Error = 1,
+        Warning,
 
         /// <summary>
-        /// Uyarılar - İşlem tamamlandı ancak kullanıcının bilmesi gereken durumlar
+        /// Orta öncelikli hata, işlem tamamlanamadı
         /// </summary>
-        Warning = 2,
+        Error,
 
         /// <summary>
-        /// Bilgi - Sadece bilgilendirme amaçlı
+        /// Yüksek öncelikli hata, sistem kararsız olabilir
         /// </summary>
-        Info = 3
+        Critical
     }
 
     /// <summary>
-    /// Hata kaynağını belirten enum
+    /// Hatanın kaynağını belirleyen enum
     /// </summary>
     public enum ErrorSource
     {
@@ -47,9 +47,9 @@ namespace arac_kiralama_satis_desktop.Utils
         Database,
 
         /// <summary>
-        /// Kullanıcı arayüzü ile ilgili hatalar
+        /// Dosya sistemi ile ilgili hatalar
         /// </summary>
-        UI,
+        FileSystem,
 
         /// <summary>
         /// İş mantığı ile ilgili hatalar
@@ -57,19 +57,14 @@ namespace arac_kiralama_satis_desktop.Utils
         Business,
 
         /// <summary>
-        /// Doğrulama hataları
-        /// </summary>
-        Validation,
-
-        /// <summary>
         /// Ağ ile ilgili hatalar
         /// </summary>
         Network,
 
         /// <summary>
-        /// Dosya işlemleri ile ilgili hatalar
+        /// Kullanıcı arayüzü ile ilgili hatalar
         /// </summary>
-        FileSystem,
+        UI,
 
         /// <summary>
         /// Diğer hatalar
@@ -78,26 +73,23 @@ namespace arac_kiralama_satis_desktop.Utils
     }
 
     /// <summary>
-    /// Uygulama genelinde hata yönetimini sağlayan merkezi sınıf
+    /// Uygulama hata yönetimi sınıfı
     /// </summary>
     public class ErrorManager
     {
-        #region Singleton
+        #region Singleton Implementation
 
         private static readonly Lazy<ErrorManager> _instance = new Lazy<ErrorManager>(() => new ErrorManager());
 
         /// <summary>
-        /// ErrorManager singleton instance'ını döndürür
+        /// ErrorManager singleton örneğini döndürür
         /// </summary>
         public static ErrorManager Instance => _instance.Value;
 
-        /// <summary>
-        /// Private constructor for singleton pattern
-        /// </summary>
+        // Private constructor for singleton pattern
         private ErrorManager()
         {
-            // Log klasörünü oluştur
-            EnsureLogDirectoryExists();
+            Initialize();
         }
 
         #endregion
@@ -105,973 +97,390 @@ namespace arac_kiralama_satis_desktop.Utils
         #region Properties
 
         /// <summary>
-        /// Hata mesajlarının kaydedileceği klasör yolu
+        /// Log dosyasının bulunduğu klasör
         /// </summary>
-        public string LogDirectory { get; set; } = Path.Combine(Application.StartupPath, "Logs");
+        private string LogDirectory { get; set; }
 
         /// <summary>
-        /// Hataların veritabanına da kaydedilip kaydedilmeyeceği
+        /// Hata log dosyası yolu
         /// </summary>
-        public bool LogToDatabase { get; set; } = true;
+        private string ErrorLogPath { get; set; }
 
         /// <summary>
-        /// Kritik hatalarda e-posta bildiriminin gönderileceği adres
+        /// İşlem log dosyası yolu
         /// </summary>
-        public string ErrorNotificationEmail { get; set; } = "";
+        private string InfoLogPath { get; set; }
 
         /// <summary>
-        /// Kritik hatalar için e-posta bildirimi gönderilsin mi?
+        /// Uygulama adı
         /// </summary>
-        public bool SendEmailNotifications { get; set; } = false;
+        private string ApplicationName { get; set; } = "Araç Kiralama ve Satış";
 
         /// <summary>
-        /// Veritabanı hatalarında son çalıştırılan SQL sorgusu ve parametreleri gösterilsin mi?
+        /// Kullanıcı için hataları göster
         /// </summary>
-        public bool ShowSqlInErrorMessage { get; set; } = false;
-
-        /// <summary>
-        /// Hata mesajlarında teknik detaylar gösterilsin mi?
-        /// </summary>
-        public bool ShowTechnicalDetails { get; set; } = true;
+        public bool ShowErrorsToUser { get; set; } = true;
 
         #endregion
 
-        #region Public Methods
+        #region Initialization
 
         /// <summary>
-        /// Exception'ı işleyerek loglama ve bildirim işlemlerini yapar
+        /// Log klasörünü ve dosyalarını oluşturur
         /// </summary>
-        /// <param name="ex">Yakalanan exception</param>
-        /// <param name="context">Hatanın oluştuğu bağlam bilgisi</param>
-        /// <param name="severity">Hatanın önem seviyesi</param>
-        /// <param name="source">Hatanın kaynağı</param>
-        /// <param name="showMessage">Kullanıcıya mesaj gösterilsin mi?</param>
-        /// <param name="callerMemberName">Hatanın oluştuğu metod adı (otomatik olarak doldurulur)</param>
-        /// <param name="callerFilePath">Hatanın oluştuğu dosya yolu (otomatik olarak doldurulur)</param>
-        /// <param name="callerLineNumber">Hatanın oluştuğu satır numarası (otomatik olarak doldurulur)</param>
-        /// <returns>Hata ID'si (log kayıt numarası)</returns>
-        public string HandleException(
-            Exception ex,
-            string context = "",
-            ErrorSeverity severity = ErrorSeverity.Error,
-            ErrorSource source = ErrorSource.Other,
-            bool showMessage = true,
-            [CallerMemberName] string callerMemberName = "",
-            [CallerFilePath] string callerFilePath = "",
-            [CallerLineNumber] int callerLineNumber = 0)
+        private void Initialize()
         {
-            if (ex == null) return string.Empty;
+            try
+            {
+                // Log klasörünü belirle
+                LogDirectory = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "AracKiralamaSatis", "Logs");
+
+                // Eğer klasör yoksa oluştur
+                if (!Directory.Exists(LogDirectory))
+                {
+                    Directory.CreateDirectory(LogDirectory);
+                }
+
+                // Log dosya yollarını belirle
+                string currentDate = DateTime.Now.ToString("yyyyMMdd");
+                ErrorLogPath = Path.Combine(LogDirectory, $"Error_{currentDate}.log");
+                InfoLogPath = Path.Combine(LogDirectory, $"Info_{currentDate}.log");
+
+                // Başlangıç mesajını logla
+                LogInfo("ErrorManager başlatıldı", "ErrorManager.Initialize");
+            }
+            catch (Exception ex)
+            {
+                // Initialize sırasında hata olursa konsola yaz
+                Debug.WriteLine($"ErrorManager başlatılırken hata oluştu: {ex.Message}");
+            }
+        }
+
+        /* HataKayitlari tablosu için SQL Oluşturma Kodu:
+        
+        CREATE TABLE IF NOT EXISTS HataKayitlari (
+            ID INT AUTO_INCREMENT PRIMARY KEY,
+            HataID VARCHAR(50) NOT NULL,
+            Tarih DATETIME NOT NULL,
+            Onem VARCHAR(20) NOT NULL,
+            Kaynak VARCHAR(50) NOT NULL,
+            Icerik VARCHAR(255) NOT NULL,
+            KullaniciAdi VARCHAR(100),
+            IstisnaTuru VARCHAR(255),
+            Mesaj TEXT NOT NULL,
+            IcIstisna TEXT,
+            YiginIzleme TEXT
+        );
+        
+        */
+
+        #endregion
+
+        #region Error Handling Methods
+
+        /// <summary>
+        /// Exception'ı işler, loglar ve gerekirse kullanıcıya gösterir
+        /// </summary>
+        /// <param name="ex">İşlenecek exception</param>
+        /// <param name="context">Hatanın gerçekleştiği bağlam</param>
+        /// <param name="severity">Hatanın önemi</param>
+        /// <param name="source">Hatanın kaynağı</param>
+        /// <param name="showToUser">Kullanıcıya gösterilip gösterilmeyeceği</param>
+        /// <returns>Hata takibi için benzersiz ID</returns>
+        public string HandleException(Exception ex, string context, ErrorSeverity severity, ErrorSource source, bool showToUser = false)
+        {
+            if (ex == null)
+                return string.Empty;
+
+            // Benzersiz hata ID'si oluştur
+            string errorId = GenerateErrorId();
 
             try
             {
-                // Benzersiz bir hata ID'si oluştur
-                string errorId = GenerateErrorId();
+                // Exception detaylarını hazırla
+                StringBuilder errorDetails = new StringBuilder();
+                errorDetails.AppendLine($"[ERROR ID: {errorId}]");
+                errorDetails.AppendLine($"[TIMESTAMP: {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}]");
+                errorDetails.AppendLine($"[SEVERITY: {severity}]");
+                errorDetails.AppendLine($"[SOURCE: {source}]");
+                errorDetails.AppendLine($"[CONTEXT: {context}]");
+                errorDetails.AppendLine($"[USER: {CurrentSession.UserName ?? "Not logged in"}]");
+                errorDetails.AppendLine($"[EXCEPTION TYPE: {ex.GetType().FullName}]");
+                errorDetails.AppendLine($"[MESSAGE: {ex.Message}]");
 
-                // Hata bilgilerini çıkart
-                ErrorInfo errorInfo = new ErrorInfo
+                // Inner exception varsa ekle
+                string innerExceptionMessage = null;
+                if (ex.InnerException != null)
                 {
-                    ErrorId = errorId,
-                    Exception = ex,
-                    Context = context,
-                    Severity = severity,
-                    Source = source,
-                    CallerMemberName = callerMemberName,
-                    CallerFilePath = callerFilePath,
-                    CallerLineNumber = callerLineNumber,
-                    Timestamp = DateTime.Now,
-                    AdditionalData = new Dictionary<string, object>()
-                };
-
-                // Veritabanı hatası için özel işlem
-                if (ex is MySqlException mysqlEx)
-                {
-                    errorInfo.AdditionalData["MySqlErrorCode"] = mysqlEx.Number;
+                    innerExceptionMessage = ex.InnerException.Message;
+                    errorDetails.AppendLine($"[INNER EXCEPTION: {innerExceptionMessage}]");
                 }
 
-                // DatabaseException için özel işlem
-                if (ex is DatabaseException dbEx)
-                {
-                    errorInfo.AdditionalData["Query"] = dbEx.Query;
-                    errorInfo.AdditionalData["Parameters"] = dbEx.Parameters;
-                }
+                // Stack trace ekle
+                string stackTrace = ex is DatabaseException ? ex.ToString() : ex.StackTrace;
+                errorDetails.AppendLine($"[STACK TRACE:]");
+                errorDetails.AppendLine(stackTrace);
+                errorDetails.AppendLine(new string('-', 80));
 
-                // Hatayı logla
-                LogError(errorInfo);
+                // Log dosyasına yaz
+                WriteToLog(ErrorLogPath, errorDetails.ToString());
+
+                // Veritabanına kaydet
+                SaveToDatabase(
+                    errorId,
+                    DateTime.Now,
+                    severity.ToString(),
+                    source.ToString(),
+                    context,
+                    CurrentSession.UserName,
+                    ex.GetType().FullName,
+                    ex.Message,
+                    innerExceptionMessage,
+                    stackTrace
+                );
 
                 // Kullanıcıya göster
-                if (showMessage)
+                if (showToUser && ShowErrorsToUser)
                 {
-                    ShowErrorToUser(errorInfo);
+                    ShowErrorMessage(ex, context, severity, errorId);
                 }
 
-                // Kritik hatalar için ek işlemler
+                // Critical hata ise uygulamayı kapat
                 if (severity == ErrorSeverity.Critical)
                 {
-                    HandleCriticalError(errorInfo);
+                    MessageBox.Show(
+                        "Uygulama kritik bir hata nedeniyle kapatılacak.\n\n" +
+                        $"Hata ID: {errorId}\n\n" +
+                        "Lütfen sistem yöneticinize bu hata ID'sini bildirin.",
+                        "Kritik Hata",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Stop);
+
+                    Application.Exit();
                 }
 
                 return errorId;
             }
             catch (Exception logEx)
             {
-                // Loglama sırasında bir hata oluşursa, son çare olarak konsola yaz
-                Console.WriteLine($"Error logging failed: {logEx.Message}");
-                Debug.WriteLine($"Error logging failed: {logEx.Message}");
-
-                // Hata mesajını göster
-                if (showMessage)
-                {
-                    MessageBox.Show(
-                        $"Uygulama bir hata ile karşılaştı ve bu hata kaydedilemedi.\n\nHata: {ex.Message}\n\nLoglama Hatası: {logEx.Message}",
-                        "Kritik Hata",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-                }
-
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// Doğrulama hatalarını işler (genellikle kullanıcı girdilerinin doğrulanması)
-        /// </summary>
-        /// <param name="errorMessage">Hata mesajı</param>
-        /// <param name="showMessage">Mesaj gösterilsin mi?</param>
-        /// <returns>Hata ID'si</returns>
-        public string HandleValidationError(string errorMessage, bool showMessage = true)
-        {
-            if (string.IsNullOrEmpty(errorMessage)) return string.Empty;
-
-            try
-            {
-                string errorId = GenerateErrorId();
-
-                ErrorInfo errorInfo = new ErrorInfo
-                {
-                    ErrorId = errorId,
-                    Exception = new ValidationException(errorMessage),
-                    Context = "Veri doğrulama hatası",
-                    Severity = ErrorSeverity.Warning,
-                    Source = ErrorSource.Validation,
-                    Timestamp = DateTime.Now
-                };
-
-                // Log sadece uyarı olarak
-                LogError(errorInfo);
-
-                // Kullanıcıya göster
-                if (showMessage)
-                {
-                    MessageBox.Show(
-                        errorMessage,
-                        "Veri Doğrulama Hatası",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                }
-
+                // Loglama sırasında hata oluşursa konsola yaz
+                Debug.WriteLine($"Hata loglanırken beklenmeyen bir hata oluştu: {logEx.Message}");
                 return errorId;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Validation error handling failed: {ex.Message}");
-                return string.Empty;
-            }
         }
 
         /// <summary>
-        /// Belirli bir işlem için doğrulama sonucunu kontrol eder
+        /// Exception'ı işler, loglar ve gerekirse kullanıcıya gösterir. Kısa form.
         /// </summary>
-        /// <param name="isValid">Doğrulama sonucu</param>
-        /// <param name="errorMessage">Hata durumunda gösterilecek mesaj</param>
-        /// <param name="showMessage">Mesaj gösterilsin mi?</param>
-        /// <returns>Doğrulama sonucu</returns>
-        public bool ValidateOperation(bool isValid, string errorMessage, bool showMessage = true)
+        public string HandleException(Exception ex, string context, ErrorSeverity severity, ErrorSource source)
         {
-            if (!isValid)
-            {
-                HandleValidationError(errorMessage, showMessage);
-            }
-            return isValid;
+            return HandleException(ex, context, severity, source, ShowErrorsToUser);
         }
 
+        #endregion
+
+        #region Logging Methods
+
         /// <summary>
-        /// Bilgi mesajı (log) kaydeder
+        /// Bilgi mesajını loglar
         /// </summary>
-        /// <param name="message">Mesaj</param>
-        /// <param name="source">Kaynağı</param>
-        public void LogInfo(string message, string source = "")
+        /// <param name="message">Log mesajı</param>
+        /// <param name="source">Mesajın kaynağı</param>
+        public void LogInfo(string message, string source)
         {
             try
             {
-                string logFile = Path.Combine(LogDirectory, $"info_{DateTime.Now:yyyyMMdd}.log");
-                string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{source}] {message}{Environment.NewLine}";
-                File.AppendAllText(logFile, logEntry);
+                string logEntry = $"[INFO] [{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{source}] {message}";
+                WriteToLog(InfoLogPath, logEntry);
+
+                // Info seviyesindeki mesajları da veritabanına kaydedebilirsiniz
+                // Bu örnekte sadece dosyaya logluyoruz
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Info logging failed: {ex.Message}");
+                Debug.WriteLine($"Bilgi loglanırken hata oluştu: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Kullanıcıya bir bilgi mesajı gösterir ve opsiyonel olarak loglar
+        /// Uyarı mesajını loglar
         /// </summary>
-        /// <param name="message">Gösterilecek mesaj</param>
-        /// <param name="title">Mesaj başlığı</param>
-        /// <param name="logMessage">Mesaj loglansın mı?</param>
-        public void ShowInfo(string message, string title = "Bilgi", bool logMessage = true)
-        {
-            if (logMessage)
-            {
-                LogInfo(message, title);
-            }
-
-            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        /// <summary>
-        /// Kullanıcıya bir uyarı mesajı gösterir ve opsiyonel olarak loglar
-        /// </summary>
-        /// <param name="message">Gösterilecek mesaj</param>
-        /// <param name="title">Mesaj başlığı</param>
-        /// <param name="logMessage">Mesaj loglansın mı?</param>
-        public void ShowWarning(string message, string title = "Uyarı", bool logMessage = true)
-        {
-            if (logMessage)
-            {
-                LogWarning(message, title);
-            }
-
-            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
-
-        /// <summary>
-        /// Uyarı mesajı (log) kaydeder
-        /// </summary>
-        /// <param name="message">Mesaj</param>
-        /// <param name="source">Kaynağı</param>
-        public void LogWarning(string message, string source = "")
+        /// <param name="message">Uyarı mesajı</param>
+        /// <param name="source">Mesajın kaynağı</param>
+        public void LogWarning(string message, string source)
         {
             try
             {
-                string logFile = Path.Combine(LogDirectory, $"warning_{DateTime.Now:yyyyMMdd}.log");
-                string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{source}] {message}{Environment.NewLine}";
-                File.AppendAllText(logFile, logEntry);
+                string logEntry = $"[WARNING] [{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{source}] {message}";
+                WriteToLog(ErrorLogPath, logEntry);
+
+                // İsterseniz uyarıları da veritabanına kaydedebilirsiniz
+                string errorId = GenerateErrorId();
+                SaveToDatabase(
+                    errorId,
+                    DateTime.Now,
+                    ErrorSeverity.Warning.ToString(),
+                    ErrorSource.Other.ToString(),
+                    source,
+                    CurrentSession.UserName,
+                    "Warning",
+                    message,
+                    null,
+                    null
+                );
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning logging failed: {ex.Message}");
+                Debug.WriteLine($"Uyarı loglanırken hata oluştu: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Dosyaya log yazar
+        /// </summary>
+        private void WriteToLog(string logPath, string content)
+        {
+            try
+            {
+                // Log dosyasına yaz (thread-safe)
+                lock (this)
+                {
+                    using (StreamWriter writer = new StreamWriter(logPath, true, Encoding.UTF8))
+                    {
+                        writer.WriteLine(content);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Log dosyasına yazılırken hata oluştu: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Hata bilgilerini veritabanına kaydeder
+        /// </summary>
+        private void SaveToDatabase(
+            string errorId,
+            DateTime timestamp,
+            string severity,
+            string source,
+            string context,
+            string username,
+            string exceptionType,
+            string message,
+            string innerExceptionMessage,
+            string stackTrace)
+        {
+            try
+            {
+                string query = @"
+                INSERT INTO HataKayitlari (
+                    HataID, 
+                    Tarih, 
+                    Onem, 
+                    Kaynak, 
+                    Icerik, 
+                    KullaniciAdi, 
+                    IstisnaTuru, 
+                    Mesaj, 
+                    IcIstisna, 
+                    YiginIzleme
+                ) VALUES (
+                    @hataId, 
+                    @tarih, 
+                    @onem, 
+                    @kaynak, 
+                    @icerik, 
+                    @kullaniciAdi, 
+                    @istisnaTuru, 
+                    @mesaj, 
+                    @icIstisna, 
+                    @yiginIzleme
+                );";
+
+                // DatabaseHelper kullanarak parametreleri oluştur
+                MySqlParameter[] parameters = {
+                    DatabaseHelper.CreateParameter("@hataId", errorId),
+                    DatabaseHelper.CreateParameter("@tarih", timestamp),
+                    DatabaseHelper.CreateParameter("@onem", severity),
+                    DatabaseHelper.CreateParameter("@kaynak", source),
+                    DatabaseHelper.CreateParameter("@icerik", context),
+                    DatabaseHelper.CreateParameter("@kullaniciAdi", username),
+                    DatabaseHelper.CreateParameter("@istisnaTuru", exceptionType),
+                    DatabaseHelper.CreateParameter("@mesaj", message),
+                    DatabaseHelper.CreateParameter("@icIstisna", innerExceptionMessage),
+                    DatabaseHelper.CreateParameter("@yiginIzleme", stackTrace)
+                };
+
+                // DatabaseHelper.ExecuteNonQuery metodunu kullan
+                DatabaseHelper.ExecuteNonQuery(query, parameters);
+            }
+            catch (Exception ex)
+            {
+                // Veritabanına yazma başarısız olursa sadece dosyaya log ekle ve devam et
+                Debug.WriteLine($"Hata veritabanına kaydedilemedi: {ex.Message}");
+                WriteToLog(ErrorLogPath, $"[ERROR] Hata veritabanına kaydedilemedi: {ex.Message}");
             }
         }
 
         #endregion
 
-        #region Private Methods
+        #region Utility Methods
 
         /// <summary>
-        /// Benzersiz bir hata ID'si oluşturur
+        /// Benzersiz hata ID'si oluşturur
         /// </summary>
-        /// <returns>Hata ID'si</returns>
         private string GenerateErrorId()
         {
-            return $"{DateTime.Now:yyyyMMdd}_{DateTime.Now:HHmmss}_{Guid.NewGuid().ToString().Substring(0, 8)}";
-        }
-
-        /// <summary>
-        /// Hata bilgisini loglar
-        /// </summary>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        private void LogError(ErrorInfo errorInfo)
-        {
-            // Dosyaya loglama
-            LogErrorToFile(errorInfo);
-
-            // Veritabanına loglama (opsiyonel)
-            if (LogToDatabase)
-            {
-                LogErrorToDatabase(errorInfo);
-            }
-
-            // Ayıklama modunda ise konsola ve Debug.WriteLine'a da yaz
-#if DEBUG
-            Console.WriteLine($"ERROR: [{errorInfo.ErrorId}] {errorInfo.Exception.Message}");
-            Debug.WriteLine($"ERROR: [{errorInfo.ErrorId}] {errorInfo.Exception.Message}");
-#endif
-        }
-
-        /// <summary>
-        /// Hata bilgisini dosyaya loglar
-        /// </summary>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        private void LogErrorToFile(ErrorInfo errorInfo)
-        {
-            try
-            {
-                // Log klasörünün var olduğundan emin ol
-                EnsureLogDirectoryExists();
-
-                // Tarih bazlı log dosyası oluştur
-                string logFileName = $"error_{DateTime.Now:yyyyMMdd}.log";
-                string logFilePath = Path.Combine(LogDirectory, logFileName);
-
-                // Log içeriğini oluştur
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine(new string('-', 80));
-                sb.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{errorInfo.Severity}] [{errorInfo.Source}] Error ID: {errorInfo.ErrorId}");
-
-                if (!string.IsNullOrEmpty(errorInfo.Context))
-                {
-                    sb.AppendLine($"Context: {errorInfo.Context}");
-                }
-
-                sb.AppendLine($"Message: {errorInfo.Exception.Message}");
-
-                if (!string.IsNullOrEmpty(errorInfo.CallerMemberName))
-                {
-                    sb.AppendLine($"Method: {errorInfo.CallerMemberName}");
-                }
-
-                if (!string.IsNullOrEmpty(errorInfo.CallerFilePath))
-                {
-                    sb.AppendLine($"File: {Path.GetFileName(errorInfo.CallerFilePath)}");
-                    sb.AppendLine($"Line: {errorInfo.CallerLineNumber}");
-                }
-
-                // DatabaseException için özel bilgiler
-                if (errorInfo.Exception is DatabaseException dbEx && ShowSqlInErrorMessage)
-                {
-                    sb.AppendLine($"SQL Query: {dbEx.Query}");
-
-                    if (dbEx.Parameters != null && dbEx.Parameters.Length > 0)
-                    {
-                        sb.AppendLine("Parameters:");
-                        foreach (var param in dbEx.Parameters)
-                        {
-                            sb.AppendLine($"  {param.ParameterName} = {param.Value}");
-                        }
-                    }
-                }
-
-                // Ek veri varsa ekle
-                if (errorInfo.AdditionalData != null && errorInfo.AdditionalData.Count > 0)
-                {
-                    sb.AppendLine("Additional Data:");
-                    foreach (var item in errorInfo.AdditionalData)
-                    {
-                        sb.AppendLine($"  {item.Key} = {item.Value}");
-                    }
-                }
-
-                // Stack trace
-                if (errorInfo.Exception.StackTrace != null)
-                {
-                    sb.AppendLine("Stack Trace:");
-                    sb.AppendLine(errorInfo.Exception.StackTrace);
-                }
-
-                // Inner exception varsa ekle
-                if (errorInfo.Exception.InnerException != null)
-                {
-                    sb.AppendLine("Inner Exception:");
-                    sb.AppendLine($"  Message: {errorInfo.Exception.InnerException.Message}");
-                    if (errorInfo.Exception.InnerException.StackTrace != null)
-                    {
-                        sb.AppendLine("  Stack Trace:");
-                        sb.AppendLine(errorInfo.Exception.InnerException.StackTrace);
-                    }
-                }
-
-                sb.AppendLine(new string('-', 80));
-                sb.AppendLine();
-
-                // Dosyaya yaz
-                File.AppendAllText(logFilePath, sb.ToString());
-            }
-            catch (Exception ex)
-            {
-                // Loglama hatası, bu durumda yapılabilecek çok şey yok
-                Console.WriteLine($"Failed to log error to file: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Alternatif bir veritabanı bağlantısı döndürür (birincil bağlantı başarısız olduğunda)
-        /// </summary>
-        private MySqlConnection GetAlternativeConnection()
-        {
-            // Gerçek bağlantı bilgilerinizi kullanın, varsayılan bağlantı yerine
-            try
-            {
-                string connectionString = ConnectionManager.GetConnectionString();
-                return new MySqlConnection(connectionString);
-            }
-            catch
-            {
-                // Bu satıra asla ulaşılmaması için yukarıdaki kodu düzenleyin
-                // Ancak yine de bir yedek hazırlayalım
-                string connectionString = "Server=localhost;Database=arac_kiralama;Uid=root;Pwd=2307;";
-                return new MySqlConnection(connectionString);
-            }
-        }
-
-        /// <summary>
-        /// Hata bilgisini veritabanına loglar
-        /// </summary>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        private void LogErrorToDatabase(ErrorInfo errorInfo)
-        {
-            try
-            {
-                // Veritabanı hatası ise ve aynı zamanda veritabanına log yapılıyorsa
-                // sonsuz döngü riski var, bu durumda sadece dosyaya logla
-                if (errorInfo.Exception is MySqlException || errorInfo.Exception is DatabaseException)
-                {
-                    // Alternatif bir bağlantı kullanmayı dene, eğer bu da olmazsa
-                    // sadece dosyaya logla ve çık
-                    try
-                    {
-                        using (MySqlConnection connection = GetAlternativeConnection())
-                        {
-                            SaveErrorLog(connection, errorInfo);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Alternatif bağlantı da başarısız olursa, hatayı logla ve çık
-                        LogBackupErrorRecord(errorInfo, new Exception("Alternatif bağlantı hatası: " + ex.Message));
-                        return;
-                    }
-                }
-                else
-                {
-                    // Veritabanı hatası sonsuz döngüye neden olabilir, o nedenle try-catch kullanıyoruz
-                    try
-                    {
-                        using (MySqlConnection connection = GetAlternativeConnection())
-                        {
-                            // Normal veritabanı bağlantısı ile logla ama DatabaseHelper kullanma
-                            // Doğrudan MySqlCommand kullan
-                            connection.Open();
-
-                            string query = @"INSERT INTO HataLoglar 
-                                  (HataID, Tarih, Seviye, Kaynak, Mesaj, Baglam, StackTrace, 
-                                   IcHata, CagiranMetod, CagiranDosya, CagiranSatir, 
-                                   KullaniciID, KullaniciAdi, IPAdresi, EkBilgiler)
-                                  VALUES 
-                                  (@hataId, @tarih, @seviye, @kaynak, @mesaj, @baglam, @stackTrace, 
-                                   @icHata, @cagiranMetod, @cagiranDosya, @cagiranSatir, 
-                                   @kullaniciId, @kullaniciAdi, @ipAdresi, @ekBilgiler)";
-
-                            // Oturum açmış kullanıcı bilgilerini al (eğer varsa)
-                            int? userId = null;
-                            string username = "";
-                            try
-                            {
-                                if (CurrentSession.UserID > 0)
-                                {
-                                    userId = CurrentSession.UserID;
-                                    username = CurrentSession.UserName;
-                                }
-                            }
-                            catch { /* Kullanıcı bilgisi alınamazsa dikkate alma */ }
-
-                            // IP adresini al
-                            string ipAddress = GetUserIpAddress();
-
-                            // Ek bilgileri JSON formatında serialize et
-                            string additionalData = SerializeAdditionalData(errorInfo);
-
-                            // İç hata mesajı
-                            string innerExceptionMessage = errorInfo.Exception.InnerException != null
-                                ? errorInfo.Exception.InnerException.Message
-                                : null;
-
-                            using (MySqlCommand command = new MySqlCommand(query, connection))
-                            {
-                                // DatabaseHelper kullanmadan parametreleri ekle
-                                command.Parameters.AddWithValue("@hataId", errorInfo.ErrorId);
-                                command.Parameters.AddWithValue("@tarih", errorInfo.Timestamp);
-                                command.Parameters.AddWithValue("@seviye", errorInfo.Severity.ToString());
-                                command.Parameters.AddWithValue("@kaynak", errorInfo.Source.ToString());
-                                command.Parameters.AddWithValue("@mesaj", errorInfo.Exception.Message);
-                                command.Parameters.AddWithValue("@baglam", errorInfo.Context ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@stackTrace", errorInfo.Exception.StackTrace ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@icHata", innerExceptionMessage ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@cagiranMetod", errorInfo.CallerMemberName ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@cagiranDosya", errorInfo.CallerFilePath ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@cagiranSatir", errorInfo.CallerLineNumber);
-                                command.Parameters.AddWithValue("@kullaniciId", userId.HasValue ? (object)userId.Value : DBNull.Value);
-                                command.Parameters.AddWithValue("@kullaniciAdi", string.IsNullOrEmpty(username) ? (object)DBNull.Value : username);
-                                command.Parameters.AddWithValue("@ipAdresi", ipAddress ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@ekBilgiler", additionalData ?? (object)DBNull.Value);
-
-                                command.ExecuteNonQuery();
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Loglama hatası, bunu sadece konsola ve dosyaya yaz
-                        Console.WriteLine($"Failed to log error to database: {ex.Message}");
-                        LogBackupErrorRecord(errorInfo, ex);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Loglama hatası, bunu sadece konsola ve dosyaya yaz
-                Console.WriteLine($"Failed to log error to database: {ex.Message}");
-                LogBackupErrorRecord(errorInfo, ex);
-            }
-        }
-
-        /// <summary>
-        /// Alternatif bir veritabanı bağlantısı ile hata kaydını yapar
-        /// </summary>
-        private void SaveErrorLog(MySqlConnection connection, ErrorInfo errorInfo)
-        {
-            try
-            {
-                connection.Open();
-
-                string query = @"INSERT INTO HataLoglar 
-                               (HataID, Tarih, Seviye, Kaynak, Mesaj, Baglam)
-                               VALUES 
-                               (@hataId, @tarih, @seviye, @kaynak, @mesaj, @baglam)";
-
-                using (MySqlCommand command = new MySqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@hataId", errorInfo.ErrorId);
-                    command.Parameters.AddWithValue("@tarih", errorInfo.Timestamp);
-                    command.Parameters.AddWithValue("@seviye", errorInfo.Severity.ToString());
-                    command.Parameters.AddWithValue("@kaynak", errorInfo.Source.ToString());
-                    command.Parameters.AddWithValue("@mesaj", errorInfo.Exception.Message);
-                    command.Parameters.AddWithValue("@baglam", errorInfo.Context ?? "");
-
-                    command.ExecuteNonQuery();
-                }
-            }
-            finally
-            {
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-            }
-        }
-
-        /// <summary>
-        /// Hata loglaması başarısız olduğunda yedek bir dosyaya kayıt ekler
-        /// </summary>
-        private void LogBackupErrorRecord(ErrorInfo errorInfo, Exception loggingException)
-        {
-            try
-            {
-                // Log klasörünün var olduğundan emin ol
-                EnsureLogDirectoryExists();
-
-                string backupFile = Path.Combine(LogDirectory, "database_logging_failures.log");
-
-                StringBuilder logEntry = new StringBuilder();
-                logEntry.AppendLine(new string('-', 80));
-                logEntry.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Veritabanına loglama hatası");
-                logEntry.AppendLine($"Orjinal Hata ID: {errorInfo.ErrorId}");
-                logEntry.AppendLine($"Loglama Hatası: {loggingException.Message}");
-                logEntry.AppendLine($"Orjinal Hata: {errorInfo.Exception.Message}");
-                logEntry.AppendLine(new string('-', 80));
-
-                File.AppendAllText(backupFile, logEntry.ToString());
-            }
-            catch
-            {
-                // Yedek loglama da başarısız olursa yapılacak bir şey kalmadı
-            }
-        }
-
-        /// <summary>
-        /// Kullanıcının IP adresini döndürür
-        /// </summary>
-        private string GetUserIpAddress()
-        {
-            try
-            {
-                // Burada NetworkHelper veya başka bir yöntemle IP adresi alınabilir
-                // Basitlik için localhost döndürüyoruz
-                return "127.0.0.1";
-            }
-            catch
-            {
-                return "unknown";
-            }
-        }
-
-        /// <summary>
-        /// Ek verileri JSON formatına dönüştürür
-        /// </summary>
-        private string SerializeAdditionalData(ErrorInfo errorInfo)
-        {
-            if (errorInfo.AdditionalData == null || errorInfo.AdditionalData.Count == 0)
-                return null;
-
-            try
-            {
-                // Basit bir JSON formatı oluşturalım
-                StringBuilder json = new StringBuilder();
-                json.Append("{");
-
-                bool isFirst = true;
-                foreach (var item in errorInfo.AdditionalData)
-                {
-                    if (!isFirst) json.Append(",");
-
-                    // Anahtar
-                    json.Append("\"");
-                    json.Append(item.Key.Replace("\"", "\\\""));
-                    json.Append("\":");
-
-                    // Değer
-                    if (item.Value == null)
-                    {
-                        json.Append("null");
-                    }
-                    else if (item.Value is string)
-                    {
-                        json.Append("\"");
-                        json.Append(item.Value.ToString().Replace("\"", "\\\""));
-                        json.Append("\"");
-                    }
-                    else if (item.Value is bool)
-                    {
-                        json.Append(item.Value.ToString().ToLower());
-                    }
-                    else if (item.Value is int || item.Value is double || item.Value is decimal)
-                    {
-                        json.Append(item.Value);
-                    }
-                    else
-                    {
-                        json.Append("\"");
-                        json.Append(item.Value.ToString().Replace("\"", "\\\""));
-                        json.Append("\"");
-                    }
-
-                    isFirst = false;
-                }
-
-                json.Append("}");
-                return json.ToString();
-            }
-            catch
-            {
-                return "{\"error\":\"serialization_failed\"}";
-            }
+            // Tarih, saat ve GUID'in ilk 8 karakterini kullanarak hata ID'si oluştur
+            string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+            string guid = Guid.NewGuid().ToString("N").Substring(0, 8);
+            return $"ERR-{timestamp}-{guid}";
         }
 
         /// <summary>
         /// Kullanıcıya hata mesajı gösterir
         /// </summary>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        private void ShowErrorToUser(ErrorInfo errorInfo)
+        private void ShowErrorMessage(Exception ex, string context, ErrorSeverity severity, string errorId)
         {
             try
             {
-                string title = GetErrorTitle(errorInfo.Severity);
-                string message = GetUserFriendlyMessage(errorInfo);
-                MessageBoxIcon icon = GetMessageBoxIcon(errorInfo.Severity);
+                MessageBoxIcon icon;
+                string title;
+
+                switch (severity)
+                {
+                    case ErrorSeverity.Warning:
+                        icon = MessageBoxIcon.Warning;
+                        title = "Uyarı";
+                        break;
+                    case ErrorSeverity.Error:
+                        icon = MessageBoxIcon.Error;
+                        title = "Hata";
+                        break;
+                    case ErrorSeverity.Critical:
+                        icon = MessageBoxIcon.Stop;
+                        title = "Kritik Hata";
+                        break;
+                    default:
+                        icon = MessageBoxIcon.Information;
+                        title = "Bilgi";
+                        break;
+                }
+
+                string message = $"{context}\n\n{ex.Message}\n\nHata ID: {errorId}";
 
                 MessageBox.Show(message, title, MessageBoxButtons.OK, icon);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Failed to show error message: {ex.Message}");
-                MessageBox.Show(
-                    "Bir hata oluştu ve hata mesajı gösterilemedi.",
-                    "Hata Bildirimi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
-        }
-
-        /// <summary>
-        /// Kritik hataları özel olarak işler
-        /// </summary>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        private void HandleCriticalError(ErrorInfo errorInfo)
-        {
-            try
-            {
-                // E-posta bildirimi gönder
-                if (SendEmailNotifications && !string.IsNullOrEmpty(ErrorNotificationEmail))
-                {
-                    SendErrorNotificationEmail(errorInfo);
-                }
-
-                // Uygulamanın kritik bir hatadan kurtulabilmesi için
-                // yapılabilecek işlemler burada yer alabilir.
-                // Örneğin, bağlantıları yeniden kurma, cache temizleme vb.
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to handle critical error: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Kritik hatalar için e-posta bildirimi gönderir
-        /// </summary>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        private void SendErrorNotificationEmail(ErrorInfo errorInfo)
-        {
-            try
-            {
-                // E-posta bildirimi için gerekli kodlar burada yer alabilir.
-                // .NET'in System.Net.Mail kütüphanesi kullanılabilir.
-
-                // Bu metod şu anda sadece bir işlem yapmadığını göstermek için var,
-                // gerçek uygulamada e-posta gönderme işlemleri burada yer alacak.
-
-                // Örnek bir kodlama:
-                /*
-                using (MailMessage mail = new MailMessage())
-                {
-                    mail.From = new MailAddress("sistem@sirketim.com");
-                    mail.To.Add(ErrorNotificationEmail);
-                    mail.Subject = $"Kritik Hata: {errorInfo.ErrorId}";
-                    
-                    StringBuilder body = new StringBuilder();
-                    body.AppendLine($"Hata ID: {errorInfo.ErrorId}");
-                    body.AppendLine($"Tarih: {errorInfo.Timestamp}");
-                    body.AppendLine($"Hata Mesajı: {errorInfo.Exception.Message}");
-                    body.AppendLine($"Bağlam: {errorInfo.Context}");
-                    
-                    mail.Body = body.ToString();
-                    
-                    using (SmtpClient smtp = new SmtpClient("smtp.sirketim.com", 587))
-                    {
-                        smtp.Credentials = new NetworkCredential("user", "password");
-                        smtp.EnableSsl = true;
-                        smtp.Send(mail);
-                    }
-                }
-                */
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to send error notification email: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Hata seviyesine göre MessageBox ikon belirler
-        /// </summary>
-        /// <param name="severity">Hata seviyesi</param>
-        /// <returns>MessageBox ikonu</returns>
-        private MessageBoxIcon GetMessageBoxIcon(ErrorSeverity severity)
-        {
-            switch (severity)
-            {
-                case ErrorSeverity.Critical:
-                case ErrorSeverity.Error:
-                    return MessageBoxIcon.Error;
-                case ErrorSeverity.Warning:
-                    return MessageBoxIcon.Warning;
-                case ErrorSeverity.Info:
-                    return MessageBoxIcon.Information;
-                default:
-                    return MessageBoxIcon.Error;
-            }
-        }
-
-        /// <summary>
-        /// Hata seviyesine göre MessageBox başlığı belirler
-        /// </summary>
-        /// <param name="severity">Hata seviyesi</param>
-        /// <returns>MessageBox başlığı</returns>
-        private string GetErrorTitle(ErrorSeverity severity)
-        {
-            switch (severity)
-            {
-                case ErrorSeverity.Critical:
-                    return "Kritik Hata";
-                case ErrorSeverity.Error:
-                    return "Hata";
-                case ErrorSeverity.Warning:
-                    return "Uyarı";
-                case ErrorSeverity.Info:
-                    return "Bilgi";
-                default:
-                    return "Hata";
-            }
-        }
-
-        /// <summary>
-        /// Kullanıcı dostu hata mesajı oluşturur
-        /// </summary>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        /// <returns>Kullanıcı dostu hata mesajı</returns>
-        private string GetUserFriendlyMessage(ErrorInfo errorInfo)
-        {
-            StringBuilder message = new StringBuilder();
-
-            // Bağlam bilgisi varsa ekle
-            if (!string.IsNullOrEmpty(errorInfo.Context))
-            {
-                message.AppendLine(errorInfo.Context);
-                message.AppendLine();
-            }
-
-            // Hata mesajı
-            if (errorInfo.Exception is MySqlException mysqlEx)
-            {
-                message.AppendLine(GetDatabaseErrorMessage(mysqlEx, errorInfo));
-            }
-            else if (errorInfo.Exception is DatabaseException dbEx)
-            {
-                message.AppendLine(GetDatabaseErrorMessage(dbEx, errorInfo));
-            }
-            else
-            {
-                message.AppendLine(errorInfo.Exception.Message);
-            }
-
-            // Teknik detaylar gösterilecekse
-            if (ShowTechnicalDetails && errorInfo.Severity == ErrorSeverity.Critical)
-            {
-                message.AppendLine();
-                message.AppendLine($"Hata ID: {errorInfo.ErrorId}");
-
-                if (errorInfo.Exception.InnerException != null)
-                {
-                    message.AppendLine($"İç Hata: {errorInfo.Exception.InnerException.Message}");
-                }
-            }
-
-            return message.ToString();
-        }
-
-        /// <summary>
-        /// Veritabanı hatası için kullanıcı dostu mesaj oluşturur
-        /// </summary>
-        /// <param name="ex">Exception</param>
-        /// <param name="errorInfo">Hata bilgisi</param>
-        /// <returns>Kullanıcı dostu mesaj</returns>
-        private string GetDatabaseErrorMessage(Exception ex, ErrorInfo errorInfo)
-        {
-            if (ex is MySqlException mysqlEx)
-            {
-                // MySQL hata numarasına göre özel mesajlar
-                switch (mysqlEx.Number)
-                {
-                    case 1042: // Cannot connect to server
-                        return "Veritabanı sunucusuna bağlanılamıyor. Lütfen internet bağlantınızı kontrol edin.";
-                    case 1045: // Invalid username/password
-                        return "Veritabanı erişimi reddedildi. Oturum açma bilgilerinizi kontrol edin.";
-                    case 1049: // Unknown database
-                        return "Veritabanı bulunamadı. Lütfen sistem yöneticinize başvurun.";
-                    case 1062: // Duplicate entry
-                        return "Bu kayıt zaten mevcut. Lütfen farklı bir değer deneyin.";
-                    case 1451: // Foreign key constraint fails
-                        return "Bu kaydı silmek için önce ilişkili kayıtları silmeniz gerekiyor.";
-                    default:
-                        return ShowSqlInErrorMessage ?
-                            $"Veritabanı hatası: {mysqlEx.Message}" :
-                            "Veritabanı işlemi sırasında bir hata oluştu.";
-                }
-            }
-            else if (ex is DatabaseException dbEx)
-            {
-                // Query ve parametreleri göster (opsiyonel)
-                if (ShowSqlInErrorMessage)
-                {
-                    return $"Veritabanı hatası: {dbEx.Message}\n\nSorgu: {dbEx.Query}";
-                }
-                return "Veritabanı işlemi sırasında bir hata oluştu.";
-            }
-
-            return "Veritabanı işlemi sırasında bir hata oluştu.";
-        }
-
-        /// <summary>
-        /// Log klasörünün var olduğundan emin olur
-        /// </summary>
-        private void EnsureLogDirectoryExists()
-        {
-            try
-            {
-                if (!Directory.Exists(LogDirectory))
-                {
-                    Directory.CreateDirectory(LogDirectory);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to create log directory: {ex.Message}");
+                // MessageBox gösterilirken hata olursa sessizce geç
             }
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// İç kullanım için hata bilgilerini tutan sınıf
-    /// </summary>
-    public class ErrorInfo
-    {
-        /// <summary>
-        /// Benzersiz hata ID'si
-        /// </summary>
-        public string ErrorId { get; set; }
-
-        /// <summary>
-        /// Exception nesnesi
-        /// </summary>
-        public Exception Exception { get; set; }
-
-        /// <summary>
-        /// Hatanın oluştuğu bağlam
-        /// </summary>
-        public string Context { get; set; }
-
-        /// <summary>
-        /// Hatanın önem derecesi
-        /// </summary>
-        public ErrorSeverity Severity { get; set; }
-
-        /// <summary>
-        /// Hatanın kaynağı
-        /// </summary>
-        public ErrorSource Source { get; set; }
-
-        /// <summary>
-        /// Hatanın oluştuğu metod
-        /// </summary>
-        public string CallerMemberName { get; set; }
-
-        /// <summary>
-        /// Hatanın oluştuğu dosya
-        /// </summary>
-        public string CallerFilePath { get; set; }
-
-        /// <summary>
-        /// Hatanın oluştuğu satır
-        /// </summary>
-        public int CallerLineNumber { get; set; }
-
-        /// <summary>
-        /// Hata zamanı
-        /// </summary>
-        public DateTime Timestamp { get; set; }
-
-        /// <summary>
-        /// Ek veri sözlüğü
-        /// </summary>
-        public Dictionary<string, object> AdditionalData { get; set; }
-    }
-
-    /// <summary>
-    /// Doğrulama hatalarını temsil eden özel exception sınıfı
-    /// </summary>
-    public class ValidationException : Exception
-    {
-        public ValidationException(string message) : base(message) { }
-        public ValidationException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

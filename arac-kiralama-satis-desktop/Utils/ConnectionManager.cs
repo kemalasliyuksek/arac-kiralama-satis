@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
 using MySql.Data.MySqlClient;
@@ -52,13 +53,13 @@ namespace arac_kiralama_satis_desktop.Utils
             catch (Exception ex)
             {
                 // ErrorManager ile hata yönetimi
-                ErrorManager.Instance.HandleException(
+                string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     "Bağlantı cümlesi şifre çözme hatası",
                     ErrorSeverity.Critical,
                     ErrorSource.Database);
 
-                throw new InvalidOperationException("Bağlantı cümlesi şifresi çözülemedi.", ex);
+                throw new InvalidOperationException($"Bağlantı cümlesi şifresi çözülemedi. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -96,13 +97,13 @@ namespace arac_kiralama_satis_desktop.Utils
             catch (Exception ex)
             {
                 // ErrorManager ile hata yönetimi
-                ErrorManager.Instance.HandleException(
+                string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     "Bağlantı cümlesi şifreleme hatası",
                     ErrorSeverity.Critical,
                     ErrorSource.Database);
 
-                throw new InvalidOperationException("Bağlantı cümlesi şifrelenemiyor.", ex);
+                throw new InvalidOperationException($"Bağlantı cümlesi şifrelenemiyor. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -142,13 +143,13 @@ namespace arac_kiralama_satis_desktop.Utils
                     string errorMessage = $"Şifreli bağlantı cümlesi bulunamadı: {connectionName}.";
 
                     // ErrorManager ile hata bilgisi
-                    ErrorManager.Instance.HandleException(
+                    string errorId = ErrorManager.Instance.HandleException(
                         new InvalidOperationException(errorMessage),
                         "Bağlantı yapılandırması eksik",
                         ErrorSeverity.Critical,
                         ErrorSource.Database);
 
-                    throw new InvalidOperationException(errorMessage);
+                    throw new InvalidOperationException($"{errorMessage} (Hata ID: {errorId})");
                 }
 
                 return DecryptConnectionString(encryptedConnectionString);
@@ -156,13 +157,13 @@ namespace arac_kiralama_satis_desktop.Utils
             catch (Exception ex) when (!(ex is InvalidOperationException))
             {
                 // Zaten işlenmiş InvalidOperationException hatalarını tekrar işleme
-                ErrorManager.Instance.HandleException(
+                string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     "Bağlantı cümlesi alınırken beklenmeyen hata",
                     ErrorSeverity.Critical,
                     ErrorSource.Database);
 
-                throw;
+                throw new InvalidOperationException($"Bağlantı cümlesi alınırken beklenmeyen hata. (Hata ID: {errorId})", ex);
             }
         }
 
@@ -188,24 +189,24 @@ namespace arac_kiralama_satis_desktop.Utils
                 string context = GetDatabaseErrorContext(ex);
 
                 // ErrorManager ile hata yönetimi
-                ErrorManager.Instance.HandleException(
+                string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     context,
                     ErrorSeverity.Error,
                     ErrorSource.Database);
 
-                throw;
+                throw new InvalidOperationException($"Veritabanı bağlantısı alınamadı. (Hata ID: {errorId})", ex);
             }
             catch (Exception ex) when (!(ex is InvalidOperationException))
             {
                 // Diğer hatalar için
-                ErrorManager.Instance.HandleException(
+                string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     "Veritabanı bağlantısı oluşturulurken beklenmeyen hata",
                     ErrorSeverity.Error,
                     ErrorSource.Database);
 
-                throw;
+                throw new InvalidOperationException($"Veritabanı bağlantısı oluşturulurken beklenmeyen hata. (Hata ID: {errorId})", ex);
             }
         }
 
