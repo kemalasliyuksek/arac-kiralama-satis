@@ -25,15 +25,24 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                return _repository.VerifyLogin(username, password);
+                bool result = _repository.VerifyLogin(username, password);
+
+                // Giriş sonucunu bilgi olarak logla
+                ErrorManager.Instance.LogInfo(
+                    result
+                        ? $"Kullanıcı girişi başarılı: {username}"
+                        : $"Kullanıcı girişi başarısız: {username}",
+                    "LoginAttempt");
+
+                return result;
             }
             catch (MySqlException ex)
             {
                 // Veritabanı hatası
                 ErrorManager.Instance.HandleException(
                     ex,
-                    "Kullanıcı girişi doğrulanırken veritabanı hatası oluştu",
-                    ErrorSeverity.Error,
+                    $"Kullanıcı '{username}' için giriş doğrulanırken veritabanı hatası oluştu",
+                    ErrorSeverity.Critical,
                     ErrorSource.Database,
                     true);
 
@@ -44,7 +53,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 // Genel hata
                 ErrorManager.Instance.HandleException(
                     ex,
-                    "Kullanıcı girişi doğrulanırken beklenmeyen bir hata oluştu",
+                    $"Kullanıcı '{username}' için giriş doğrulanırken beklenmeyen bir hata oluştu",
                     ErrorSeverity.Error,
                     ErrorSource.Business,
                     true);
@@ -62,31 +71,34 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                return _repository.GetUserInfo(username);
+                DataRow result = _repository.GetUserInfo(username);
+                // Bilgi olarak logla
+                ErrorManager.Instance.LogInfo($"Kullanıcı bilgileri alındı: {username}", "UserInfo");
+                return result;
             }
             catch (MySqlException ex)
             {
                 // Veritabanı hatası
                 string errorId = ErrorManager.Instance.HandleException(
                     ex,
-                    "Kullanıcı bilgisi alınırken veritabanı hatası oluştu",
+                    $"Kullanıcı '{username}' bilgisi alınırken veritabanı hatası oluştu: {ex.Number}",
                     ErrorSeverity.Error,
                     ErrorSource.Database,
                     false);
 
-                throw new Exception($"Kullanıcı bilgisi alınırken bir hata oluştu (Hata ID: {errorId}): {ex.Message}");
+                throw new InvalidOperationException($"Kullanıcı bilgisi alınırken veritabanı hatası oluştu (Hata ID: {errorId})", ex);
             }
             catch (Exception ex)
             {
                 // Genel hata
                 string errorId = ErrorManager.Instance.HandleException(
                     ex,
-                    "Kullanıcı bilgisi alınırken beklenmeyen bir hata oluştu",
+                    $"Kullanıcı '{username}' bilgisi alınırken beklenmeyen bir hata oluştu",
                     ErrorSeverity.Error,
                     ErrorSource.Business,
                     false);
 
-                throw new Exception($"Kullanıcı bilgisi alınırken bir hata oluştu (Hata ID: {errorId}): {ex.Message}");
+                throw new InvalidOperationException($"Kullanıcı bilgisi alınırken bir hata oluştu (Hata ID: {errorId})", ex);
             }
         }
 
@@ -99,9 +111,8 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 _repository.UpdateLastLogin(userID);
-
-                // Başarılı işlemi logla
-                ErrorManager.Instance.LogInfo($"Kullanıcı ID:{userID} için son giriş zamanı güncellendi", "LoginMethods");
+                // Bilgi olarak logla
+                ErrorManager.Instance.LogInfo($"Kullanıcı ID:{userID} için son giriş zamanı güncellendi", "LoginUpdate");
             }
             catch (Exception ex)
             {
@@ -118,7 +129,7 @@ namespace arac_kiralama_satis_desktop.Methods
         }
 
         /// <summary>
-        /// Giriş denemesini loglar
+        /// Giriş denemesini loglar - ErrorManager kullanarak
         /// </summary>
         /// <param name="userID">Kullanıcı ID (başarısız girişte null olabilir)</param>
         /// <param name="success">Giriş başarılı mı?</param>
@@ -127,26 +138,23 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                _repository.LogLoginAttempt(userID, success, ipAddress);
-
-                // İzleme için logla
+                // Veritabanı logu yerine ErrorManager ile bilgi olarak logla
                 string logMessage = success
                     ? $"Başarılı giriş: Kullanıcı ID:{userID}, IP:{ipAddress}"
                     : $"Başarısız giriş denemesi: {(userID.HasValue ? $"Kullanıcı ID:{userID}" : "Bilinmeyen kullanıcı")}, IP:{ipAddress}";
 
+                // Tüm giriş bilgilerini (başarılı/başarısız) Info seviyesinde logla
                 ErrorManager.Instance.LogInfo(logMessage, "LoginAttempt");
             }
             catch (Exception ex)
             {
-                // Güvenlik ile ilgili ancak kritik olmayan bir hata
+                // Loglama sırasında hata oluşursa
                 ErrorManager.Instance.HandleException(
                     ex,
-                    "Giriş denemesi loglanırken hata oluştu",
+                    $"Giriş bilgisi loglanırken hata oluştu",
                     ErrorSeverity.Warning,
-                    ErrorSource.Database,
+                    ErrorSource.Other,
                     false);
-
-                // Uygulamanın çalışmasını etkilememesi için hatayı yukarı fırlatmıyoruz
             }
         }
 
@@ -158,14 +166,16 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                return _repository.GetIPAddress();
+                string ip = _repository.GetIPAddress();
+                ErrorManager.Instance.LogInfo($"IP adresi alındı: {ip}", "NetworkInfo");
+                return ip;
             }
             catch (Exception ex)
             {
                 // Ağ hatası
                 ErrorManager.Instance.HandleException(
                     ex,
-                    "IP adresi alınırken hata oluştu",
+                    $"IP adresi alınırken hata oluştu: {ex.Message}",
                     ErrorSeverity.Warning,
                     ErrorSource.Network,
                     false);
@@ -187,15 +197,14 @@ namespace arac_kiralama_satis_desktop.Methods
                 UserSettings.Current.RememberMe = true;
                 UserSettings.Save();
 
-                // Bilgi logla
-                ErrorManager.Instance.LogInfo($"Kullanıcı bilgileri kaydedildi: {username}", "LoginMethods");
+                ErrorManager.Instance.LogInfo($"Kullanıcı bilgileri kaydedildi: {username}", "UserSettings");
             }
             catch (Exception ex)
             {
                 // Dosya işlemi hatası
                 ErrorManager.Instance.HandleException(
                     ex,
-                    "Kullanıcı bilgileri kaydedilirken hata oluştu",
+                    $"Kullanıcı '{username}' bilgileri kaydedilirken dosya hatası oluştu",
                     ErrorSeverity.Warning,
                     ErrorSource.FileSystem,
                     false);
@@ -212,7 +221,9 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 if (UserSettings.Current.RememberMe)
                 {
-                    return UserSettings.Current.SavedUsername;
+                    string username = UserSettings.Current.SavedUsername;
+                    ErrorManager.Instance.LogInfo($"Kaydedilmiş kullanıcı adı yüklendi: {username}", "UserSettings");
+                    return username;
                 }
                 return string.Empty;
             }
@@ -221,7 +232,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 // Dosya işlemi hatası
                 ErrorManager.Instance.HandleException(
                     ex,
-                    "Kaydedilmiş kullanıcı bilgileri okunurken hata oluştu",
+                    "Kaydedilmiş kullanıcı bilgileri okunurken dosya hatası oluştu",
                     ErrorSeverity.Warning,
                     ErrorSource.FileSystem,
                     false);
@@ -241,15 +252,14 @@ namespace arac_kiralama_satis_desktop.Methods
                 UserSettings.Current.RememberMe = false;
                 UserSettings.Save();
 
-                // Bilgi logla
-                ErrorManager.Instance.LogInfo("Kaydedilmiş kullanıcı bilgileri temizlendi", "LoginMethods");
+                ErrorManager.Instance.LogInfo("Kaydedilmiş kullanıcı bilgileri temizlendi", "UserSettings");
             }
             catch (Exception ex)
             {
                 // Dosya işlemi hatası
                 ErrorManager.Instance.HandleException(
                     ex,
-                    "Kaydedilmiş kullanıcı bilgileri temizlenirken hata oluştu",
+                    "Kaydedilmiş kullanıcı bilgileri temizlenirken dosya hatası oluştu",
                     ErrorSeverity.Warning,
                     ErrorSource.FileSystem,
                     false);
