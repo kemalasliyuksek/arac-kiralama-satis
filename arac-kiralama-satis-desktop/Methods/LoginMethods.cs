@@ -16,6 +16,120 @@ namespace arac_kiralama_satis_desktop.Methods
         private static readonly LoginRepository _repository = new LoginRepository();
 
         /// <summary>
+        /// Kullanıcı adı ve şifre doğrulaması yaparak oturum açar
+        /// </summary>
+        /// <param name="username">Kullanıcı adı</param>
+        /// <param name="password">Şifre</param>
+        /// <returns>Giriş başarılı ise true, değilse false</returns>
+        public static bool Login(string username, string password)
+        {
+            try
+            {
+                // Giriş bilgilerini doğrula
+                bool isValid = _repository.VerifyLogin(username, password);
+
+                if (!isValid)
+                {
+                    // Başarısız giriş
+                    string ipAddress = GetIPAddress();
+                    ErrorManager.Instance.LogWarning(
+                        $"Başarısız giriş denemesi: {username}, IP: {ipAddress}",
+                        "Login.Failed");
+                    return false;
+                }
+
+                // Kullanıcı bilgilerini getir
+                DataRow userInfo = GetUserInfo(username);
+                if (userInfo == null)
+                {
+                    // Kullanıcı bilgisi alınamadı
+                    string ipAddress = GetIPAddress();
+                    ErrorManager.Instance.LogWarning(
+                        $"Kullanıcı girişi doğrulandı fakat bilgiler alınamadı: {username}, IP: {ipAddress}",
+                        "Login.UserInfoMissing");
+                    return false;
+                }
+
+                // Oturum bilgilerini ayarla
+                CurrentSession.UserID = Convert.ToInt32(userInfo["KullaniciID"]);
+                CurrentSession.UserName = username;
+                CurrentSession.FullName = $"{userInfo["Ad"]} {userInfo["Soyad"]}";
+                CurrentSession.RoleID = Convert.ToInt32(userInfo["RolID"]);
+                CurrentSession.RoleName = userInfo["RolAdi"].ToString();
+                CurrentSession.BranchID = userInfo["SubeID"] != DBNull.Value ? Convert.ToInt32(userInfo["SubeID"]) : (int?)null;
+                CurrentSession.BranchName = userInfo["SubeAdi"]?.ToString();
+                CurrentSession.LoginTime = DateTime.Now;
+                CurrentSession.LastActivityTime = DateTime.Now;
+                CurrentSession.IsLoggedIn = true;
+
+                // Son giriş zamanını güncelle
+                UpdateLastLogin(CurrentSession.UserID);
+
+                // Başarılı girişi logla
+                string ipAddr = GetIPAddress();
+                ErrorManager.Instance.LogInfo(
+                    $"Başarılı giriş: {username}, Rol: {CurrentSession.RoleName}, IP: {ipAddr}",
+                    "Login.Success");
+
+                return true;
+            }
+            catch (MySqlException ex)
+            {
+                // Veritabanı hatası
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kullanıcı '{username}' için giriş yapılırken veritabanı hatası oluştu: {ex.Number}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database,
+                    true);
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // Genel hata
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kullanıcı '{username}' için giriş yapılırken beklenmeyen bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true);
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Kullanıcının oturumunu sonlandırır
+        /// </summary>
+        public static void Logout()
+        {
+            try
+            {
+                if (CurrentSession.IsLoggedIn)
+                {
+                    // Oturum kapatma bilgilerini logla
+                    ErrorManager.Instance.LogInfo(
+                        $"Kullanıcı çıkış yaptı: {CurrentSession.UserName}, Oturum süresi: {CurrentSession.GetSessionDuration()}",
+                        "Logout.Success");
+
+                    // Oturum bilgilerini temizle
+                    CurrentSession.ClearSession();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Genel hata
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Oturum kapatılırken beklenmeyen bir hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Business,
+                    true);
+            }
+        }
+
+        /// <summary>
         /// Kullanıcı adı ve şifre doğrulaması yapar
         /// </summary>
         /// <param name="username">Kullanıcı adı</param>
@@ -30,9 +144,9 @@ namespace arac_kiralama_satis_desktop.Methods
                 // Giriş sonucunu bilgi olarak logla
                 ErrorManager.Instance.LogInfo(
                     result
-                        ? $"Kullanıcı girişi başarılı: {username}"
-                        : $"Kullanıcı girişi başarısız: {username}",
-                    "LoginAttempt");
+                        ? $"Kullanıcı girişi doğrulandı: {username}"
+                        : $"Kullanıcı girişi doğrulanamadı: {username}",
+                    "LoginVerification");
 
                 return result;
             }
@@ -42,7 +156,7 @@ namespace arac_kiralama_satis_desktop.Methods
                 ErrorManager.Instance.HandleException(
                     ex,
                     $"Kullanıcı '{username}' için giriş doğrulanırken veritabanı hatası oluştu",
-                    ErrorSeverity.Critical,
+                    ErrorSeverity.Error,
                     ErrorSource.Database,
                     true);
 
@@ -72,8 +186,18 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 DataRow result = _repository.GetUserInfo(username);
-                // Bilgi olarak logla
-                ErrorManager.Instance.LogInfo($"Kullanıcı bilgileri alındı: {username}", "UserInfo");
+
+                if (result != null)
+                {
+                    // Bilgi olarak logla
+                    ErrorManager.Instance.LogInfo($"Kullanıcı bilgileri alındı: {username}", "UserInfo");
+                }
+                else
+                {
+                    // Uyarı olarak logla
+                    ErrorManager.Instance.LogWarning($"Kullanıcı bilgileri bulunamadı: {username}", "UserInfo.NotFound");
+                }
+
                 return result;
             }
             catch (MySqlException ex)
@@ -129,7 +253,7 @@ namespace arac_kiralama_satis_desktop.Methods
         }
 
         /// <summary>
-        /// Giriş denemesini loglar - ErrorManager kullanarak
+        /// Giriş denemesini loglar - sadece ErrorManager kullanarak
         /// </summary>
         /// <param name="userID">Kullanıcı ID (başarısız girişte null olabilir)</param>
         /// <param name="success">Giriş başarılı mı?</param>
@@ -138,13 +262,20 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                // Veritabanı logu yerine ErrorManager ile bilgi olarak logla
+                // ErrorManager ile bilgi olarak logla
                 string logMessage = success
                     ? $"Başarılı giriş: Kullanıcı ID:{userID}, IP:{ipAddress}"
                     : $"Başarısız giriş denemesi: {(userID.HasValue ? $"Kullanıcı ID:{userID}" : "Bilinmeyen kullanıcı")}, IP:{ipAddress}";
 
-                // Tüm giriş bilgilerini (başarılı/başarısız) Info seviyesinde logla
-                ErrorManager.Instance.LogInfo(logMessage, "LoginAttempt");
+                // Giriş bilgilerini başarıya göre Info veya Warning olarak logla
+                if (success)
+                {
+                    ErrorManager.Instance.LogInfo(logMessage, "LoginAttempt.Success");
+                }
+                else
+                {
+                    ErrorManager.Instance.LogWarning(logMessage, "LoginAttempt.Failed");
+                }
             }
             catch (Exception ex)
             {
@@ -263,6 +394,87 @@ namespace arac_kiralama_satis_desktop.Methods
                     ErrorSeverity.Warning,
                     ErrorSource.FileSystem,
                     false);
+            }
+        }
+
+        /// <summary>
+        /// Oturum zaman aşımını kontrol eder
+        /// </summary>
+        /// <param name="timeoutMinutes">Zaman aşımı süresi (dakika)</param>
+        /// <returns>Oturum zaman aşımına uğradıysa true, değilse false</returns>
+        public static bool CheckSessionTimeout(int timeoutMinutes)
+        {
+            if (!CurrentSession.IsLoggedIn)
+                return false;
+
+            if (CurrentSession.IsSessionTimedOut(timeoutMinutes))
+            {
+                // Oturum zaman aşımına uğradı
+                ErrorManager.Instance.LogWarning(
+                    $"Oturum zaman aşımı: {CurrentSession.UserName}, Süre: {timeoutMinutes} dakika",
+                    "Session.Timeout");
+                Logout();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Kullanıcının son aktivite zamanını günceller
+        /// </summary>
+        public static void UpdateLastActivity()
+        {
+            if (CurrentSession.IsLoggedIn)
+            {
+                CurrentSession.UpdateLastActivity();
+            }
+        }
+
+        /// <summary>
+        /// Kullanıcının belirli bir işlem için yetkisi olup olmadığını kontrol eder
+        /// </summary>
+        /// <param name="requiredPermission">Gerekli yetki kodu</param>
+        /// <returns>Yetkisi varsa true, yoksa false</returns>
+        public static bool HasPermission(string requiredPermission)
+        {
+            try
+            {
+                if (!CurrentSession.IsLoggedIn)
+                {
+                    ErrorManager.Instance.LogWarning(
+                        $"Oturum açılmadan yetki kontrolü yapıldı: {requiredPermission}",
+                        "Permission.NotLoggedIn");
+                    return false;
+                }
+
+                // Burada yetki kontrolü yapılabilir
+                // Örnek: veritabanından yetki kontrolü
+                // bool hasPermission = _repository.CheckPermission(CurrentSession.UserID, requiredPermission);
+
+                // Şimdilik sadece admin rolünün tüm yetkilere sahip olduğunu varsayalım
+                bool hasPermission = CurrentSession.RoleName == "Admin";
+
+                if (!hasPermission)
+                {
+                    ErrorManager.Instance.LogWarning(
+                        $"Yetkisiz erişim girişimi: Kullanıcı: {CurrentSession.UserName}, Rol: {CurrentSession.RoleName}, İstenen yetki: {requiredPermission}",
+                        "Permission.Denied");
+                }
+
+                return hasPermission;
+            }
+            catch (Exception ex)
+            {
+                // Genel hata
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Yetki kontrolü sırasında hata oluştu: {requiredPermission}",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Business,
+                    false);
+
+                return false;
             }
         }
     }

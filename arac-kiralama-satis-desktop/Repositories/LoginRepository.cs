@@ -66,24 +66,7 @@ namespace arac_kiralama_satis_desktop.Repositories
             DatabaseHelper.ExecuteNonQuery(query, parameters);
         }
 
-        public void LogLoginAttempt(int? userId, bool success, string ipAddress)
-        {
-            string islemTipi = success ? "Başarılı Giriş" : "Başarısız Giriş";
-            string islemDetayi = success
-                ? $"Kullanıcı giriş yaptı. KullanıcıID: {userId}"
-                : "Geçersiz kullanıcı adı/şifre.";
-            string query = @"INSERT INTO Loglar (KullaniciID, IslemTipi, IslemDetayi, IPAdresi)
-                             VALUES (@userId, @tip, @detay, @ip)";
-
-            MySqlParameter[] parameters = {
-                DatabaseHelper.CreateParameter("@userId", userId.HasValue ? (object)userId.Value : DBNull.Value),
-                DatabaseHelper.CreateParameter("@tip", islemTipi),
-                DatabaseHelper.CreateParameter("@detay", islemDetayi),
-                DatabaseHelper.CreateParameter("@ip", ipAddress)
-            };
-
-            DatabaseHelper.ExecuteNonQuery(query, parameters);
-        }
+        // LogLoginAttempt metodunu kaldırdık - artık ErrorManager kullanılacak
 
         public string GetIPAddress()
         {

@@ -132,13 +132,36 @@ namespace arac_kiralama_satis_desktop.Utils
         {
             try
             {
-                // Proje içindeki Logs klasörünün yolunu belirle
-                string projeDizini = Application.StartupPath;
+                string logDirectory;
 
-                // Projenin Logs klasörü yolunu belirle
-                LogDirectory = Path.Combine(projeDizini, "Logs");
+                // Geliştirme ortamında mısınız kontrol edin (DEBUG sembolü tanımlıysa)
+#if DEBUG
+                // Debug modunda, proje dizinini bulmaya çalış
+                string executablePath = Application.StartupPath;
+                if (executablePath.Contains("\\bin\\"))
+                {
+                    string projectRoot = executablePath.Substring(0, executablePath.IndexOf("\\bin\\"));
+                    logDirectory = Path.Combine(projectRoot, "Logs");
 
-                // Eğer Logs klasörü yoksa oluştur
+                    // Debug için durumu logla
+                    Debug.WriteLine($"DEBUG modunda çalışıyor, proje dizini: {projectRoot}");
+                }
+                else
+                {
+                    // Bin klasörü bulunamadıysa, uygulama dizininde logs klasörü oluştur
+                    logDirectory = Path.Combine(executablePath, "Logs");
+                    Debug.WriteLine($"DEBUG modunda ancak bin klasörü bulunamadı: {executablePath}");
+                }
+#else
+        // Release modunda, uygulama verilerinin saklandığı standart dizini kullan
+        logDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "arac-kiralama-satis-desktop", "Logs");
+#endif
+
+                LogDirectory = logDirectory;
+
+                // Logs klasörü yoksa oluştur
                 if (!Directory.Exists(LogDirectory))
                 {
                     Directory.CreateDirectory(LogDirectory);
@@ -150,11 +173,10 @@ namespace arac_kiralama_satis_desktop.Utils
                 InfoLogPath = Path.Combine(LogDirectory, $"Info_{currentDate}.log");
 
                 // Başlangıç mesajını logla
-                LogInfo("ErrorManager başlatıldı", "ErrorManager.Initialize");
+                LogInfo($"ErrorManager başlatıldı. Log dizini: {LogDirectory}", "ErrorManager.Initialize");
             }
             catch (Exception ex)
             {
-                // Initialize sırasında hata olursa konsola yaz
                 Debug.WriteLine($"ErrorManager başlatılırken hata oluştu: {ex.Message}");
             }
         }
