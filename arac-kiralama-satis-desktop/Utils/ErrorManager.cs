@@ -132,12 +132,13 @@ namespace arac_kiralama_satis_desktop.Utils
         {
             try
             {
-                // Log klasörünü belirle
-                LogDirectory = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "AracKiralamaSatis", "Logs");
+                // Proje içindeki Logs klasörünün yolunu belirle
+                string projeDizini = Application.StartupPath;
 
-                // Eğer klasör yoksa oluştur
+                // Projenin Logs klasörü yolunu belirle
+                LogDirectory = Path.Combine(projeDizini, "Logs");
+
+                // Eğer Logs klasörü yoksa oluştur
                 if (!Directory.Exists(LogDirectory))
                 {
                     Directory.CreateDirectory(LogDirectory);
@@ -295,8 +296,20 @@ namespace arac_kiralama_satis_desktop.Utils
                 string logEntry = $"[INFO] [{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{source}] {message}";
                 WriteToLog(InfoLogPath, logEntry);
 
-                // Info seviyesindeki mesajları da veritabanına kaydedebilirsiniz
-                // Bu örnekte sadece dosyaya logluyoruz
+                // Bilgi seviyesindeki mesajları da veritabanına kaydedelim
+                string errorId = GenerateErrorId();
+                SaveToDatabase(
+                    errorId,
+                    DateTime.Now,
+                    ErrorSeverity.Info.ToString(),
+                    ErrorSource.Other.ToString(),
+                    source,
+                    CurrentSession.UserName,
+                    "Info",
+                    message,
+                    null,
+                    null
+                );
             }
             catch (Exception ex)
             {
@@ -316,7 +329,7 @@ namespace arac_kiralama_satis_desktop.Utils
                 string logEntry = $"[WARNING] [{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{source}] {message}";
                 WriteToLog(ErrorLogPath, logEntry);
 
-                // İsterseniz uyarıları da veritabanına kaydedebilirsiniz
+                // Uyarıları da veritabanına kaydedelim
                 string errorId = GenerateErrorId();
                 SaveToDatabase(
                     errorId,
