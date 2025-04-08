@@ -20,7 +20,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             InitializeComponent();
             CustomizeComponents();
 
-            // Eğer varsa kayıtlı kullanıcı adını yükler
             string savedUsername = LoginMethods.LoadSavedUsername();
             if (!string.IsNullOrEmpty(savedUsername))
             {
@@ -35,7 +34,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             txtUsername.SetPlaceholder("Kullanıcı Adı");
             txtPassword.SetPlaceholder("Şifre");
 
-            // Logo yükleme
             try
             {
                 string projectPath = Application.StartupPath;
@@ -326,7 +324,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void LnkForgotPassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MessageBox.Show("Şifre sıfırlama talebi için lütfen yönetici ile iletişime geçin.",
+            MessageBox.Show("Şifre sıfırlama talebi için lütfen yönetici ile iletişime geçin. (admin@arackiralamasatis.com)",
                           "Şifremi Unuttum", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }

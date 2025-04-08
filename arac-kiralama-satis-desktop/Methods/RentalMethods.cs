@@ -19,7 +19,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralamalar listelenirken bir hata oluştu: " + ex.Message);
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralamalar listesini alma",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                return new List<Rental>();
             }
         }
 
@@ -31,7 +37,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama bilgisi alınırken bir hata oluştu: " + ex.Message);
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama bilgisi alma (ID: {rentalId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                return null;
             }
         }
 
@@ -43,7 +55,14 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama eklenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama ekleme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kiralama eklenemedi. Hata ID: {errorId}");
             }
         }
 
@@ -52,10 +71,21 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 _repository.Update(rental);
+                ErrorManager.Instance.LogInfo(
+                    $"Kiralama güncellendi (ID: {rental.RentalID})",
+                    "RentalMethods.UpdateRental"
+                );
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama güncellenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama güncelleme (ID: {rental.RentalID})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kiralama güncellenemedi. Hata ID: {errorId}");
             }
         }
 
@@ -64,10 +94,21 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 _repository.Delete(rentalId);
+                ErrorManager.Instance.LogInfo(
+                    $"Kiralama silindi (ID: {rentalId})",
+                    "RentalMethods.DeleteRental"
+                );
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama silinirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama silme (ID: {rentalId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kiralama silinemedi. Hata ID: {errorId}");
             }
         }
 
@@ -77,6 +118,10 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 // Özel teslim alma işlemi için:
                 Rental rental = GetRentalById(rentalId);
+                if (rental == null)
+                {
+                    throw new InvalidOperationException($"Kiralama bulunamadı (ID: {rentalId})");
+                }
 
                 string query = @"UPDATE Kiralamalar SET 
                                    TeslimTarihi = @teslimTarihi,
@@ -101,10 +146,23 @@ namespace arac_kiralama_satis_desktop.Methods
                     DatabaseHelper.CreateParameter("@kilometre", endKm)
                 };
                 DatabaseHelper.ExecuteNonQuery(updateVehicleQuery, updateParams);
+
+                // Log başarılı tamamlama
+                ErrorManager.Instance.LogInfo(
+                    $"Kiralama tamamlandı (ID: {rentalId}, Araç: {rental.VehiclePlate})",
+                    "RentalMethods.CompleteRental"
+                );
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralama teslim alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kiralama teslim alma (ID: {rentalId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kiralama teslim alınamadı. Hata ID: {errorId}");
             }
         }
 
@@ -149,7 +207,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralamalar DataTable'a dönüştürülürken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralamalar DataTable'a dönüştürme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                throw new InvalidOperationException($"Kiralamalar DataTable'a dönüştürülemedi. Hata ID: {errorId}");
             }
         }
     }

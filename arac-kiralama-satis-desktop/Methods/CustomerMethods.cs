@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using arac_kiralama_satis_desktop.Models;
 using arac_kiralama_satis_desktop.Repositories;
+using arac_kiralama_satis_desktop.Utils; // ErrorManager için ekledim
 
 namespace arac_kiralama_satis_desktop.Methods
 {
@@ -14,11 +15,20 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                // İşlem başlangıcını logla
+                ErrorManager.Instance.LogInfo("Müşteriler listeleniyor", "CustomerMethods.GetCustomers");
                 return _repository.GetAll();
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteriler listelenirken bir hata oluştu: " + ex.Message);
+                // ErrorManager ile hata yönetimi
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteriler listelenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteriler listelenirken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
 
@@ -26,11 +36,19 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo($"Müşteri bilgisi alınıyor. Müşteri ID: {customerId}",
+                    "CustomerMethods.GetCustomerById");
                 return _repository.GetById(customerId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri bilgisi alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri bilgisi alınırken bir hata oluştu. Müşteri ID: {customerId}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri bilgisi alınırken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
 
@@ -38,11 +56,21 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo($"Yeni müşteri ekleniyor. Müşteri adı: {customer.FullName}",
+                    "CustomerMethods.AddCustomer");
                 return _repository.Add(customer);
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri eklenirken bir hata oluştu: " + ex.Message);
+                // Müşteri ekleme kritik bir işlem olduğu için kullanıcıya göster
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri eklenirken bir hata oluştu. Müşteri adı: {customer.FullName}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database,
+                    true); // Kullanıcıya hata gösterilsin
+
+                throw new Exception($"Müşteri eklenirken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
 
@@ -50,11 +78,21 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo($"Müşteri güncelleniyor. Müşteri ID: {customer.CustomerID}, Müşteri adı: {customer.FullName}",
+                    "CustomerMethods.UpdateCustomer");
                 _repository.Update(customer);
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri güncellenirken bir hata oluştu: " + ex.Message);
+                // Güncelleme işlemi için kullanıcıya göster
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri güncellenirken bir hata oluştu. Müşteri ID: {customer.CustomerID}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database,
+                    true); // Kullanıcıya hata gösterilsin
+
+                throw new Exception($"Müşteri güncellenirken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
 
@@ -62,11 +100,23 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                string durumText = isAvailable ? "aktif" : "pasif";
+                ErrorManager.Instance.LogInfo($"Müşteri durumu {durumText} olarak güncelleniyor. Müşteri ID: {customerId}",
+                    "CustomerMethods.SetCustomerAvailability");
+
                 _repository.SetAvailability(customerId, isAvailable);
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri durumu güncellenirken bir hata oluştu: " + ex.Message);
+                // Durum değiştirme işlemi için kullanıcıya göster
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri durumu güncellenirken bir hata oluştu. Müşteri ID: {customerId}",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database,
+                    true); // Kullanıcıya hata gösterilsin
+
+                throw new Exception($"Müşteri durumu güncellenirken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
 
@@ -74,11 +124,19 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo($"Müşteri araması yapılıyor. Arama metni: '{searchText}'",
+                    "CustomerMethods.SearchCustomers");
                 return _repository.Search(searchText);
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteri arama sırasında bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Müşteri arama sırasında bir hata oluştu. Arama metni: '{searchText}'",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database);
+
+                throw new Exception($"Müşteri arama sırasında bir hata oluştu. (Hata ID: {errorId})");
             }
         }
 
@@ -87,6 +145,9 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo("Müşteriler DataTable olarak alınıyor",
+                    "CustomerMethods.GetCustomersAsDataTable");
+
                 List<Customer> customers = _repository.GetAll();
                 DataTable dt = new DataTable();
 
@@ -121,7 +182,14 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Müşteriler DataTable'a dönüştürülürken bir hata oluştu: " + ex.Message);
+                // DataTable dönüşümü bir iş mantığı işlemi olduğu için ErrorSource.Business olarak işaretlendi
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteriler DataTable'a dönüştürülürken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business);
+
+                throw new Exception($"Müşteriler DataTable'a dönüştürülürken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
     }

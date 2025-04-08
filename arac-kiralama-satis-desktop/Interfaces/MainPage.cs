@@ -10,7 +10,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 {
     public partial class MainPage : Form
     {
-        // Aktif panelin buton referansı
         private IconButton currentBtn;
 
         // UserControls
@@ -28,8 +27,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 InitializeComponent();
                 CustomizeDesign();
                 InitializeUserControls();
-
-                this.Resize += MainPage_Resize;
             }
             catch (Exception ex)
             {
@@ -49,22 +46,18 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeDesign()
         {
-            // Form ayarları
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.MinimumSize = new Size(1200, 800);
             this.MaximizeBox = true;
             this.WindowState = FormWindowState.Maximized;
             this.Text = "Araç Kiralama ve Satış Uygulaması";
 
-            // Kullanıcı avatarı
             picUserAvatar.Image = IconChar.UserCircle.ToBitmap(Color.White, 32);
 
-            // Kullanıcı bilgileri
             lblUserName.Text = CurrentSession.FullName;
             lblUserRole.Text = CurrentSession.RoleName;
             lblBranchName.Text = CurrentSession.BranchName ?? "Genel Merkez";
 
-            // Aktif menü butonunu işaretle
             ActivateButton(btnDashboard);
         }
 
@@ -102,7 +95,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             rentalsControl.RentalAdded += (s, e) => RefreshAllData();
         }
 
-        // Tüm verileri yenile
         private void RefreshAllData()
         {
             RefreshCurrentView();
@@ -149,7 +141,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 currentBtn.TextAlign = ContentAlignment.MiddleLeft;
                 currentBtn.ImageAlign = ContentAlignment.MiddleLeft;
 
-                // Başlığı güncelle
                 lblPageTitle.Text = currentBtn.Text.Trim();
             }
         }
@@ -183,17 +174,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
-        // Form yüklendiğinde gerçekleştirilecek işlemler
         private void MainPage_Load(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Maximized;
 
             BtnDashboard_Click(btnDashboard, EventArgs.Empty);
-        }
-
-        private void MainPage_Resize(object sender, EventArgs e)
-        {
-            // Şu anlık ihtiyaç yok
         }
 
         #region Event Handlers

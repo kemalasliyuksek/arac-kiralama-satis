@@ -20,7 +20,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Roller alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Roller listesini alma",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database
+                );
+                throw new InvalidOperationException($"Roller alınamadı. Hata ID: {errorId}");
             }
         }
 
@@ -32,7 +38,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Personel listesi alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personel listesini alma",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                return new List<Staff>();
             }
         }
 
@@ -44,7 +56,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Personel bilgisi alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Personel bilgisi alma (ID: {staffId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                return null;
             }
         }
 
@@ -54,6 +72,10 @@ namespace arac_kiralama_satis_desktop.Methods
             {
                 // Repository'den Staff nesnesini al
                 Staff staff = _repository.GetById(userId);
+                if (staff == null)
+                {
+                    throw new InvalidOperationException($"Kullanıcı bulunamadı (ID: {userId})");
+                }
 
                 // DataTable ve DataRow oluştur
                 DataTable dt = new DataTable();
@@ -114,7 +136,14 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Kullanıcı bilgisi alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kullanıcı bilgisi alma (ID: {userId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kullanıcı bilgisi alınamadı. Hata ID: {errorId}");
             }
         }
 
@@ -137,11 +166,26 @@ namespace arac_kiralama_satis_desktop.Methods
                     IsActive = Convert.ToBoolean(parameters["Durum"])
                 };
 
-                return _repository.Add(staff) > 0;
+                int addedUserId = _repository.Add(staff);
+
+                // Log successful user addition
+                ErrorManager.Instance.LogInfo(
+                    $"Kullanıcı eklendi (ID: {addedUserId}, Kullanıcı Adı: {staff.Username})",
+                    "StaffMethods.AddUser"
+                );
+
+                return addedUserId > 0;
             }
             catch (Exception ex)
             {
-                throw new Exception("Kullanıcı eklenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kullanıcı ekleme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kullanıcı eklenemedi. Hata ID: {errorId}");
             }
         }
 
@@ -170,11 +214,25 @@ namespace arac_kiralama_satis_desktop.Methods
                 }
 
                 _repository.Update(staff);
+
+                // Log successful user update
+                ErrorManager.Instance.LogInfo(
+                    $"Kullanıcı güncellendi (ID: {staff.StaffID}, Kullanıcı Adı: {staff.Username})",
+                    "StaffMethods.UpdateUser"
+                );
+
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("Kullanıcı güncellenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kullanıcı güncelleme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kullanıcı güncellenemedi. Hata ID: {errorId}");
             }
         }
 
@@ -183,13 +241,32 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 Staff staff = _repository.GetById(userId);
+                if (staff == null)
+                {
+                    throw new InvalidOperationException($"Kullanıcı bulunamadı (ID: {userId})");
+                }
+
                 staff.IsActive = isActive;
                 _repository.Update(staff);
+
+                // Log status change
+                ErrorManager.Instance.LogInfo(
+                    $"Kullanıcı durumu değiştirildi (ID: {userId}, Durum: {(isActive ? "Aktif" : "Pasif")})",
+                    "StaffMethods.ChangeUserStatus"
+                );
+
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("Kullanıcı durumu değiştirilirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Kullanıcı durum değişikliği (ID: {userId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Kullanıcı durumu değiştirilemedi. Hata ID: {errorId}");
             }
         }
 
@@ -265,7 +342,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Personeller DataTable'a dönüştürülürken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personeller DataTable'a dönüştürme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                throw new InvalidOperationException($"Personeller DataTable'a dönüştürülemedi. Hata ID: {errorId}");
             }
         }
     }

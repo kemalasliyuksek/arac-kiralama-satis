@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using arac_kiralama_satis_desktop.Models;
 using arac_kiralama_satis_desktop.Repositories;
+using arac_kiralama_satis_desktop.Utils; // ErrorManager için ekledim
 
 namespace arac_kiralama_satis_desktop.Methods
 {
@@ -18,77 +19,123 @@ namespace arac_kiralama_satis_desktop.Methods
         /// </summary>
         public static DashboardData GetDashboardData()
         {
+            ErrorManager.Instance.LogInfo("Dashboard verileri alınıyor", "DashboardMethods.GetDashboardData");
+
             DashboardData dashboardData = new DashboardData();
 
             try
             {
                 try
                 {
+                    ErrorManager.Instance.LogInfo("Toplam araç sayısı alınıyor", "DashboardMethods.GetDashboardData");
                     object carCountResult = _repository.GetVehicleCount();
                     dashboardData.TotalCarCount = Convert.ToInt32(carCountResult);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error getting car count: {ex.Message}");
+                    // Hata loglanıyor ancak işlem devam ediyor
+                    ErrorManager.Instance.HandleException(
+                        ex,
+                        "Toplam araç sayısı alınırken hata oluştu",
+                        ErrorSeverity.Warning,
+                        ErrorSource.Database,
+                        false);
+
                     dashboardData.TotalCarCount = 0;
                 }
 
                 try
                 {
+                    ErrorManager.Instance.LogInfo("Şube sayısı alınıyor", "DashboardMethods.GetDashboardData");
                     object locationCountResult = _repository.GetBranchCount();
                     dashboardData.LocationCount = Convert.ToInt32(locationCountResult);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error getting branch count: {ex.Message}");
+                    ErrorManager.Instance.HandleException(
+                        ex,
+                        "Şube sayısı alınırken hata oluştu",
+                        ErrorSeverity.Warning,
+                        ErrorSource.Database,
+                        false);
+
                     dashboardData.LocationCount = 0;
                 }
 
                 try
                 {
+                    ErrorManager.Instance.LogInfo("Müşteri sayısı alınıyor", "DashboardMethods.GetDashboardData");
                     object customerCountResult = _repository.GetCustomerCount();
                     dashboardData.CustomerCount = Convert.ToInt32(customerCountResult);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error getting customer count: {ex.Message}");
+                    ErrorManager.Instance.HandleException(
+                        ex,
+                        "Müşteri sayısı alınırken hata oluştu",
+                        ErrorSeverity.Warning,
+                        ErrorSource.Database,
+                        false);
+
                     dashboardData.CustomerCount = 0;
                 }
 
                 try
                 {
+                    ErrorManager.Instance.LogInfo("Toplam gelir alınıyor", "DashboardMethods.GetDashboardData");
                     object revenueResult = _repository.GetTotalRevenue();
                     dashboardData.TotalRevenue = Convert.ToDecimal(revenueResult);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error getting total revenue: {ex.Message}");
+                    ErrorManager.Instance.HandleException(
+                        ex,
+                        "Toplam gelir alınırken hata oluştu",
+                        ErrorSeverity.Warning,
+                        ErrorSource.Database,
+                        false);
+
                     dashboardData.TotalRevenue = 0;
                 }
 
                 try
                 {
+                    ErrorManager.Instance.LogInfo("Marka sayısı alınıyor", "DashboardMethods.GetDashboardData");
                     object brandCountResult = _repository.GetBrandCount();
                     dashboardData.BrandCount = Convert.ToInt32(brandCountResult);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error getting brand count: {ex.Message}");
+                    ErrorManager.Instance.HandleException(
+                        ex,
+                        "Marka sayısı alınırken hata oluştu",
+                        ErrorSeverity.Warning,
+                        ErrorSource.Database,
+                        false);
+
                     dashboardData.BrandCount = 0;
                 }
 
                 try
                 {
+                    ErrorManager.Instance.LogInfo("Ortalama kiralama fiyatı alınıyor", "DashboardMethods.GetDashboardData");
                     object avgPriceResult = _repository.GetAverageRentalPrice();
                     dashboardData.AverageRentalPrice = avgPriceResult != DBNull.Value ? Convert.ToDouble(avgPriceResult) : 0;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error getting average rental price: {ex.Message}");
+                    ErrorManager.Instance.HandleException(
+                        ex,
+                        "Ortalama kiralama fiyatı alınırken hata oluştu",
+                        ErrorSeverity.Warning,
+                        ErrorSource.Database,
+                        false);
+
                     dashboardData.AverageRentalPrice = 0;
                 }
 
                 // Diğer metrikler
+                ErrorManager.Instance.LogInfo("Ek dashboard metrikleri alınıyor", "DashboardMethods.GetDashboardData");
                 dashboardData.ActiveRentalsCount = GetActiveRentalsCount();
                 dashboardData.MonthlySalesCount = GetMonthlySalesCount();
                 dashboardData.PendingServiceCount = GetPendingServiceCount();
@@ -96,8 +143,14 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting dashboard data: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Dashboard verileri alınırken genel bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    false);
 
+                // Tüm verileri varsayılan değerlere sıfırla
                 dashboardData.TotalCarCount = 0;
                 dashboardData.LocationCount = 0;
                 dashboardData.CustomerCount = 0;
@@ -120,12 +173,19 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo("Aktif kiralama sayısı alınıyor", "DashboardMethods.GetActiveRentalsCount");
                 object result = _repository.GetActiveRentalsCount();
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting active rentals count: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Aktif kiralama sayısı alınırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Database,
+                    false);
+
                 return 0;
             }
         }
@@ -137,12 +197,19 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo("Aylık satış sayısı alınıyor", "DashboardMethods.GetMonthlySalesCount");
                 object result = _repository.GetMonthlySalesCount();
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting monthly sales count: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Aylık satış sayısı alınırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Database,
+                    false);
+
                 return 0;
             }
         }
@@ -154,12 +221,19 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo("Servis bekleyen araç sayısı alınıyor", "DashboardMethods.GetPendingServiceCount");
                 object result = _repository.GetPendingServiceCount();
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting pending service count: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Servis bekleyen araç sayısı alınırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Database,
+                    false);
+
                 return 0;
             }
         }
@@ -171,12 +245,19 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
+                ErrorManager.Instance.LogInfo("Aktif personel sayısı alınıyor", "DashboardMethods.GetTeamMembersCount");
                 object result = _repository.GetTeamMembersCount();
                 return Convert.ToInt32(result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting team members count: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Aktif personel sayısı alınırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Database,
+                    false);
+
                 return 0;
             }
         }
@@ -190,6 +271,7 @@ namespace arac_kiralama_satis_desktop.Methods
 
             try
             {
+                ErrorManager.Instance.LogInfo("Markalara göre araç dağılımı alınıyor", "DashboardMethods.GetBrandDistribution");
                 DataTable result = _repository.GetBrandDistribution();
 
                 foreach (DataRow row in result.Rows)
@@ -201,7 +283,12 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting brand distribution: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Markalara göre araç dağılımı alınırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Database,
+                    false);
             }
 
             return brandDistribution;
@@ -216,6 +303,7 @@ namespace arac_kiralama_satis_desktop.Methods
 
             try
             {
+                ErrorManager.Instance.LogInfo("Yıllık kiralama istatistikleri alınıyor", "DashboardMethods.GetYearlyRentals");
                 DataTable result = _repository.GetYearlyRentals();
 
                 foreach (DataRow row in result.Rows)
@@ -227,6 +315,11 @@ namespace arac_kiralama_satis_desktop.Methods
 
                 if (yearlyRentals.Count == 0)
                 {
+                    // Veri yoksa örnek veri oluştur
+                    ErrorManager.Instance.LogWarning(
+                        "Yıllık kiralama verisi bulunamadı, örnek veri oluşturuluyor",
+                        "DashboardMethods.GetYearlyRentals");
+
                     int currentYear = DateTime.Now.Year;
                     for (int i = -3; i <= 0; i++)
                     {
@@ -236,7 +329,17 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting yearly rentals: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Yıllık kiralama istatistikleri alınırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Database,
+                    false);
+
+                // Hata olduğunda örnek veri oluştur
+                ErrorManager.Instance.LogWarning(
+                    "Hata nedeniyle örnek yıllık kiralama verisi oluşturuluyor",
+                    "DashboardMethods.GetYearlyRentals");
 
                 int currentYear = DateTime.Now.Year;
                 for (int i = -3; i <= 0; i++)
@@ -257,6 +360,7 @@ namespace arac_kiralama_satis_desktop.Methods
 
             try
             {
+                ErrorManager.Instance.LogInfo("Şubelere göre araç dağılımı alınıyor", "DashboardMethods.GetLocationData");
                 DataTable result = _repository.GetLocationData();
 
                 foreach (DataRow row in result.Rows)
@@ -268,7 +372,12 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting location data: {ex.Message}");
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Şubelere göre araç dağılımı alınırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.Database,
+                    false);
             }
 
             return locationData;

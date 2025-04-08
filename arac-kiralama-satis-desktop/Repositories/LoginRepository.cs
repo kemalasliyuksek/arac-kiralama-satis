@@ -66,7 +66,6 @@ namespace arac_kiralama_satis_desktop.Repositories
             DatabaseHelper.ExecuteNonQuery(query, parameters);
         }
 
-        // LogLoginAttempt metodunu kaldırdık - artık ErrorManager kullanılacak
 
         public string GetIPAddress()
         {

@@ -20,7 +20,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Araçlar listelenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Araçları listeleme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                return new List<Vehicle>();
             }
         }
 
@@ -32,7 +38,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Araç bilgisi alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Araç bilgisi alma (ID: {vehicleId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                return null;
             }
         }
 
@@ -40,11 +52,26 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                return _repository.Add(vehicle);
+                int vehicleId = _repository.Add(vehicle);
+
+                // Log successful vehicle addition
+                ErrorManager.Instance.LogInfo(
+                    $"Araç eklendi (ID: {vehicleId}, Plaka: {vehicle.Plate})",
+                    "VehicleMethods.AddVehicle"
+                );
+
+                return vehicleId;
             }
             catch (Exception ex)
             {
-                throw new Exception("Araç eklenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Araç ekleme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Araç eklenemedi. Hata ID: {errorId}");
             }
         }
 
@@ -53,10 +80,23 @@ namespace arac_kiralama_satis_desktop.Methods
             try
             {
                 _repository.Update(vehicle);
+
+                // Log successful vehicle update
+                ErrorManager.Instance.LogInfo(
+                    $"Araç güncellendi (ID: {vehicle.VehicleID}, Plaka: {vehicle.Plate})",
+                    "VehicleMethods.UpdateVehicle"
+                );
             }
             catch (Exception ex)
             {
-                throw new Exception("Araç güncellenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Araç güncelleme (ID: {vehicle.VehicleID})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business,
+                    true
+                );
+                throw new InvalidOperationException($"Araç güncellenemedi. Hata ID: {errorId}");
             }
         }
 
@@ -71,10 +111,23 @@ namespace arac_kiralama_satis_desktop.Methods
                     DatabaseHelper.CreateParameter("@durumId", statusId)
                 };
                 DatabaseHelper.ExecuteNonQuery(query, parameters);
+
+                // Log status change
+                ErrorManager.Instance.LogInfo(
+                    $"Araç durumu değiştirildi (Araç ID: {vehicleId}, Durum ID: {statusId})",
+                    "VehicleMethods.UpdateVehicleStatus"
+                );
             }
             catch (Exception ex)
             {
-                throw new Exception("Araç durumu güncellenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    $"Araç durumu güncelleme (Araç ID: {vehicleId})",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database,
+                    true
+                );
+                throw new InvalidOperationException($"Araç durumu güncellenemedi. Hata ID: {errorId}");
             }
         }
 
@@ -87,7 +140,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Araç durumları alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Araç durumları alma",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database
+                );
+                throw new InvalidOperationException($"Araç durumları alınamadı. Hata ID: {errorId}");
             }
         }
 
@@ -100,7 +159,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Araç sınıfları alınırken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Araç sınıfları alma",
+                    ErrorSeverity.Error,
+                    ErrorSource.Database
+                );
+                throw new InvalidOperationException($"Araç sınıfları alınamadı. Hata ID: {errorId}");
             }
         }
 
@@ -112,7 +177,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Kiralanabilir araçlar listelenirken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralanabilir araçları listeleme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                return new List<Vehicle>();
             }
         }
 
@@ -161,7 +232,13 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                throw new Exception("Araçlar DataTable'a dönüştürülürken bir hata oluştu: " + ex.Message);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Araçları DataTable'a dönüştürme",
+                    ErrorSeverity.Error,
+                    ErrorSource.Business
+                );
+                throw new InvalidOperationException($"Araçlar DataTable'a dönüştürülemedi. Hata ID: {errorId}");
             }
         }
     }
