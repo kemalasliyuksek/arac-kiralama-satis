@@ -120,11 +120,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // lblError
             // 
             lblError.AutoSize = true;
-            lblError.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
+            lblError.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
             lblError.ForeColor = Color.FromArgb(220, 53, 69);
             lblError.Location = new Point(20, 487);
             lblError.Name = "lblError";
-            lblError.Size = new Size(104, 17);
+            lblError.Size = new Size(93, 17);
             lblError.TabIndex = 36;
             lblError.Text = "Hata mesajı...";
             lblError.Visible = false;
@@ -134,7 +134,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnCancel.BackColor = Color.FromArgb(108, 117, 125);
             btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.FlatStyle = FlatStyle.Flat;
-            btnCancel.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
+            btnCancel.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnCancel.ForeColor = Color.White;
             btnCancel.Location = new Point(579, 478);
             btnCancel.Name = "btnCancel";
@@ -149,7 +149,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnSave.BackColor = Color.FromArgb(40, 167, 69);
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.FlatStyle = FlatStyle.Flat;
-            btnSave.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point);
+            btnSave.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnSave.ForeColor = Color.White;
             btnSave.Location = new Point(685, 478);
             btnSave.Name = "btnSave";
@@ -172,7 +172,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label13.AutoSize = true;
             label13.Location = new Point(579, 334);
             label13.Name = "label13";
-            label13.Size = new Size(76, 15);
+            label13.Size = new Size(73, 15);
             label13.TabIndex = 24;
             label13.Text = "Müşteri Tipi:";
             // 
@@ -206,24 +206,24 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label11.AutoSize = true;
             label11.Location = new Point(579, 175);
             label11.Name = "label11";
-            label11.Size = new Size(47, 15);
+            label11.Size = new Size(50, 15);
             label11.TabIndex = 20;
             label11.Text = "E-posta:";
             // 
             // txtPhoneNumber
             // 
-            txtPhoneNumber.Location = new Point(638, 140);
+            txtPhoneNumber.Location = new Point(649, 140);
             txtPhoneNumber.Name = "txtPhoneNumber";
-            txtPhoneNumber.Size = new Size(141, 23);
+            txtPhoneNumber.Size = new Size(130, 23);
             txtPhoneNumber.TabIndex = 10;
             txtPhoneNumber.KeyPress += TxtPhoneNumber_KeyPress;
             // 
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(579, 122);
+            label10.Location = new Point(649, 122);
             label10.Name = "label10";
-            label10.Size = new Size(99, 15);
+            label10.Size = new Size(103, 15);
             label10.TabIndex = 18;
             label10.Text = "Telefon Numarası:";
             // 
@@ -232,17 +232,17 @@ namespace arac_kiralama_satis_desktop.Interfaces
             cmbCountryCode.FormattingEnabled = true;
             cmbCountryCode.Location = new Point(579, 140);
             cmbCountryCode.Name = "cmbCountryCode";
-            cmbCountryCode.Size = new Size(55, 23);
+            cmbCountryCode.Size = new Size(64, 23);
             cmbCountryCode.TabIndex = 9;
             // 
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(579, 69);
+            label9.Location = new Point(579, 122);
             label9.Name = "label9";
-            label9.Size = new Size(76, 15);
+            label9.Size = new Size(64, 15);
             label9.TabIndex = 16;
-            label9.Text = "Ülke Kodları:";
+            label9.Text = "Ülke Kodu:";
             // 
             // dtpLicenseDate
             // 
@@ -257,7 +257,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label8.AutoSize = true;
             label8.Location = new Point(302, 334);
             label8.Name = "label8";
-            label8.Size = new Size(79, 15);
+            label8.Size = new Size(77, 15);
             label8.TabIndex = 14;
             label8.Text = "Ehliyet Tarihi:";
             // 
@@ -274,7 +274,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label7.AutoSize = true;
             label7.Location = new Point(302, 281);
             label7.Name = "label7";
-            label7.Size = new Size(70, 15);
+            label7.Size = new Size(71, 15);
             label7.TabIndex = 12;
             label7.Text = "Ehliyet Sınıfı";
             // 
@@ -290,7 +290,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label6.AutoSize = true;
             label6.Location = new Point(302, 228);
             label6.Name = "label6";
-            label6.Size = new Size(63, 15);
+            label6.Size = new Size(64, 15);
             label6.TabIndex = 10;
             label6.Text = "Ehliyet No:";
             // 
@@ -307,7 +307,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label5.AutoSize = true;
             label5.Location = new Point(302, 175);
             label5.Name = "label5";
-            label5.Size = new Size(81, 15);
+            label5.Size = new Size(82, 15);
             label5.TabIndex = 8;
             label5.Text = "Doğum Tarihi:";
             // 
@@ -324,13 +324,13 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label4.AutoSize = true;
             label4.Location = new Point(302, 122);
             label4.Name = "label4";
-            label4.Size = new Size(87, 15);
+            label4.Size = new Size(79, 15);
             label4.TabIndex = 6;
             label4.Text = "TC Kimlik No:";
             // 
             // txtLastName
             // 
-            txtLastName.Location = new Point(20, 140);
+            txtLastName.Location = new Point(20, 193);
             txtLastName.Name = "txtLastName";
             txtLastName.Size = new Size(217, 23);
             txtLastName.TabIndex = 2;
@@ -338,7 +338,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(20, 122);
+            label3.Location = new Point(20, 175);
             label3.Name = "label3";
             label3.Size = new Size(42, 15);
             label3.TabIndex = 4;
@@ -346,7 +346,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // 
             // txtFirstName
             // 
-            txtFirstName.Location = new Point(20, 87);
+            txtFirstName.Location = new Point(20, 140);
             txtFirstName.Name = "txtFirstName";
             txtFirstName.Size = new Size(217, 23);
             txtFirstName.TabIndex = 1;
@@ -354,7 +354,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(20, 69);
+            label2.Location = new Point(20, 122);
             label2.Name = "label2";
             label2.Size = new Size(25, 15);
             label2.TabIndex = 2;
@@ -377,7 +377,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.ForeColor = Color.White;
-            btnClose.IconChar = IconChar.Times;
+            btnClose.IconChar = IconChar.Close;
             btnClose.IconColor = Color.White;
             btnClose.IconFont = IconFont.Auto;
             btnClose.IconSize = 24;
@@ -391,11 +391,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
             // lblTitle
             // 
             lblTitle.AutoSize = true;
-            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold, GraphicsUnit.Point);
+            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(20, 15);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(153, 30);
+            lblTitle.Size = new Size(141, 30);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "Müşteri Ekle";
             // 

@@ -7,13 +7,14 @@ using System.IO;
 using arac_kiralama_satis_desktop.Methods;
 using arac_kiralama_satis_desktop.Utils;
 using System.Data;
-
+using System.Collections.Generic;
 
 namespace arac_kiralama_satis_desktop.Interfaces
 {
     public partial class LoginPage : Form
     {
         private System.Windows.Forms.Timer? loginTimer = null;
+        private Dictionary<TextBox, string> placeholderTexts = new Dictionary<TextBox, string>();
 
         public LoginPage()
         {
@@ -24,6 +25,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             if (!string.IsNullOrEmpty(savedUsername))
             {
                 txtUsername.Text = savedUsername;
+                txtUsername.ForeColor = Color.Black;
                 chkRememberMe.Checked = true;
                 txtPassword.Focus();
             }
@@ -31,8 +33,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeComponents()
         {
-            txtUsername.SetPlaceholder("Kullanıcı Adı");
-            txtPassword.SetPlaceholder("Şifre");
+            txtPassword.PasswordChar = '\0';
+
+            SetCustomPlaceholder(txtUsername, "Kullanıcı Adı");
+            SetCustomPlaceholder(txtPassword, "Şifre");
 
             try
             {
@@ -88,6 +92,41 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 this.Invalidate(true);
 
                 this.ActiveControl = null;
+            };
+        }
+
+        private void SetCustomPlaceholder(TextBox textBox, string placeholderText)
+        {
+            placeholderTexts[textBox] = placeholderText;
+
+            if (string.IsNullOrEmpty(textBox.Text))
+            {
+                textBox.Text = placeholderText;
+                textBox.ForeColor = Color.Gray;
+            }
+
+            textBox.Enter += (s, e) =>
+            {
+                if (textBox.Text == placeholderText)
+                {
+                    textBox.Text = "";
+                    textBox.ForeColor = Color.Black;
+
+                    if (textBox == txtPassword)
+                        textBox.PasswordChar = '•';
+                }
+            };
+
+            textBox.Leave += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(textBox.Text))
+                {
+                    textBox.Text = placeholderText;
+                    textBox.ForeColor = Color.Gray;
+
+                    if (textBox == txtPassword)
+                        txtPassword.PasswordChar = '\0';
+                }
             };
         }
 
@@ -185,7 +224,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void BtnLogin_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtUsername.Text) || string.IsNullOrWhiteSpace(txtPassword.Text))
+            bool usernameEmpty = string.IsNullOrWhiteSpace(txtUsername.Text) || txtUsername.Text == placeholderTexts[txtUsername];
+            bool passwordEmpty = string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text == placeholderTexts[txtPassword];
+
+            if (usernameEmpty || passwordEmpty)
             {
                 ShowError("Kullanıcı adı ve şifre boş bırakılamaz!");
                 HighlightEmptyFields();
@@ -271,7 +313,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void HighlightEmptyFields()
         {
-            if (string.IsNullOrWhiteSpace(txtUsername.Text))
+            bool usernameEmpty = string.IsNullOrWhiteSpace(txtUsername.Text) || txtUsername.Text == placeholderTexts[txtUsername];
+            bool passwordEmpty = string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text == placeholderTexts[txtPassword];
+
+            if (usernameEmpty)
             {
                 pnlUsername.Tag = "error";
                 pnlUsername.Invalidate();
@@ -282,7 +327,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 pnlUsername.Invalidate();
             }
 
-            if (string.IsNullOrWhiteSpace(txtPassword.Text))
+            if (passwordEmpty)
             {
                 pnlPassword.Tag = "error";
                 pnlPassword.Invalidate();
@@ -312,36 +357,26 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void BtnShowPassword_MouseDown(object sender, MouseEventArgs e)
         {
-            txtPassword.PasswordChar = '\0';
-            btnShowPassword.Image = IconChar.Eye.ToBitmap(Color.Gray, 24);
+            if (txtPassword.Text != placeholderTexts[txtPassword])
+            {
+                txtPassword.PasswordChar = '\0';
+                btnShowPassword.Image = IconChar.Eye.ToBitmap(Color.Gray, 24);
+            }
         }
 
         private void BtnShowPassword_MouseUp(object sender, MouseEventArgs e)
         {
-            txtPassword.PasswordChar = '•';
-            btnShowPassword.Image = IconChar.EyeSlash.ToBitmap(Color.Gray, 24);
+            if (txtPassword.Text != placeholderTexts[txtPassword])
+            {
+                txtPassword.PasswordChar = '•';
+                btnShowPassword.Image = IconChar.EyeSlash.ToBitmap(Color.Gray, 24);
+            }
         }
 
         private void LnkForgotPassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             MessageBox.Show("Şifre sıfırlama talebi için lütfen yönetici ile iletişime geçin. (admin@arackiralamasatis.com)",
                           "Şifremi Unuttum", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-    }
-
-    public static class TextBoxExtensions
-    {
-        private const int EM_SETCUEBANNER = 0x1501;
-
-        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)] string lParam);
-
-        public static void SetPlaceholder(this TextBox textBox, string placeholderText)
-        {
-            if (textBox != null && textBox.Handle != IntPtr.Zero)
-            {
-                SendMessage(textBox.Handle, EM_SETCUEBANNER, 0, placeholderText);
-            }
         }
     }
 }

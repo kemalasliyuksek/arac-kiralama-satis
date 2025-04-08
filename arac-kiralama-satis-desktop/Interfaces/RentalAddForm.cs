@@ -21,7 +21,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private readonly Dictionary<int, Vehicle> _availableVehicles = new Dictionary<int, Vehicle>();
         private readonly Dictionary<int, Customer> _customers = new Dictionary<int, Customer>();
 
-        // Form başarıyla tamamlandığında ana formun listeyi güncellemesi için olay
         public event EventHandler RentalAdded;
 
         public RentalAddForm()
@@ -29,7 +28,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             InitializeComponent();
         }
 
-        // Düzenleme modu için constructor
         public RentalAddForm(int rentalId)
         {
             InitializeComponent();
@@ -44,14 +42,12 @@ namespace arac_kiralama_satis_desktop.Interfaces
             CustomizeComponents();
             LoadDropdownData();
 
-            // Varsayılan değerler
             dtpStartDate.Value = DateTime.Now;
             dtpEndDate.Value = DateTime.Now.AddDays(1);
             nudStartKm.Value = 0;
             nudRentalAmount.Value = 0;
             nudDepositAmount.Value = 0;
 
-            // Düzenleme modu ise verileri yükle
             if (_isEdit && _rentalId > 0)
             {
                 LoadRentalData();
@@ -60,30 +56,24 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeComponents()
         {
-            // Form ayarları
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.White;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Icon = System.Drawing.SystemIcons.Application; // Uygulama ikonu
+            this.Icon = System.Drawing.SystemIcons.Application;
 
-            // Panel border ve gölge efekti
             pnlMain.BackColor = Color.White;
             UIUtils.ApplyShadowEffect(pnlMain);
 
-            // Form header
             pnlHeader.BackColor = Color.FromArgb(49, 76, 143);
             lblTitle.ForeColor = Color.White;
 
-            // Header içindeki butonlar
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.IconColor = Color.White;
 
-            // Butonlar
             UIUtils.ApplyButtonStyle(btnSave, Color.FromArgb(40, 167, 69), Color.FromArgb(33, 136, 56));
             UIUtils.ApplyButtonStyle(btnCancel, Color.FromArgb(108, 117, 125), Color.FromArgb(90, 98, 104));
 
-            // Form sürükleme işlemleri için event atamaları
             pnlHeader.MouseDown += PnlHeader_MouseDown;
             pnlHeader.MouseMove += PnlHeader_MouseMove;
             pnlHeader.MouseUp += PnlHeader_MouseUp;
@@ -96,7 +86,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             try
             {
-                // Müşterileri yükle
                 cmbCustomer.Items.Clear();
                 _customers.Clear();
 
@@ -108,7 +97,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     _customers.Add(customer.CustomerID, customer);
                 }
 
-                // Araçları yükle
                 cmbVehicle.Items.Clear();
                 _availableVehicles.Clear();
 
@@ -120,7 +108,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     _availableVehicles.Add(vehicle.VehicleID, vehicle);
                 }
 
-                // Ödeme tipleri
                 cmbPaymentType.Items.Clear();
                 cmbPaymentType.Items.AddRange(new string[] { "Nakit", "Kredi Kartı", "Havale/EFT", "Diğer" });
                 cmbPaymentType.SelectedIndex = 0;
@@ -139,7 +126,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 Rental rental = RentalMethods.GetRentalById(_rentalId);
                 if (rental != null)
                 {
-                    // Müşteri seçimi
                     int customerIndex = -1;
                     for (int i = 0; i < cmbCustomer.Items.Count; i++)
                     {
@@ -153,7 +139,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     if (customerIndex >= 0)
                         cmbCustomer.SelectedIndex = customerIndex;
 
-                    // Araç seçimi
                     int vehicleIndex = -1;
                     for (int i = 0; i < cmbVehicle.Items.Count; i++)
                     {
@@ -167,7 +152,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     if (vehicleIndex >= 0)
                         cmbVehicle.SelectedIndex = vehicleIndex;
 
-                    // Diğer alanlar
                     dtpStartDate.Value = rental.StartDate;
                     dtpEndDate.Value = rental.EndDate;
                     if (rental.ReturnDate.HasValue)
@@ -193,7 +177,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                         chkDeposit.Checked = false;
                     }
 
-                    // Ödeme tipi
                     int paymentTypeIndex = cmbPaymentType.FindStringExact(rental.PaymentType);
                     if (paymentTypeIndex >= 0)
                         cmbPaymentType.SelectedIndex = paymentTypeIndex;
@@ -214,7 +197,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             {
                 if (cmbVehicle.SelectedIndex >= 0 && dtpStartDate.Value <= dtpEndDate.Value)
                 {
-                    // Seçilen aracın ID'sini al
                     int vehicleId = -1;
                     string selectedVehicleText = cmbVehicle.SelectedItem.ToString();
 
@@ -231,10 +213,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     {
                         Vehicle selectedVehicle = _availableVehicles[vehicleId];
 
-                        // Araç sınıfına göre günlük ücret
                         decimal dailyRate = 0;
 
-                        // Basit bir hesaplama - gerçek uygulamada veritabanından alınabilir
                         switch (selectedVehicle.VehicleClassName)
                         {
                             case "Ekonomik":
@@ -256,24 +236,20 @@ namespace arac_kiralama_satis_desktop.Interfaces
                                 dailyRate = 500;
                                 break;
                             default:
-                                dailyRate = 300; // Varsayılan fiyat
+                                dailyRate = 300;
                                 break;
                         }
 
-                        // Kiralama süresi (gün)
                         int days = (dtpEndDate.Value - dtpStartDate.Value).Days + 1;
 
-                        // Toplam tutarı hesapla
                         decimal totalAmount = dailyRate * days;
 
-                        // NumericUpDown'a ata
                         nudRentalAmount.Value = totalAmount;
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Hesaplama hatası olursa görmezden gel
                 Console.WriteLine($"Kiralama tutarı hesaplanırken hata: {ex.Message}");
             }
         }
@@ -283,28 +259,24 @@ namespace arac_kiralama_satis_desktop.Interfaces
             bool isValid = true;
             errorProvider.Clear();
 
-            // Müşteri seçimi kontrolü
             if (cmbCustomer.SelectedIndex < 0)
             {
                 errorProvider.SetError(cmbCustomer, "Lütfen bir müşteri seçin");
                 isValid = false;
             }
 
-            // Araç seçimi kontrolü
             if (cmbVehicle.SelectedIndex < 0)
             {
                 errorProvider.SetError(cmbVehicle, "Lütfen bir araç seçin");
                 isValid = false;
             }
 
-            // Başlangıç tarihi kontrolü
             if (dtpStartDate.Value > dtpEndDate.Value)
             {
                 errorProvider.SetError(dtpStartDate, "Başlangıç tarihi bitiş tarihinden sonra olamaz");
                 isValid = false;
             }
 
-            // Kiralama tutarı kontrolü
             if (nudRentalAmount.Value <= 0)
             {
                 errorProvider.SetError(nudRentalAmount, "Kiralama tutarı sıfırdan büyük olmalıdır");
@@ -356,7 +328,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
             try
             {
-                // Müşteri ID'sini al
                 int customerId = -1;
                 string selectedCustomerText = cmbCustomer.SelectedItem.ToString();
 
@@ -369,7 +340,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     }
                 }
 
-                // Araç ID'sini al
                 int vehicleId = -1;
                 string selectedVehicleText = cmbVehicle.SelectedItem.ToString();
 
@@ -388,7 +358,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     return;
                 }
 
-                // Kiralama nesnesi oluştur
                 Rental rental = new Rental
                 {
                     CustomerID = customerId,
@@ -407,28 +376,23 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 if (_isEdit)
                 {
                     rental.RentalID = _rentalId;
-                    // Kiralama güncelleme
                     RentalMethods.UpdateRental(rental);
                     MessageBox.Show("Kiralama bilgileri başarıyla güncellendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    // Yeni kiralama
                     int newRentalId = RentalMethods.AddRental(rental);
 
                     if (newRentalId > 0)
                     {
-                        // Araç durumunu güncelle (Kirada)
-                        VehicleMethods.UpdateVehicleStatus(vehicleId, 4); // 4: Kirada durumu
+                        VehicleMethods.UpdateVehicleStatus(vehicleId, 4);
 
                         MessageBox.Show("Kiralama başarıyla oluşturuldu.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
 
-                // RentalAdded event'ini çağır
                 RentalAdded?.Invoke(this, EventArgs.Empty);
 
-                // Formu kapat
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
