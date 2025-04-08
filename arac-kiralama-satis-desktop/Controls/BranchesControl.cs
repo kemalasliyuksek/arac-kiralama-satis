@@ -11,17 +11,14 @@ namespace arac_kiralama_satis_desktop.Controls
 {
     public partial class BranchesControl : UserControl
     {
-        // DataTable for search/filter
         private DataTable branchesTable;
 
-        // Events for main form to handle
         public event EventHandler BranchAdded;
 
         public BranchesControl()
         {
             InitializeComponent();
 
-            // Setup data grid view properties
             SetupDataGridView();
         }
 
@@ -36,13 +33,10 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Şube verilerini DataTable olarak al
                 branchesTable = BranchMethods.GetBranchesAsDataTable();
 
-                // DataSource olarak ata
                 dgvBranches.DataSource = branchesTable;
 
-                // Format columns
                 if (dgvBranches.Columns.Count > 0)
                 {
                     dgvBranches.Columns["SubeID"].Visible = false;
@@ -54,10 +48,8 @@ namespace arac_kiralama_satis_desktop.Controls
                     dgvBranches.Columns["AktifMi"].Width = 70;
                     dgvBranches.Columns["OlusturmaTarihi"].Width = 120;
                     dgvBranches.Columns["OlusturmaTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                    // Diğer formatlama ayarları...
                 }
 
-                // Update count information
                 lblBranchesTitle.Text = $"Şube Listesi ({branchesTable.Rows.Count})";
             }
             catch (Exception ex)
@@ -79,16 +71,13 @@ namespace arac_kiralama_satis_desktop.Controls
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    // Show all data
                     dgvBranches.DataSource = branchesTable;
                     lblBranchesTitle.Text = $"Şube Listesi ({branchesTable.Rows.Count})";
                     return;
                 }
 
-                // Create filter
                 string filter = "";
 
-                // Search in most relevant columns
                 filter = $"[Şube Adı] LIKE '%{searchText}%' OR " +
                          $"Adres LIKE '%{searchText}%' OR " +
                          $"[Şehir Plaka] LIKE '%{searchText}%' OR " +
@@ -98,13 +87,11 @@ namespace arac_kiralama_satis_desktop.Controls
                 DataView dv = branchesTable.DefaultView;
                 dv.RowFilter = filter;
 
-                // Update label with count
                 lblBranchesTitle.Text = $"Şube Listesi ({dv.Count})";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Şube aramada hata: {ex.Message}");
-                // Failed filter - just reset
                 if (branchesTable != null)
                 {
                     dgvBranches.DataSource = branchesTable;
@@ -113,16 +100,13 @@ namespace arac_kiralama_satis_desktop.Controls
             }
         }
 
-        // Event handlers
         private void BtnAddBranch_Click(object sender, EventArgs e)
         {
             BranchAddForm branchForm = new BranchAddForm();
             if (branchForm.ShowDialog() == DialogResult.OK)
             {
-                // Şube ekleme başarılı olduğunda listeyi yenile
                 LoadData();
 
-                // Event'i tetikle
                 BranchAdded?.Invoke(this, EventArgs.Empty);
             }
         }

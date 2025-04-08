@@ -2,6 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using arac_kiralama_satis_desktop.Interfaces;
 using arac_kiralama_satis_desktop.Methods;
 using arac_kiralama_satis_desktop.Utils;
 using FontAwesome.Sharp;
@@ -106,12 +107,14 @@ namespace arac_kiralama_satis_desktop.Controls
 
         private void BtnAddVehicle_Click(object sender, EventArgs e)
         {
-            VehicleAdded?.Invoke(this, EventArgs.Empty);
+            VehicleAddForm vehicleForm = new VehicleAddForm();
+            vehicleForm.VehicleAdded += (s, args) => {
+                LoadData();
 
-            MessageBox.Show("Yeni araç ekleme formu burada açılacak.",
-                "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                VehicleAdded?.Invoke(this, EventArgs.Empty);
+            };
 
-            LoadData();
+            vehicleForm.ShowDialog();
         }
 
         private void BtnRefreshVehicles_Click(object sender, EventArgs e)

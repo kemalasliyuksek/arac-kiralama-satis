@@ -11,17 +11,14 @@ namespace arac_kiralama_satis_desktop.Controls
 {
     public partial class RentalsControl : UserControl
     {
-        // DataTable for search/filter
         private DataTable rentalsTable;
 
-        // Events for main form to handle
         public event EventHandler RentalAdded;
 
         public RentalsControl()
         {
             InitializeComponent();
 
-            // Setup data grid view properties
             SetupDataGridView();
         }
 
@@ -36,13 +33,10 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Kiralama verilerini DataTable olarak al
                 rentalsTable = RentalMethods.GetRentalsAsDataTable();
 
-                // DataSource olarak ata
                 dgvRentals.DataSource = rentalsTable;
 
-                // Format columns
                 if (dgvRentals.Columns.Count > 0)
                 {
                     dgvRentals.Columns["KiralamaID"].Visible = false;
@@ -62,7 +56,6 @@ namespace arac_kiralama_satis_desktop.Controls
                     dgvRentals.Columns["KiralamaTutari"].DefaultCellStyle.Format = "N2";
                     dgvRentals.Columns["KiralamaTutari"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
-                    // Renk kodlaması ekle - aktif ve gecikmiş kiralamalar için
                     dgvRentals.CellFormatting += (s, e) => {
                         if (e.RowIndex >= 0)
                         {
@@ -86,7 +79,6 @@ namespace arac_kiralama_satis_desktop.Controls
                     };
                 }
 
-                // Update count information
                 lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
             }
             catch (Exception ex)
@@ -108,16 +100,13 @@ namespace arac_kiralama_satis_desktop.Controls
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    // Show all data
                     dgvRentals.DataSource = rentalsTable;
                     lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
                     return;
                 }
 
-                // Create filter
                 string filter = "";
 
-                // Search in most relevant columns
                 filter = $"Müşteri LIKE '%{searchText}%' OR " +
                          $"Plaka LIKE '%{searchText}%' OR " +
                          $"Marka LIKE '%{searchText}%' OR " +
@@ -127,13 +116,11 @@ namespace arac_kiralama_satis_desktop.Controls
                 DataView dv = rentalsTable.DefaultView;
                 dv.RowFilter = filter;
 
-                // Update label with count
                 lblRentalsTitle.Text = $"Kiralama Listesi ({dv.Count})";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Kiralama aramada hata: {ex.Message}");
-                // Failed filter - just reset
                 if (rentalsTable != null)
                 {
                     dgvRentals.DataSource = rentalsTable;
@@ -142,15 +129,12 @@ namespace arac_kiralama_satis_desktop.Controls
             }
         }
 
-        // Event handlers
         private void BtnAddRental_Click(object sender, EventArgs e)
         {
             RentalAddForm rentalForm = new RentalAddForm();
             rentalForm.RentalAdded += (s, args) => {
-                // Kiralama eklendiğinde listeyi yenile
                 LoadData();
 
-                // Event'i tetikle
                 RentalAdded?.Invoke(this, EventArgs.Empty);
             };
 

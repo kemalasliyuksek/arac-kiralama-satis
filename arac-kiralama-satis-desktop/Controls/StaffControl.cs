@@ -11,17 +11,14 @@ namespace arac_kiralama_satis_desktop.Controls
 {
     public partial class StaffControl : UserControl
     {
-        // DataTable for search/filter
         private DataTable staffTable;
 
-        // Events for main form to handle
         public event EventHandler StaffAdded;
 
         public StaffControl()
         {
             InitializeComponent();
 
-            // Setup data grid view properties
             SetupDataGridView();
         }
 
@@ -36,13 +33,10 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Personel verilerini DataTable olarak al
                 staffTable = StaffMethods.GetStaffAsDataTable();
 
-                // DataSource olarak ata 
                 dgvStaff.DataSource = staffTable;
 
-                // Format columns
                 if (dgvStaff.Columns.Count > 0)
                 {
                     dgvStaff.Columns["KullaniciID"].Visible = false;
@@ -61,7 +55,6 @@ namespace arac_kiralama_satis_desktop.Controls
                     dgvStaff.Columns["SonGiris"].DefaultCellStyle.Format = "dd.MM.yyyy HH:mm";
                     dgvStaff.Columns["KayitTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
 
-                    // Durum sütunu için renklendirme
                     dgvStaff.CellFormatting += (s, e) => {
                         try
                         {
@@ -69,9 +62,9 @@ namespace arac_kiralama_satis_desktop.Controls
                             {
                                 string durumText = e.Value.ToString();
                                 if (durumText == "Aktif")
-                                    e.CellStyle.ForeColor = Color.FromArgb(40, 167, 69); // Yeşil
+                                    e.CellStyle.ForeColor = Color.FromArgb(40, 167, 69);
                                 else if (durumText == "Pasif")
-                                    e.CellStyle.ForeColor = Color.FromArgb(220, 53, 69); // Kırmızı
+                                    e.CellStyle.ForeColor = Color.FromArgb(220, 53, 69);
 
                                 e.FormattingApplied = true;
                             }
@@ -79,12 +72,10 @@ namespace arac_kiralama_satis_desktop.Controls
                         catch (Exception ex)
                         {
                             Console.WriteLine($"Hücre formatlanırken hata: {ex.Message}");
-                            // Hata durumunda formatlamayı atla
                         }
                     };
                 }
 
-                // Update count information
                 lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
             }
             catch (Exception ex)
@@ -106,16 +97,13 @@ namespace arac_kiralama_satis_desktop.Controls
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    // Show all data
                     dgvStaff.DataSource = staffTable;
                     lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
                     return;
                 }
 
-                // Create filter
                 string filter = "";
 
-                // Search in most relevant columns
                 filter = $"Ad LIKE '%{searchText}%' OR " +
                          $"Soyad LIKE '%{searchText}%' OR " +
                          $"[Kullanıcı Adı] LIKE '%{searchText}%' OR " +
@@ -127,13 +115,11 @@ namespace arac_kiralama_satis_desktop.Controls
                 DataView dv = staffTable.DefaultView;
                 dv.RowFilter = filter;
 
-                // Update label with count
                 lblStaffTitle.Text = $"Personel Listesi ({dv.Count})";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Personel aramada hata: {ex.Message}");
-                // Failed filter - just reset
                 if (staffTable != null)
                 {
                     dgvStaff.DataSource = staffTable;
@@ -142,15 +128,12 @@ namespace arac_kiralama_satis_desktop.Controls
             }
         }
 
-        // Event handlers
         private void BtnAddStaff_Click(object sender, EventArgs e)
         {
             PersonelAddForm staffForm = new PersonelAddForm();
             staffForm.StaffAdded += (s, args) => {
-                // Personel eklendiğinde listeyi yenile
                 LoadData();
 
-                // Event'i tetikle
                 StaffAdded?.Invoke(this, EventArgs.Empty);
             };
 

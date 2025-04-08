@@ -17,7 +17,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private Point _dragCursorPoint;
         private Point _dragFormPoint;
 
-        // Form başarıyla tamamlandığında ana formun listeyi güncellemesi için olay
         public event EventHandler? CustomerAdded;
 
         public CustomerAddForm()
@@ -29,33 +28,26 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeComponents()
         {
-            // Form ayarları
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.White;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Icon = System.Drawing.SystemIcons.Application; // Uygulama ikonu
 
-            // Panel border ve gölge efekti
             pnlMain.BackColor = Color.White;
             UIUtils.ApplyShadowEffect(pnlMain);
 
-            // Form header
             pnlHeader.BackColor = Color.FromArgb(49, 76, 143);
             lblTitle.ForeColor = Color.White;
 
-            // Header içindeki butonlar
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.IconColor = Color.White;
 
-            // Input alanlarını ayarla
             SetupInputFields();
 
-            // Butonlar
             UIUtils.ApplyButtonStyle(btnSave, Color.FromArgb(40, 167, 69), Color.FromArgb(33, 136, 56));
             UIUtils.ApplyButtonStyle(btnCancel, Color.FromArgb(108, 117, 125), Color.FromArgb(90, 98, 104));
 
-            // Form sürükleme işlemleri için event atamaları
             pnlHeader.MouseDown += PnlHeader_MouseDown;
             pnlHeader.MouseMove += PnlHeader_MouseMove;
             pnlHeader.MouseUp += PnlHeader_MouseUp;
@@ -66,7 +58,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void SetupInputFields()
         {
-            // Tüm TextBox'lar için stil uygula
             foreach (Control control in pnlContent.Controls)
             {
                 if (control is TextBox textBox)
@@ -98,20 +89,17 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 }
             }
 
-            // Tarih seçicileri için varsayılan değerler
             DateTime today = DateTime.Now;
-            dtpBirthDate.Value = new DateTime(today.Year - 25, today.Month, today.Day); // 25 yaş varsayılan
-            dtpBirthDate.MaxDate = today.AddYears(-18); // En az 18 yaşında olmalı
-            dtpBirthDate.MinDate = today.AddYears(-100); // En fazla 100 yaşında olabilir
+            dtpBirthDate.Value = new DateTime(today.Year - 25, today.Month, today.Day);
+            dtpBirthDate.MaxDate = today.AddYears(-18);
+            dtpBirthDate.MinDate = today.AddYears(-100);
 
-            dtpLicenseDate.Value = today.AddYears(-5); // 5 yıl önce ehliyet almış varsayılan
+            dtpLicenseDate.Value = today.AddYears(-5);
             dtpLicenseDate.MaxDate = today;
-            dtpLicenseDate.MinDate = today.AddYears(-50); // En fazla 50 yıl önce ehliyet almış olabilir
+            dtpLicenseDate.MinDate = today.AddYears(-50);
 
-            // Telefon numarası maskeleri
-            txtPhoneNumber.MaxLength = 10; // 5XX XXX XXXX formatı için 10 karakter
+            txtPhoneNumber.MaxLength = 10;
 
-            // TC Kimlik numarası için maksimum uzunluk
             txtIdentityNumber.MaxLength = 11;
         }
 
@@ -119,19 +107,15 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             try
             {
-                // Ehliyet sınıfları
                 cmbLicenseClass.Items.Clear();
                 cmbLicenseClass.Items.AddRange(new string[] { "A", "A1", "A2", "B", "B1", "BE", "C", "C1", "CE", "D", "D1", "DE", "F", "G", "M" });
 
-                // Ülke kodları
                 cmbCountryCode.Items.Clear();
                 cmbCountryCode.Items.AddRange(new string[] { "+90", "+1", "+44", "+49", "+33", "+7", "+39", "+34", "+31", "+46" });
 
-                // Müşteri tipleri
                 cmbCustomerType.Items.Clear();
                 cmbCustomerType.Items.AddRange(new string[] { "Bireysel", "Kurumsal" });
 
-                // Varsayılan değerler
                 cmbCountryCode.SelectedItem = "+90";
                 cmbCustomerType.SelectedItem = "Bireysel";
                 cmbLicenseClass.SelectedItem = "B";
@@ -145,7 +129,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         #region Form Dragging - Form sürükleme işlemleri
 
-        // MouseDown, MouseMove ve MouseUp metodlarını şu şekilde güncelleyin:
         private void PnlHeader_MouseDown(object? sender, MouseEventArgs e)
         {
             _isDragging = true;
@@ -203,14 +186,12 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     IsAvailable = true
                 };
 
-                // Müşteri ekleme işlemi
                 int newCustomerId = CustomerMethods.AddCustomer(customer);
 
                 if (newCustomerId > 0)
                 {
                     MessageBox.Show("Müşteri başarıyla eklendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Müşteri eklendiğini bildir
                     CustomerAdded?.Invoke(this, EventArgs.Empty);
 
                     this.Close();
@@ -229,7 +210,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private bool ValidateForm()
         {
-            // Zorunlu alanların kontrolü
             if (string.IsNullOrWhiteSpace(txtFirstName.Text))
             {
                 ShowError("Ad alanı boş bırakılamaz.");
@@ -258,7 +238,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 return false;
             }
 
-            // TC Kimlik numarası kontrolü
             if (txtIdentityNumber.Text.Length != 11 || !IsNumeric(txtIdentityNumber.Text))
             {
                 ShowError("TC Kimlik No 11 haneli sayısal bir değer olmalıdır.");
@@ -266,7 +245,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 return false;
             }
 
-            // Telefon numarası kontrolü
             if (txtPhoneNumber.Text.Length != 10 || !IsNumeric(txtPhoneNumber.Text))
             {
                 ShowError("Telefon numarası 10 haneli sayısal bir değer olmalıdır (5XXXXXXXXX).");
@@ -274,7 +252,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 return false;
             }
 
-            // E-posta kontrolü (basit)
             if (!string.IsNullOrWhiteSpace(txtEmail.Text) && !IsValidEmail(txtEmail.Text))
             {
                 ShowError("Geçerli bir e-posta adresi giriniz.");
@@ -312,7 +289,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void TxtPhoneNumber_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Sadece sayı girişi
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
             {
                 e.Handled = true;
@@ -321,7 +297,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void TxtIdentityNumber_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Sadece sayı girişi
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
             {
                 e.Handled = true;

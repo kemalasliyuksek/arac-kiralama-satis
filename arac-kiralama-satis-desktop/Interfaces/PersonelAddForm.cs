@@ -17,7 +17,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private bool _isEdit = false;
         private int _userId = 0;
 
-        // Form başarıyla tamamlandığında ana formun listeyi güncellemesi için olay
         public event EventHandler? StaffAdded;
 
         public PersonelAddForm()
@@ -25,7 +24,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             InitializeComponent();
         }
 
-        // Düzenleme modu için constructor
         public PersonelAddForm(int userId)
         {
             InitializeComponent();
@@ -40,7 +38,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             CustomizeComponents();
             LoadDropdownData();
 
-            // Düzenleme modu ise verileri yükle
             if (_isEdit && _userId > 0)
             {
                 LoadStaffData();
@@ -49,33 +46,26 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeComponents()
         {
-            // Form ayarları
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.White;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Icon = System.Drawing.SystemIcons.Application; // Uygulama ikonu
+            this.Icon = System.Drawing.SystemIcons.Application;
 
-            // Panel border ve gölge efekti
             pnlMain.BackColor = Color.White;
             UIUtils.ApplyShadowEffect(pnlMain);
 
-            // Form header
             pnlHeader.BackColor = Color.FromArgb(49, 76, 143);
             lblTitle.ForeColor = Color.White;
 
-            // Header içindeki butonlar
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.IconColor = Color.White;
 
-            // Input alanlarını ayarla
             SetupInputFields();
 
-            // Butonlar
             UIUtils.ApplyButtonStyle(btnSave, Color.FromArgb(40, 167, 69), Color.FromArgb(33, 136, 56));
             UIUtils.ApplyButtonStyle(btnCancel, Color.FromArgb(108, 117, 125), Color.FromArgb(90, 98, 104));
 
-            // Form sürükleme işlemleri için event atamaları
             pnlHeader.MouseDown += PnlHeader_MouseDown;
             pnlHeader.MouseMove += PnlHeader_MouseMove;
             pnlHeader.MouseUp += PnlHeader_MouseUp;
@@ -86,7 +76,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void SetupInputFields()
         {
-            // Tüm TextBox'lar için stil uygula
             foreach (Control control in pnlContent.Controls)
             {
                 if (control is TextBox textBox)
@@ -108,20 +97,17 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 }
             }
 
-            // Telefon numarası ayarları
-            txtPhoneNumber.MaxLength = 10; // 5XX XXX XXXX formatı için 10 karakter
+            txtPhoneNumber.MaxLength = 10;
         }
 
         private void LoadDropdownData()
         {
             try
             {
-                // Ülke kodları
                 cmbCountryCode.Items.Clear();
                 cmbCountryCode.Items.AddRange(new string[] { "+90", "+1", "+44", "+49", "+33", "+7", "+39", "+34", "+31", "+46" });
                 cmbCountryCode.SelectedItem = "+90";
 
-                // Roller
                 cmbRole.Items.Clear();
                 DataTable roles = StaffMethods.GetRoles();
                 Dictionary<int, string> roleDict = new Dictionary<int, string>();
@@ -137,7 +123,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 if (cmbRole.Items.Count > 0)
                     cmbRole.SelectedIndex = 0;
 
-                // Şubeler
                 cmbBranch.Items.Clear();
                 DataTable branches = BranchMethods.GetBranchList();
                 Dictionary<int, string> branchDict = new Dictionary<int, string>();
@@ -155,7 +140,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 if (cmbBranch.Items.Count > 0)
                     cmbBranch.SelectedIndex = 0;
 
-                // Tag'lere sözlükleri kaydet
                 cmbRole.Tag = roleDict;
                 cmbBranch.Tag = branchDict;
             }
@@ -173,27 +157,23 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 DataRow userData = StaffMethods.GetUserById(_userId);
                 if (userData != null)
                 {
-                    // Temel bilgiler
                     txtFirstName.Text = userData["Ad"].ToString();
                     txtLastName.Text = userData["Soyad"].ToString();
                     txtUsername.Text = userData["KullaniciAdi"].ToString();
                     txtEmail.Text = userData["Email"].ToString();
 
-                    // Telefon
                     string fullPhone = userData["Telefon"].ToString();
                     if (!string.IsNullOrEmpty(fullPhone))
                     {
-                        string countryCode = fullPhone.Substring(0, 3); // +90 formatında
-                        string phoneNumber = fullPhone.Substring(3);    // Geriye kalan kısım
+                        string countryCode = fullPhone.Substring(0, 3); 
+                        string phoneNumber = fullPhone.Substring(3);   
 
-                        // ComboBox'ta uygun ülke kodunu seç
                         if (cmbCountryCode.Items.Contains(countryCode))
                             cmbCountryCode.SelectedItem = countryCode;
 
                         txtPhoneNumber.Text = phoneNumber;
                     }
 
-                    // Rol seçimi
                     if (userData["RolAdi"] != DBNull.Value)
                     {
                         string roleName = userData["RolAdi"].ToString();
@@ -202,7 +182,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                             cmbRole.SelectedIndex = index;
                     }
 
-                    // Şube seçimi
                     if (userData["SubeID"] != DBNull.Value)
                     {
                         string branchName = userData["SubeAdi"].ToString();
@@ -211,10 +190,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
                             cmbBranch.SelectedIndex = index;
                     }
 
-                    // Durum
                     chkIsActive.Checked = Convert.ToBoolean(userData["Durum"]);
 
-                    // Şifre alanları düzenleme modunda boş bırakılır
                     txtPassword.Text = "";
                     txtPasswordConfirm.Text = "";
                     txtPassword.PlaceholderText = "Değiştirmek istemiyorsanız boş bırakın";
@@ -233,21 +210,18 @@ namespace arac_kiralama_satis_desktop.Interfaces
             bool isValid = true;
             errorProvider.Clear();
 
-            // Ad alanı kontrolü
             if (string.IsNullOrWhiteSpace(txtFirstName.Text))
             {
                 errorProvider.SetError(txtFirstName, "Ad alanı boş bırakılamaz");
                 isValid = false;
             }
 
-            // Soyad alanı kontrolü
             if (string.IsNullOrWhiteSpace(txtLastName.Text))
             {
                 errorProvider.SetError(txtLastName, "Soyad alanı boş bırakılamaz");
                 isValid = false;
             }
 
-            // Kullanıcı adı kontrolü
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
             {
                 errorProvider.SetError(txtUsername, "Kullanıcı adı boş bırakılamaz");
@@ -259,7 +233,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 isValid = false;
             }
 
-            // Şifre kontrolleri (yeni kayıt için zorunlu, düzenleme için opsiyonel)
             if (!_isEdit)
             {
                 if (string.IsNullOrWhiteSpace(txtPassword.Text))
@@ -281,7 +254,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
             else if (!string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                // Eğer düzenleme modunda şifre değiştiriliyorsa
                 if (txtPassword.Text.Length < 6)
                 {
                     errorProvider.SetError(txtPassword, "Şifre en az 6 karakter olmalıdır");
@@ -295,7 +267,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 }
             }
 
-            // Telefon numarası kontrolü
             if (string.IsNullOrWhiteSpace(txtPhoneNumber.Text))
             {
                 errorProvider.SetError(txtPhoneNumber, "Telefon numarası boş bırakılamaz");
@@ -307,7 +278,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 isValid = false;
             }
 
-            // E-posta kontrolü
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
             {
                 errorProvider.SetError(txtEmail, "E-posta alanı boş bırakılamaz");
@@ -319,7 +289,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 isValid = false;
             }
 
-            // Rol seçimi kontrolü
             if (cmbRole.SelectedIndex < 0)
             {
                 errorProvider.SetError(cmbRole, "Rol seçimi yapılmalıdır");
@@ -384,7 +353,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
             try
             {
-                // Combobox'lardan ID değerlerini al
                 int roleId = -1;
                 int? branchId = null;
 
@@ -420,7 +388,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     return;
                 }
 
-                // Kullanıcı bilgilerini hazırla
                 Dictionary<string, object> userParams = new Dictionary<string, object>
                 {
                     { "Ad", txtFirstName.Text.Trim() },
@@ -434,7 +401,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     { "Durum", chkIsActive.Checked }
                 };
 
-                // Şifre değiştirilecek mi kontrolü
                 if (!string.IsNullOrEmpty(txtPassword.Text))
                 {
                     userParams.Add("Sifre", txtPassword.Text);
@@ -455,7 +421,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 }
                 else
                 {
-                    // Şifre yeni kayıt için zorunlu
                     if (!userParams.ContainsKey("Sifre"))
                     {
                         MessageBox.Show("Yeni kayıt için şifre alanı zorunludur.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -481,7 +446,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void TxtPhoneNumber_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Sadece sayı girişi
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
             {
                 e.Handled = true;

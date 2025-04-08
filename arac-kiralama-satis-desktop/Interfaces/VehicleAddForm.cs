@@ -23,7 +23,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private readonly Dictionary<int, string> _vehicleClasses = new Dictionary<int, string>();
         private readonly Dictionary<int, string> _branches = new Dictionary<int, string>();
 
-        // Form başarıyla tamamlandığında ana formun listeyi güncellemesi için olay
         public event EventHandler VehicleAdded;
 
         public VehicleAddForm()
@@ -35,33 +34,26 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeComponents()
         {
-            // Form ayarları
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.White;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Icon = System.Drawing.SystemIcons.Application; // Uygulama ikonu
+            this.Icon = System.Drawing.SystemIcons.Application;
 
-            // Panel border ve gölge efekti
             pnlMain.BackColor = Color.White;
             UIUtils.ApplyShadowEffect(pnlMain);
 
-            // Form header
             pnlHeader.BackColor = Color.FromArgb(49, 76, 143);
             lblTitle.ForeColor = Color.White;
 
-            // Header içindeki butonlar
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.IconColor = Color.White;
 
-            // Input alanlarını ayarla
             SetupInputFields();
 
-            // Butonlar
             UIUtils.ApplyButtonStyle(btnSave, Color.FromArgb(40, 167, 69), Color.FromArgb(33, 136, 56));
             UIUtils.ApplyButtonStyle(btnCancel, Color.FromArgb(108, 117, 125), Color.FromArgb(90, 98, 104));
 
-            // Form sürükleme işlemleri için event atamaları
             pnlHeader.MouseDown += PnlHeader_MouseDown;
             pnlHeader.MouseMove += PnlHeader_MouseMove;
             pnlHeader.MouseUp += PnlHeader_MouseUp;
@@ -72,7 +64,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void SetupInputFields()
         {
-            // Tüm TextBox'lar için stil uygula
             foreach (Control control in pnlContent.Controls)
             {
                 if (control is TextBox textBox)
@@ -104,7 +95,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 }
             }
 
-            // NumericUpDown kontrollerini özelleştir
             nudYear.Minimum = 1990;
             nudYear.Maximum = DateTime.Now.Year;
             nudYear.Value = DateTime.Now.Year;
@@ -125,7 +115,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             nudSalePrice.DecimalPlaces = 2;
             nudSalePrice.ThousandsSeparator = true;
 
-            // Tarih seçici ayarları
             dtpPurchaseDate.Value = DateTime.Now;
             dtpPurchaseDate.MaxDate = DateTime.Now;
         }
@@ -134,7 +123,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             try
             {
-                // Araç Durumları
                 DataTable vehicleStatusesTable = VehicleMethods.GetVehicleStatuses();
                 cmbStatus.Items.Clear();
                 _vehicleStatuses.Clear();
@@ -150,7 +138,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 if (cmbStatus.Items.Count > 0)
                     cmbStatus.SelectedIndex = 0;
 
-                // Araç Sınıfları
                 DataTable vehicleClassesTable = VehicleMethods.GetVehicleClasses();
                 cmbVehicleClass.Items.Clear();
                 _vehicleClasses.Clear();
@@ -166,7 +153,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 if (cmbVehicleClass.Items.Count > 0)
                     cmbVehicleClass.SelectedIndex = 0;
 
-                // Şubeler
                 DataTable branchesTable = BranchMethods.GetBranchList();
                 cmbBranch.Items.Clear();
                 _branches.Clear();
@@ -183,7 +169,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 if (cmbBranch.Items.Count > 0)
                     cmbBranch.SelectedIndex = 0;
 
-                // Yakıt ve Vites Tipleri
                 cmbFuelType.Items.AddRange(new string[] { "Benzin", "Dizel", "Hibrit", "Elektrik", "LPG" });
                 cmbTransmissionType.Items.AddRange(new string[] { "Manuel", "Otomatik", "Yarı Otomatik" });
 
@@ -260,8 +245,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     SalePrice = chkHasSalePrice.Checked ? nudSalePrice.Value : (decimal?)null
                 };
 
-                // Şube ve Sınıf ataması
-                if (cmbBranch.SelectedIndex > 0) // İlk eleman "Şube Seçiniz" olduğu için
+                if (cmbBranch.SelectedIndex > 0)
                 {
                     vehicle.BranchID = GetKeyByValue(_branches, cmbBranch.SelectedItem.ToString());
                 }
@@ -271,14 +255,12 @@ namespace arac_kiralama_satis_desktop.Interfaces
                     vehicle.VehicleClassID = GetKeyByValue(_vehicleClasses, cmbVehicleClass.SelectedItem.ToString());
                 }
 
-                // Araç ekleme işlemi
                 int newVehicleId = VehicleMethods.AddVehicle(vehicle);
 
                 if (newVehicleId > 0)
                 {
                     MessageBox.Show("Araç başarıyla eklendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Araç eklendiğini bildir
                     VehicleAdded?.Invoke(this, EventArgs.Empty);
 
                     this.Close();
@@ -297,7 +279,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private bool ValidateForm()
         {
-            // Zorunlu alanların kontrolü
             if (string.IsNullOrWhiteSpace(txtPlate.Text))
             {
                 ShowError("Plaka alanı boş bırakılamaz.");
@@ -347,7 +328,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 return false;
             }
 
-            // Plaka formatı kontrolü
             if (!IsValidPlate(txtPlate.Text))
             {
                 ShowError("Geçerli bir plaka giriniz. (Örn: 34ABC123)");
@@ -355,7 +335,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 return false;
             }
 
-            // Fiyat kontrolü
             if (nudPurchasePrice.Value <= 0)
             {
                 ShowError("Alış fiyatı sıfırdan büyük olmalıdır.");
@@ -382,7 +361,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private bool IsValidPlate(string plate)
         {
-            // Basit bir plaka kontrolü, gerçek uygulamada daha kapsamlı olabilir
             return !string.IsNullOrWhiteSpace(plate) && plate.Length >= 5 && plate.Length <= 11;
         }
 

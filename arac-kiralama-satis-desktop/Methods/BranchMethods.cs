@@ -15,20 +15,17 @@ namespace arac_kiralama_satis_desktop.Methods
         {
             try
             {
-                // İşlem başlangıcını logla
                 ErrorManager.Instance.LogInfo("Şubeler listeleniyor", "BranchMethods.GetBranches");
                 return _repository.GetAll();
             }
             catch (Exception ex)
             {
-                // ErrorManager ile hata yönetimi
                 string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     "Şubeler listelenirken bir hata oluştu",
                     ErrorSeverity.Error,
                     ErrorSource.Database);
 
-                // Hata ID'si ile yeni exception fırlat
                 throw new Exception($"Şubeler listelenirken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
@@ -61,13 +58,12 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                // Şube ekleme kritik bir işlem olduğu için kullanıcıya göster (showToUser=true)
                 string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     $"Şube eklenirken bir hata oluştu. Şube adı: {branch.BranchName}",
                     ErrorSeverity.Error,
                     ErrorSource.Database,
-                    true); // Kullanıcıya hata gösterilsin
+                    true);
 
                 throw new Exception($"Şube eklenirken bir hata oluştu. (Hata ID: {errorId})");
             }
@@ -83,13 +79,12 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                // Güncelleme işlemi için kullanıcıya göster
                 string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     $"Şube güncellenirken bir hata oluştu. Şube ID: {branch.BranchID}",
                     ErrorSeverity.Error,
                     ErrorSource.Database,
-                    true); // Kullanıcıya hata gösterilsin
+                    true);
 
                 throw new Exception($"Şube güncellenirken bir hata oluştu. (Hata ID: {errorId})");
             }
@@ -104,19 +99,17 @@ namespace arac_kiralama_satis_desktop.Methods
             }
             catch (Exception ex)
             {
-                // Silme işlemi için kullanıcıya göster
                 string errorId = ErrorManager.Instance.HandleException(
                     ex,
                     $"Şube silinirken bir hata oluştu. Şube ID: {branchId}",
                     ErrorSeverity.Error,
                     ErrorSource.Database,
-                    true); // Kullanıcıya hata gösterilsin
+                    true);
 
                 throw new Exception($"Şube silinirken bir hata oluştu. (Hata ID: {errorId})");
             }
         }
 
-        // DataTable dönüşümü için yardımcı metot
         public static DataTable GetBranchesAsDataTable()
         {
             try
@@ -126,7 +119,6 @@ namespace arac_kiralama_satis_desktop.Methods
                 List<Branch> branches = _repository.GetAll();
                 DataTable dt = new DataTable();
 
-                // DataTable sütunlarını oluştur
                 dt.Columns.Add("SubeID", typeof(int));
                 dt.Columns.Add("SubeAdi", typeof(string));
                 dt.Columns.Add("Adres", typeof(string));

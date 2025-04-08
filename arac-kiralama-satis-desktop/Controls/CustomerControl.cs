@@ -2,6 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using arac_kiralama_satis_desktop.Interfaces;
 using arac_kiralama_satis_desktop.Methods;
 using arac_kiralama_satis_desktop.Utils;
 using FontAwesome.Sharp;
@@ -10,17 +11,14 @@ namespace arac_kiralama_satis_desktop.Controls
 {
     public partial class CustomersControl : UserControl
     {
-        // DataTable for search/filter
         private DataTable customersTable;
 
-        // Events for main form to handle
         public event EventHandler CustomerAdded;
 
         public CustomersControl()
         {
             InitializeComponent();
 
-            // Setup data grid view properties
             SetupDataGridView();
         }
 
@@ -35,13 +33,10 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Müşteri verilerini DataTable olarak al
                 customersTable = CustomerMethods.GetCustomersAsDataTable();
 
-                // DataSource olarak ata
                 dgvCustomers.DataSource = customersTable;
 
-                // Format columns
                 if (dgvCustomers.Columns.Count > 0)
                 {
                     dgvCustomers.Columns["MusteriID"].Visible = false;
@@ -53,10 +48,8 @@ namespace arac_kiralama_satis_desktop.Controls
                     dgvCustomers.Columns["MusteriTipi"].Width = 100;
                     dgvCustomers.Columns["KayitTarihi"].Width = 120;
                     dgvCustomers.Columns["KayitTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                    // Diğer formatlama ayarları...
                 }
 
-                // Update count information
                 lblCustomersTitle.Text = $"Müşteri Listesi ({customersTable.Rows.Count})";
             }
             catch (Exception ex)
@@ -78,17 +71,14 @@ namespace arac_kiralama_satis_desktop.Controls
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    // Show all data
                     dgvCustomers.DataSource = customersTable;
                     lblCustomersTitle.Text = $"Müşteri Listesi ({customersTable.Rows.Count})";
                     return;
                 }
 
-                // Create filter
                 string filter = "";
                 string searchLower = searchText.ToLower();
 
-                // Search in most relevant columns
                 filter = $"Ad LIKE '%{searchText}%' OR " +
                          $"Soyad LIKE '%{searchText}%' OR " +
                          $"TC LIKE '%{searchText}%' OR " +
@@ -98,13 +88,11 @@ namespace arac_kiralama_satis_desktop.Controls
                 DataView dv = customersTable.DefaultView;
                 dv.RowFilter = filter;
 
-                // Update label with count
                 lblCustomersTitle.Text = $"Müşteri Listesi ({dv.Count})";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Müşteri aramada hata: {ex.Message}");
-                // Failed filter - just reset
                 if (customersTable != null)
                 {
                     dgvCustomers.DataSource = customersTable;
@@ -113,18 +101,16 @@ namespace arac_kiralama_satis_desktop.Controls
             }
         }
 
-        // Event handlers
         private void BtnAddCustomer_Click(object sender, EventArgs e)
         {
-            // Aslında burada gerçek bir form açacaktık, ancak şu an için sadece event'i tetikleyelim
-            CustomerAdded?.Invoke(this, EventArgs.Empty);
+            CustomerAddForm customerForm = new CustomerAddForm();
+            customerForm.CustomerAdded += (s, args) => {
+                LoadData();
 
-            // Şu an için bir örnek mesaj gösterelim
-            MessageBox.Show("Yeni müşteri ekleme formu burada açılacak.",
-                "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CustomerAdded?.Invoke(this, EventArgs.Empty);
+            };
 
-            // Form işlemi sonrası veriyi yeniliyoruz
-            LoadData();
+            customerForm.ShowDialog();
         }
 
         private void BtnRefreshCustomers_Click(object sender, EventArgs e)

@@ -30,29 +30,23 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeComponents()
         {
-            // Form başlığı ve buton ayarları
             lblTitle.Text = isEdit ? "Şube Düzenle" : "Yeni Şube Ekle";
             btnSave.Text = isEdit ? "Güncelle" : "Kaydet";
 
-            // Buton ikonları
             btnSave.IconChar = isEdit ? IconChar.Edit : IconChar.Save;
             btnCancel.IconChar = IconChar.Times;
 
-            // Buton renkleri ve stilleri
             UIUtils.ApplyButtonStyle(btnSave, Color.FromArgb(40, 167, 69), Color.FromArgb(46, 204, 113));
             UIUtils.ApplyButtonStyle(btnCancel, Color.FromArgb(220, 53, 69), Color.FromArgb(231, 76, 60));
 
-            // Panel ve form stilleri
             UIUtils.ApplyShadowEffect(pnlContent);
             pnlContent.BackColor = Color.White;
             this.BackColor = Color.FromArgb(245, 245, 250);
 
-            // Form olayları
             txtBranchName.Focus();
             txtPhoneNumber.KeyPress += TxtPhoneNumber_KeyPress;
             txtCityCode.KeyPress += TxtCityCode_KeyPress;
 
-            // Varsayılan ülke kodu
             txtCountryCode.Text = "+90";
         }
 
@@ -60,12 +54,10 @@ namespace arac_kiralama_satis_desktop.Interfaces
         {
             try
             {
-                // BranchMethods.GetBranchById metodu Branch nesnesi döndürdüğü varsayılmaktadır.
                 Branch branchData = BranchMethods.GetBranchById(branchId);
                 if (branchData != null)
                 {
                     currentBranch = branchData;
-                    // Form alanlarına Branch nesnesinin özelliklerinden verileri aktarın
                     txtBranchName.Text = currentBranch.BranchName;
                     txtAddress.Text = currentBranch.Address;
                     txtCountryCode.Text = currentBranch.CountryCode;
@@ -89,18 +81,15 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void TxtPhoneNumber_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Sadece sayı ve kontrol karakterlerine izin ver
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
                 e.Handled = true;
         }
 
         private void TxtCityCode_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Sadece sayı ve kontrol karakterlerine izin ver
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
                 e.Handled = true;
 
-            // Maksimum 2 karakter
             if (txtCityCode.Text.Length >= 2 && !char.IsControl(e.KeyChar))
                 e.Handled = true;
         }
@@ -110,21 +99,18 @@ namespace arac_kiralama_satis_desktop.Interfaces
             bool isValid = true;
             errorProvider.Clear();
 
-            // Şube adı kontrolü
             if (string.IsNullOrWhiteSpace(txtBranchName.Text))
             {
                 errorProvider.SetError(txtBranchName, "Şube adı boş olamaz");
                 isValid = false;
             }
 
-            // Adres kontrolü
             if (string.IsNullOrWhiteSpace(txtAddress.Text))
             {
                 errorProvider.SetError(txtAddress, "Adres boş olamaz");
                 isValid = false;
             }
 
-            // Telefon numarası kontrolü
             if (string.IsNullOrWhiteSpace(txtPhoneNumber.Text))
             {
                 errorProvider.SetError(txtPhoneNumber, "Telefon numarası boş olamaz");
@@ -136,7 +122,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 isValid = false;
             }
 
-            // Şehir plaka kodu kontrolü
             if (string.IsNullOrWhiteSpace(txtCityCode.Text))
             {
                 errorProvider.SetError(txtCityCode, "Şehir plaka kodu boş olamaz");
@@ -148,7 +133,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
                 isValid = false;
             }
 
-            // E-posta kontrolü (opsiyonel)
             if (!string.IsNullOrWhiteSpace(txtEmail.Text))
             {
                 string emailPattern = @"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
@@ -170,7 +154,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
             try
             {
-                // Form verilerini Branch nesnesine aktarın
                 currentBranch.BranchName = txtBranchName.Text.Trim();
                 currentBranch.Address = txtAddress.Text.Trim();
                 currentBranch.CountryCode = txtCountryCode.Text.Trim();
@@ -181,13 +164,11 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
                 if (isEdit)
                 {
-                    // Şube güncelleme
                     BranchMethods.UpdateBranch(currentBranch);
                     MessageBox.Show("Şube bilgileri başarıyla güncellendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    // Yeni şube ekleme
                     int newBranchId = BranchMethods.AddBranch(currentBranch);
                     MessageBox.Show("Yeni şube başarıyla eklendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
