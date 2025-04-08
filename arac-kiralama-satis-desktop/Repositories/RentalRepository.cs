@@ -222,7 +222,6 @@ namespace arac_kiralama_satis_desktop.Repositories
         {
             try
             {
-                // Önce kiralama bilgilerini al
                 Rental rental = null;
                 try
                 {
@@ -234,7 +233,6 @@ namespace arac_kiralama_satis_desktop.Repositories
                     ErrorManager.Instance.LogWarning($"Silinecek kiralama kaydı bulunamadı. ID: {id}", "RentalRepository.Delete");
                 }
 
-                // Kiralama kaydını sil
                 string query = $@"DELETE FROM {TABLE_NAME} 
                                   WHERE KiralamaID = @id";
 
@@ -311,9 +309,6 @@ namespace arac_kiralama_satis_desktop.Repositories
             }
         }
 
-        /// <summary>
-        /// Teslim edilmemiş ve tarihi geçmiş kiralamaları getirir
-        /// </summary>
         public List<Rental> GetOverdueRentals()
         {
             try
@@ -353,9 +348,6 @@ namespace arac_kiralama_satis_desktop.Repositories
             }
         }
 
-        /// <summary>
-        /// Aktif kiralamaları getirir (henüz teslim edilmemiş ve süresi devam eden)
-        /// </summary>
         public List<Rental> GetActiveRentals()
         {
             try
@@ -396,9 +388,6 @@ namespace arac_kiralama_satis_desktop.Repositories
             }
         }
 
-        /// <summary>
-        /// Araç teslim işlemini yapar
-        /// </summary>
         public void ReturnVehicle(int rentalId, int endKm, DateTime returnDate)
         {
             try
@@ -494,7 +483,6 @@ namespace arac_kiralama_satis_desktop.Repositories
             }
             catch (Exception ex)
             {
-                // Hangi kiralama kaydıyla ilgili sorun olduğunu belirlemek için
                 int rentalId = 0;
                 try { rentalId = row.GetValue<int>("KiralamaID"); } catch { }
 

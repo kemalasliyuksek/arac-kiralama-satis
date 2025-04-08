@@ -191,6 +191,43 @@ namespace arac_kiralama_satis_desktop.Interfaces
             }
         }
 
+        private void UpdateStartingKilometers()
+        {
+            try
+            {
+                if (cmbVehicle.SelectedIndex >= 0)
+                {
+                    int vehicleId = -1;
+                    string selectedVehicleText = cmbVehicle.SelectedItem.ToString();
+
+                    foreach (var vehicle in _availableVehicles)
+                    {
+                        if (selectedVehicleText.Contains(vehicle.Value.Plate))
+                        {
+                            vehicleId = vehicle.Key;
+                            break;
+                        }
+                    }
+
+                    if (vehicleId != -1)
+                    {
+                        // RentalMethods sınıfındaki metodu kullan
+                        int kilometers = RentalMethods.GetVehicleKilometers(vehicleId);
+                        nudStartKm.Value = kilometers;
+
+                        ErrorManager.Instance.LogInfo($"Başlangıç kilometre bilgisi otomatik dolduruldu. Araç ID: {vehicleId}, Kilometre: {kilometers}",
+                            "RentalAddForm.UpdateStartingKilometers");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.LogWarning(
+                    $"Başlangıç kilometre bilgisi alınırken hata: {ex.Message}",
+                    "RentalAddForm.UpdateStartingKilometers");
+            }
+        }
+
         private void CalculateRentalAmount()
         {
             try
@@ -218,25 +255,16 @@ namespace arac_kiralama_satis_desktop.Interfaces
                         switch (selectedVehicle.VehicleClassName)
                         {
                             case "Ekonomik":
-                                dailyRate = 250;
+                                dailyRate = 1000;
                                 break;
-                            case "Orta Sınıf":
-                                dailyRate = 400;
+                            case "Orta":
+                                dailyRate = 1500;
                                 break;
-                            case "Üst Sınıf":
-                                dailyRate = 700;
-                                break;
-                            case "Premium":
-                                dailyRate = 1200;
-                                break;
-                            case "SUV":
-                                dailyRate = 600;
-                                break;
-                            case "Ticari":
-                                dailyRate = 500;
+                            case "Lüks":
+                                dailyRate = 2500;
                                 break;
                             default:
-                                dailyRate = 300;
+                                dailyRate = 1500;
                                 break;
                         }
 
@@ -420,6 +448,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CmbVehicle_SelectedIndexChanged(object sender, EventArgs e)
         {
+            UpdateStartingKilometers();
             CalculateRentalAmount();
         }
 

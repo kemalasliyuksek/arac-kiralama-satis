@@ -38,7 +38,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblError = new Label();
             btnCancel = new Button();
             btnSave = new Button();
-
             grpPayment = new GroupBox();
             cmbPaymentType = new ComboBox();
             label10 = new Label();
@@ -46,7 +45,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             chkDeposit = new CheckBox();
             nudRentalAmount = new NumericUpDown();
             label8 = new Label();
-
             grpVehicleInfo = new GroupBox();
             nudEndKm = new NumericUpDown();
             chkEndKm = new CheckBox();
@@ -54,7 +52,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label7 = new Label();
             cmbVehicle = new ComboBox();
             label6 = new Label();
-
             grpRentalPeriod = new GroupBox();
             dtpReturnDate = new DateTimePicker();
             chkReturnDate = new CheckBox();
@@ -62,27 +59,22 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label4 = new Label();
             dtpStartDate = new DateTimePicker();
             label3 = new Label();
-
             grpCustomerInfo = new GroupBox();
             cmbCustomer = new ComboBox();
             label2 = new Label();
-
             pnlHeader = new Panel();
             btnClose = new IconButton();
             lblTitle = new Label();
             errorProvider = new ErrorProvider(components);
-
+            label1 = new Label();
             pnlMain.SuspendLayout();
             pnlContent.SuspendLayout();
-
             grpPayment.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudDepositAmount).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudRentalAmount).BeginInit();
-
             grpVehicleInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudEndKm).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudStartKm).BeginInit();
-
             grpRentalPeriod.SuspendLayout();
             grpCustomerInfo.SuspendLayout();
             pnlHeader.SuspendLayout();
@@ -187,7 +179,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label10.AutoSize = true;
             label10.Location = new Point(20, 80);
             label10.Name = "label10";
-            label10.Size = new Size(65, 15);
+            label10.Size = new Size(69, 15);
             label10.TabIndex = 12;
             label10.Text = "Ödeme Tipi";
             // 
@@ -207,7 +199,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             chkDeposit.AutoSize = true;
             chkDeposit.Location = new Point(400, 36);
             chkDeposit.Name = "chkDeposit";
-            chkDeposit.Size = new Size(110, 19);
+            chkDeposit.Size = new Size(114, 19);
             chkDeposit.TabIndex = 10;
             chkDeposit.Text = "Depozit Alınacak";
             chkDeposit.UseVisualStyleBackColor = true;
@@ -228,7 +220,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label8.AutoSize = true;
             label8.Location = new Point(20, 37);
             label8.Name = "label8";
-            label8.Size = new Size(86, 15);
+            label8.Size = new Size(87, 15);
             label8.TabIndex = 8;
             label8.Text = "Kiralama Tutarı";
             // 
@@ -261,7 +253,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             chkEndKm.AutoSize = true;
             chkEndKm.Location = new Point(400, 78);
             chkEndKm.Name = "chkEndKm";
-            chkEndKm.Size = new Size(101, 19);
+            chkEndKm.Size = new Size(99, 19);
             chkEndKm.TabIndex = 7;
             chkEndKm.Text = "Dönüş Km Gir";
             chkEndKm.UseVisualStyleBackColor = true;
@@ -298,12 +290,13 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label6.AutoSize = true;
             label6.Location = new Point(20, 38);
             label6.Name = "label6";
-            label6.Size = new Size(33, 15);
+            label6.Size = new Size(31, 15);
             label6.TabIndex = 3;
             label6.Text = "Araç";
             // 
             // grpRentalPeriod
             // 
+            grpRentalPeriod.Controls.Add(label1);
             grpRentalPeriod.Controls.Add(dtpReturnDate);
             grpRentalPeriod.Controls.Add(chkReturnDate);
             grpRentalPeriod.Controls.Add(dtpEndDate);
@@ -331,7 +324,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             chkReturnDate.AutoSize = true;
             chkReturnDate.Location = new Point(400, 79);
             chkReturnDate.Name = "chkReturnDate";
-            chkReturnDate.Size = new Size(128, 19);
+            chkReturnDate.Size = new Size(127, 19);
             chkReturnDate.TabIndex = 4;
             chkReturnDate.Text = "Dönüş Tarihi Belirle";
             chkReturnDate.UseVisualStyleBackColor = true;
@@ -369,7 +362,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             label3.AutoSize = true;
             label3.Location = new Point(20, 41);
             label3.Name = "label3";
-            label3.Size = new Size(92, 15);
+            label3.Size = new Size(89, 15);
             label3.TabIndex = 0;
             label3.Text = "Başlangıç Tarihi";
             // 
@@ -436,13 +429,23 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(20, 15);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(171, 30);
+            lblTitle.Size = new Size(152, 30);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "Yeni Kiralama";
             // 
             // errorProvider
             // 
             errorProvider.ContainerControl = this;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.ForeColor = Color.Red;
+            label1.Location = new Point(360, 35);
+            label1.Name = "label1";
+            label1.Size = new Size(120, 15);
+            label1.TabIndex = 6;
+            label1.Text = "*Saat kısmı eklenecek";
             // 
             // RentalAddForm
             // 
@@ -458,17 +461,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlMain.ResumeLayout(false);
             pnlContent.ResumeLayout(false);
             pnlContent.PerformLayout();
-
             grpPayment.ResumeLayout(false);
             grpPayment.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)nudDepositAmount).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudRentalAmount).EndInit();
-
             grpVehicleInfo.ResumeLayout(false);
             grpVehicleInfo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)nudEndKm).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudStartKm).EndInit();
-
             grpRentalPeriod.ResumeLayout(false);
             grpRentalPeriod.PerformLayout();
             grpCustomerInfo.ResumeLayout(false);
@@ -514,5 +514,6 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private Button btnSave;
         private Label lblError;
         private ErrorProvider errorProvider;
+        private Label label1;
     }
 }

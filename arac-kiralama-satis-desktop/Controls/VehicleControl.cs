@@ -10,17 +10,14 @@ namespace arac_kiralama_satis_desktop.Controls
 {
     public partial class VehiclesControl : UserControl
     {
-        // DataTable for search/filter
         private DataTable vehiclesTable;
 
-        // Events for main form to handle
         public event EventHandler VehicleAdded;
 
         public VehiclesControl()
         {
             InitializeComponent();
 
-            // Setup data grid view properties
             SetupDataGridView();
         }
 
@@ -37,10 +34,8 @@ namespace arac_kiralama_satis_desktop.Controls
 
                 vehiclesTable = VehicleMethods.GetVehiclesAsDataTable();
 
-                // Set DataSource
                 dgvVehicles.DataSource = vehiclesTable;
 
-                // Format columns
                 if (dgvVehicles.Columns.Count > 0)
                 {
                     dgvVehicles.Columns["AracID"].Visible = false;
@@ -57,7 +52,6 @@ namespace arac_kiralama_satis_desktop.Controls
                     dgvVehicles.Columns["Sınıf"].Width = 100;
                 }
 
-                // Update count information
                 lblVehiclesTitle.Text = $"Araç Listesi ({vehiclesTable.Rows.Count})";
             }
             catch (Exception ex)
@@ -79,17 +73,14 @@ namespace arac_kiralama_satis_desktop.Controls
 
                 if (string.IsNullOrWhiteSpace(searchText))
                 {
-                    // Show all data
                     dgvVehicles.DataSource = vehiclesTable;
                     lblVehiclesTitle.Text = $"Araç Listesi ({vehiclesTable.Rows.Count})";
                     return;
                 }
 
-                // Create a case-insensitive filter
                 string filter = "";
                 string searchLower = searchText.ToLower();
 
-                // Search in most relevant columns
                 filter = $"Plaka LIKE '%{searchText}%' OR " +
                          $"Marka LIKE '%{searchText}%' OR " +
                          $"Model LIKE '%{searchText}%' OR " +
@@ -100,13 +91,11 @@ namespace arac_kiralama_satis_desktop.Controls
                 DataView dv = vehiclesTable.DefaultView;
                 dv.RowFilter = filter;
 
-                // Update label with count
                 lblVehiclesTitle.Text = $"Araç Listesi ({dv.Count})";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Araç aramada hata: {ex.Message}");
-                // Failed filter - just reset
                 if (vehiclesTable != null)
                 {
                     dgvVehicles.DataSource = vehiclesTable;
@@ -115,17 +104,13 @@ namespace arac_kiralama_satis_desktop.Controls
             }
         }
 
-        // Event handlers
         private void BtnAddVehicle_Click(object sender, EventArgs e)
         {
-            // Aslında burada gerçek bir form açacaktık, ancak şu an için sadece event'i tetikleyelim
             VehicleAdded?.Invoke(this, EventArgs.Empty);
 
-            // Şu an için bir örnek mesaj gösterelim
             MessageBox.Show("Yeni araç ekleme formu burada açılacak.",
                 "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            // Form işlemi sonrası veriyi yeniliyoruz
             LoadData();
         }
 
