@@ -46,10 +46,14 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
         private void CustomizeDesign()
         {
-            this.FormBorderStyle = FormBorderStyle.Sizable;
-            this.MinimumSize = new Size(1200, 800);
-            this.MaximizeBox = true;
+            // Tam ekran (fullscreen) için
+            this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
+            this.TopMost = false; // Diğer pencerelerin üzerinde kalmasını sağlar
+
+            // Ekranın tam boyutunu kullan
+            this.Bounds = Screen.PrimaryScreen.Bounds;
+
             this.Text = "Araç Kiralama ve Satış Uygulaması";
 
             picUserAvatar.Image = IconChar.UserCircle.ToBitmap(Color.White, 32);
@@ -59,6 +63,17 @@ namespace arac_kiralama_satis_desktop.Interfaces
             lblBranchName.Text = CurrentSession.BranchName ?? "Genel Merkez";
 
             ActivateButton(btnDashboard);
+
+            // ESC tuşuna basıldığında tam ekrandan çıkılabilmesi için
+            this.KeyPreview = true;
+            this.KeyDown += (s, e) => {
+                if (e.KeyCode == Keys.Escape)
+                {
+                    this.WindowState = FormWindowState.Normal;
+                    this.FormBorderStyle = FormBorderStyle.Sizable;
+                    this.TopMost = false;
+                }
+            };
         }
 
         private void InitializeUserControls()

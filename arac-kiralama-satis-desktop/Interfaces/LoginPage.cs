@@ -278,9 +278,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
                             loginTimer.Stop();
 
                             MainPage mainForm = new MainPage();
+
                             mainForm.Show();
                             this.Hide();
-
                         };
                         loginTimer.Start();
                     }
