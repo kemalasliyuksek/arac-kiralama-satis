@@ -19,12 +19,47 @@ namespace arac_kiralama_satis_desktop.Controls
         {
             InitializeComponent();
 
-            SetupDataGridView();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Kiralama kontrol bileşeni başlatılıyor", "RentalsControl.Constructor");
+                SetupDataGridView();
+                ErrorManager.Instance.LogInfo("Kiralama kontrol bileşeni başarıyla başlatıldı", "RentalsControl.Constructor");
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama kontrol bileşeni başlatılırken hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI);
+            }
         }
 
         private void SetupDataGridView()
         {
-            UIUtils.SetupDataGridView(dgvRentals);
+            try
+            {
+                ErrorManager.Instance.LogInfo("Kiralama veri tablosu ayarlanıyor", "RentalsControl.SetupDataGridView");
+                UIUtils.SetupDataGridView(dgvRentals);
+                ErrorManager.Instance.LogInfo("Kiralama veri tablosu başarıyla ayarlandı", "RentalsControl.SetupDataGridView");
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama veri tablosu ayarlanırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.UI);
+
+                // Fail gracefully - try basic setup if UIUtils fails
+                try
+                {
+                    dgvRentals.AutoGenerateColumns = false;
+                    dgvRentals.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                    dgvRentals.ReadOnly = true;
+                }
+                catch { /* Suppress further errors */ }
+            }
         }
 
         public void LoadData()
@@ -33,12 +68,15 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
+                ErrorManager.Instance.LogInfo("Kiralama verileri yükleniyor", "RentalsControl.LoadData");
                 rentalsTable = RentalMethods.GetRentalsAsDataTable();
 
                 dgvRentals.DataSource = rentalsTable;
 
                 if (dgvRentals.Columns.Count > 0)
                 {
+                    ErrorManager.Instance.LogInfo("Kiralama tablosu sütunları yapılandırılıyor", "RentalsControl.LoadData");
+
                     dgvRentals.Columns["KiralamaID"].Visible = false;
                     dgvRentals.Columns["MusteriAdSoyad"].Width = 150;
                     dgvRentals.Columns["Plaka"].Width = 80;
@@ -57,34 +95,49 @@ namespace arac_kiralama_satis_desktop.Controls
                     dgvRentals.Columns["KiralamaTutari"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
                     dgvRentals.CellFormatting += (s, e) => {
-                        if (e.RowIndex >= 0)
+                        try
                         {
-                            DateTime baslangicTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["BaslangicTarihi"].Value);
-                            DateTime bitisTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["BitisTarihi"].Value);
-                            object teslimTarihiValue = dgvRentals.Rows[e.RowIndex].Cells["TeslimTarihi"].Value;
-
-                            bool teslimEdildi = teslimTarihiValue != DBNull.Value && teslimTarihiValue != null;
-                            bool aktifKiralama = DateTime.Now >= baslangicTarihi && DateTime.Now <= bitisTarihi && !teslimEdildi;
-                            bool gecikmisKiralama = DateTime.Now > bitisTarihi && !teslimEdildi;
-
-                            if (gecikmisKiralama)
+                            if (e.RowIndex >= 0)
                             {
-                                dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 235, 235);
+                                DateTime baslangicTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["BaslangicTarihi"].Value);
+                                DateTime bitisTarihi = Convert.ToDateTime(dgvRentals.Rows[e.RowIndex].Cells["BitisTarihi"].Value);
+                                object teslimTarihiValue = dgvRentals.Rows[e.RowIndex].Cells["TeslimTarihi"].Value;
+
+                                bool teslimEdildi = teslimTarihiValue != DBNull.Value && teslimTarihiValue != null;
+                                bool aktifKiralama = DateTime.Now >= baslangicTarihi && DateTime.Now <= bitisTarihi && !teslimEdildi;
+                                bool gecikmisKiralama = DateTime.Now > bitisTarihi && !teslimEdildi;
+
+                                if (gecikmisKiralama)
+                                {
+                                    dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(255, 235, 235);
+                                }
+                                else if (aktifKiralama)
+                                {
+                                    dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(235, 255, 235);
+                                }
                             }
-                            else if (aktifKiralama)
-                            {
-                                dgvRentals.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.FromArgb(235, 255, 235);
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Just log formatting errors, but don't disrupt the UI
+                            ErrorManager.Instance.LogWarning(
+                                $"Kiralama satırı formatlanırken hata: Satır={e.RowIndex}, Sütun={e.ColumnIndex}, Hata={ex.Message}",
+                                "RentalsControl.CellFormatting");
                         }
                     };
                 }
 
                 lblRentalsTitle.Text = $"Kiralama Listesi ({rentalsTable.Rows.Count})";
+                ErrorManager.Instance.LogInfo($"Kiralama verileri başarıyla yüklendi. Toplam {rentalsTable.Rows.Count} kiralama.", "RentalsControl.LoadData");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Kiralama verileri yüklenirken bir hata oluştu: {ex.Message}",
-                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama verileri yüklenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true); // Kullanıcıya göster
             }
             finally
             {
@@ -105,6 +158,8 @@ namespace arac_kiralama_satis_desktop.Controls
                     return;
                 }
 
+                ErrorManager.Instance.LogInfo($"Kiralama araması yapılıyor. Arama metni: '{searchText}'", "RentalsControl.SearchRentals");
+
                 string filter = "";
 
                 filter = $"Müşteri LIKE '%{searchText}%' OR " +
@@ -117,10 +172,15 @@ namespace arac_kiralama_satis_desktop.Controls
                 dv.RowFilter = filter;
 
                 lblRentalsTitle.Text = $"Kiralama Listesi ({dv.Count})";
+                ErrorManager.Instance.LogInfo($"Kiralama araması tamamlandı. '{searchText}' için {dv.Count} sonuç bulundu", "RentalsControl.SearchRentals");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Kiralama aramada hata: {ex.Message}");
+                ErrorManager.Instance.LogWarning(
+                    $"Kiralama arama sırasında hata oluştu. Arama metni: '{searchText}', Hata: {ex.Message}",
+                    "RentalsControl.SearchRentals");
+
+                // Arama başarısız olursa tüm listeyi göster
                 if (rentalsTable != null)
                 {
                     dgvRentals.DataSource = rentalsTable;
@@ -131,25 +191,78 @@ namespace arac_kiralama_satis_desktop.Controls
 
         private void BtnAddRental_Click(object sender, EventArgs e)
         {
-            RentalAddForm rentalForm = new RentalAddForm();
-            rentalForm.RentalAdded += (s, args) => {
-                LoadData();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Yeni kiralama ekleme formu açılıyor", "RentalsControl.BtnAddRental_Click");
 
-                RentalAdded?.Invoke(this, EventArgs.Empty);
-            };
+                RentalAddForm rentalForm = new RentalAddForm();
+                rentalForm.RentalAdded += (s, args) => {
+                    try
+                    {
+                        ErrorManager.Instance.LogInfo("Yeni kiralama eklendi, liste yenileniyor", "RentalsControl.RentalAdded");
+                        LoadData();
+                        RentalAdded?.Invoke(this, EventArgs.Empty);
+                        ErrorManager.Instance.LogInfo("Kiralama listesi başarıyla güncellendi", "RentalsControl.RentalAdded");
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorManager.Instance.HandleException(
+                            ex,
+                            "Kiralama eklendikten sonra liste güncellenirken hata oluştu",
+                            ErrorSeverity.Error,
+                            ErrorSource.UI,
+                            true);
+                    }
+                };
 
-            rentalForm.ShowDialog();
+                rentalForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama ekleme formu açılırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
+            }
         }
 
         private void BtnRefreshRentals_Click(object sender, EventArgs e)
         {
-            LoadData();
-            txtSearchRentals.Clear();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Kiralama listesi yenileniyor", "RentalsControl.BtnRefreshRentals_Click");
+                LoadData();
+                txtSearchRentals.Clear();
+                ErrorManager.Instance.LogInfo("Kiralama listesi başarıyla yenilendi", "RentalsControl.BtnRefreshRentals_Click");
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama listesi yenilenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
+            }
         }
 
         private void TxtSearchRentals_TextChanged(object sender, EventArgs e)
         {
-            SearchRentals(txtSearchRentals.Text);
+            try
+            {
+                SearchRentals(txtSearchRentals.Text);
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Kiralama arama işlemi sırasında beklenmeyen bir hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.UI,
+                    false); // Küçük bir hata, kullanıcıya göstermeye gerek yok
+            }
         }
     }
 }

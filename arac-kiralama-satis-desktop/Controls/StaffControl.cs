@@ -17,14 +17,48 @@ namespace arac_kiralama_satis_desktop.Controls
 
         public StaffControl()
         {
-            InitializeComponent();
-
-            SetupDataGridView();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Personel kontrol bileşeni başlatılıyor", "StaffControl.Constructor");
+                InitializeComponent();
+                SetupDataGridView();
+                ErrorManager.Instance.LogInfo("Personel kontrol bileşeni başarıyla başlatıldı", "StaffControl.Constructor");
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personel kontrol bileşeni başlatılırken hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI);
+            }
         }
 
         private void SetupDataGridView()
         {
-            UIUtils.SetupDataGridView(dgvStaff);
+            try
+            {
+                ErrorManager.Instance.LogInfo("Personel veri tablosu ayarlanıyor", "StaffControl.SetupDataGridView");
+                UIUtils.SetupDataGridView(dgvStaff);
+                ErrorManager.Instance.LogInfo("Personel veri tablosu başarıyla ayarlandı", "StaffControl.SetupDataGridView");
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personel veri tablosu ayarlanırken hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.UI);
+
+                // Graceful fallback - try basic setup if UIUtils fails
+                try
+                {
+                    dgvStaff.AutoGenerateColumns = false;
+                    dgvStaff.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                    dgvStaff.ReadOnly = true;
+                }
+                catch { /* Suppress further errors */ }
+            }
         }
 
         public void LoadData()
@@ -33,12 +67,15 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
+                ErrorManager.Instance.LogInfo("Personel verileri yükleniyor", "StaffControl.LoadData");
                 staffTable = StaffMethods.GetStaffAsDataTable();
 
                 dgvStaff.DataSource = staffTable;
 
                 if (dgvStaff.Columns.Count > 0)
                 {
+                    ErrorManager.Instance.LogInfo("Personel tablosu sütunları yapılandırılıyor", "StaffControl.LoadData");
+
                     dgvStaff.Columns["KullaniciID"].Visible = false;
                     dgvStaff.Columns["Ad"].Width = 100;
                     dgvStaff.Columns["Soyad"].Width = 100;
@@ -71,17 +108,25 @@ namespace arac_kiralama_satis_desktop.Controls
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Hücre formatlanırken hata: {ex.Message}");
+                            // Just log formatting errors, but don't disrupt the UI
+                            ErrorManager.Instance.LogWarning(
+                                $"Personel hücresi formatlanırken hata: Satır={e.RowIndex}, Sütun={e.ColumnIndex}, Hata={ex.Message}",
+                                "StaffControl.CellFormatting");
                         }
                     };
                 }
 
                 lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
+                ErrorManager.Instance.LogInfo($"Personel verileri başarıyla yüklendi. Toplam {staffTable.Rows.Count} personel.", "StaffControl.LoadData");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Personel verileri yüklenirken bir hata oluştu: {ex.Message}",
-                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personel verileri yüklenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true); // Kullanıcıya göster
             }
             finally
             {
@@ -102,6 +147,8 @@ namespace arac_kiralama_satis_desktop.Controls
                     return;
                 }
 
+                ErrorManager.Instance.LogInfo($"Personel araması yapılıyor. Arama metni: '{searchText}'", "StaffControl.SearchStaff");
+
                 string filter = "";
 
                 filter = $"Ad LIKE '%{searchText}%' OR " +
@@ -116,39 +163,106 @@ namespace arac_kiralama_satis_desktop.Controls
                 dv.RowFilter = filter;
 
                 lblStaffTitle.Text = $"Personel Listesi ({dv.Count})";
+                ErrorManager.Instance.LogInfo($"Personel araması tamamlandı. '{searchText}' için {dv.Count} sonuç bulundu", "StaffControl.SearchStaff");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Personel aramada hata: {ex.Message}");
-                if (staffTable != null)
+                ErrorManager.Instance.LogWarning(
+                    $"Personel arama sırasında hata oluştu. Arama metni: '{searchText}', Hata: {ex.Message}",
+                    "StaffControl.SearchStaff");
+
+                // Arama başarısız olursa tüm listeye geri dön
+                try
                 {
-                    dgvStaff.DataSource = staffTable;
-                    lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
+                    if (staffTable != null)
+                    {
+                        dgvStaff.DataSource = staffTable;
+                        lblStaffTitle.Text = $"Personel Listesi ({staffTable.Rows.Count})";
+                    }
+                }
+                catch (Exception innerEx)
+                {
+                    ErrorManager.Instance.LogWarning(
+                        $"Arama hatası sonrası veri tablosuna dönülürken ikinci bir hata oluştu: {innerEx.Message}",
+                        "StaffControl.SearchStaff");
                 }
             }
         }
 
         private void BtnAddStaff_Click(object sender, EventArgs e)
         {
-            PersonelAddForm staffForm = new PersonelAddForm();
-            staffForm.StaffAdded += (s, args) => {
-                LoadData();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Personel ekleme formu açılıyor", "StaffControl.BtnAddStaff_Click");
 
-                StaffAdded?.Invoke(this, EventArgs.Empty);
-            };
+                PersonelAddForm staffForm = new PersonelAddForm();
+                staffForm.StaffAdded += (s, args) => {
+                    try
+                    {
+                        ErrorManager.Instance.LogInfo("Yeni personel eklendi, liste yenileniyor", "StaffControl.StaffAdded");
+                        LoadData();
+                        StaffAdded?.Invoke(this, EventArgs.Empty);
+                        ErrorManager.Instance.LogInfo("Personel listesi başarıyla güncellendi", "StaffControl.StaffAdded");
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorManager.Instance.HandleException(
+                            ex,
+                            "Personel eklendikten sonra liste güncellenirken hata oluştu",
+                            ErrorSeverity.Error,
+                            ErrorSource.UI,
+                            true);
+                    }
+                };
 
-            staffForm.ShowDialog();
+                staffForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personel ekleme formu açılırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
+            }
         }
 
         private void BtnRefreshStaff_Click(object sender, EventArgs e)
         {
-            LoadData();
-            txtSearchStaff.Clear();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Personel listesi yenileniyor", "StaffControl.BtnRefreshStaff_Click");
+                LoadData();
+                txtSearchStaff.Clear();
+                ErrorManager.Instance.LogInfo("Personel listesi başarıyla yenilendi", "StaffControl.BtnRefreshStaff_Click");
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personel listesi yenilenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
+            }
         }
 
         private void TxtSearchStaff_TextChanged(object sender, EventArgs e)
         {
-            SearchStaff(txtSearchStaff.Text);
+            try
+            {
+                SearchStaff(txtSearchStaff.Text);
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Personel arama işlemi sırasında beklenmeyen bir hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.UI,
+                    false); // Küçük bir hata, kullanıcıya göstermeye gerek yok
+            }
         }
     }
 }
