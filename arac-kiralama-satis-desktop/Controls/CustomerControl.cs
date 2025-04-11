@@ -33,6 +33,7 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
+                ErrorManager.Instance.LogInfo("Müşteri listesi yükleniyor", "CustomersControl.LoadData");
                 customersTable = CustomerMethods.GetCustomersAsDataTable();
 
                 dgvCustomers.DataSource = customersTable;
@@ -51,11 +52,16 @@ namespace arac_kiralama_satis_desktop.Controls
                 }
 
                 lblCustomersTitle.Text = $"Müşteri Listesi ({customersTable.Rows.Count})";
+                ErrorManager.Instance.LogInfo($"Müşteri listesi başarıyla yüklendi. Toplam {customersTable.Rows.Count} müşteri.", "CustomersControl.LoadData");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Müşteri verileri yüklenirken bir hata oluştu: {ex.Message}",
-                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteri verileri yüklenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true); // Kullanıcıya göster
             }
             finally
             {
@@ -89,10 +95,15 @@ namespace arac_kiralama_satis_desktop.Controls
                 dv.RowFilter = filter;
 
                 lblCustomersTitle.Text = $"Müşteri Listesi ({dv.Count})";
+                ErrorManager.Instance.LogInfo($"Müşteri araması yapıldı. Arama metni: '{searchText}', Sonuç: {dv.Count} müşteri", "CustomersControl.SearchCustomers");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Müşteri aramada hata: {ex.Message}");
+                ErrorManager.Instance.LogWarning(
+                    $"Müşteri arama sırasında hata oluştu. Arama metni: '{searchText}', Hata: {ex.Message}",
+                    "CustomersControl.SearchCustomers");
+
+                // Arama başarısız olursa tüm listeye geri dön
                 if (customersTable != null)
                 {
                     dgvCustomers.DataSource = customersTable;
@@ -103,25 +114,75 @@ namespace arac_kiralama_satis_desktop.Controls
 
         private void BtnAddCustomer_Click(object sender, EventArgs e)
         {
-            CustomerAddForm customerForm = new CustomerAddForm();
-            customerForm.CustomerAdded += (s, args) => {
-                LoadData();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Yeni müşteri ekleme formu açılıyor", "CustomersControl.BtnAddCustomer_Click");
+                CustomerAddForm customerForm = new CustomerAddForm();
+                customerForm.CustomerAdded += (s, args) => {
+                    try
+                    {
+                        LoadData();
+                        CustomerAdded?.Invoke(this, EventArgs.Empty);
+                        ErrorManager.Instance.LogInfo("Yeni müşteri eklendikten sonra liste güncellendi", "CustomersControl.CustomerAdded");
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorManager.Instance.HandleException(
+                            ex,
+                            "Müşteri eklendikten sonra liste güncellenirken hata oluştu",
+                            ErrorSeverity.Error,
+                            ErrorSource.UI,
+                            true);
+                    }
+                };
 
-                CustomerAdded?.Invoke(this, EventArgs.Empty);
-            };
-
-            customerForm.ShowDialog();
+                customerForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteri ekleme formu açılırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
+            }
         }
 
         private void BtnRefreshCustomers_Click(object sender, EventArgs e)
         {
-            LoadData();
-            txtSearchCustomers.Clear();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Müşteri listesi yenileniyor", "CustomersControl.BtnRefreshCustomers_Click");
+                LoadData();
+                txtSearchCustomers.Clear();
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteri listesi yenilenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
+            }
         }
 
         private void TxtSearchCustomers_TextChanged(object sender, EventArgs e)
         {
-            SearchCustomers(txtSearchCustomers.Text);
+            try
+            {
+                SearchCustomers(txtSearchCustomers.Text);
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Müşteri arama işlemi sırasında beklenmeyen bir hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.UI,
+                    false); // Bu tür hatalar kullanıcı deneyimini çok etkilemediği için göstermiyoruz
+            }
         }
     }
 }
