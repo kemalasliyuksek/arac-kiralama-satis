@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using FontAwesome.Sharp;
 
 namespace arac_kiralama_satis_desktop.Interfaces
 {
@@ -36,6 +37,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlLeft = new Panel();
             picLogo = new PictureBox();
             pnlContent = new Panel();
+            btnMinimize = new IconButton();
+            btnClose = new IconButton();
             label1 = new Label();
             lblStatus = new Label();
             btnLogin = new Button();
@@ -68,6 +71,9 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlLeft.Name = "pnlLeft";
             pnlLeft.Size = new Size(350, 600);
             pnlLeft.TabIndex = 0;
+            pnlLeft.MouseDown += PnlLeft_MouseDown;
+            pnlLeft.MouseMove += PnlLeft_MouseMove;
+            pnlLeft.MouseUp += PnlLeft_MouseUp;
             // 
             // picLogo
             // 
@@ -77,10 +83,15 @@ namespace arac_kiralama_satis_desktop.Interfaces
             picLogo.Size = new Size(350, 600);
             picLogo.TabIndex = 3;
             picLogo.TabStop = false;
+            picLogo.MouseDown += PnlLeft_MouseDown;
+            picLogo.MouseMove += PnlLeft_MouseMove;
+            picLogo.MouseUp += PnlLeft_MouseUp;
             // 
             // pnlContent
             // 
-            pnlContent.BackColor = Color.White;
+            pnlContent.BackColor = Color.WhiteSmoke;
+            pnlContent.Controls.Add(btnMinimize);
+            pnlContent.Controls.Add(btnClose);
             pnlContent.Controls.Add(label1);
             pnlContent.Controls.Add(lblStatus);
             pnlContent.Controls.Add(btnLogin);
@@ -96,9 +107,45 @@ namespace arac_kiralama_satis_desktop.Interfaces
             pnlContent.Padding = new Padding(50);
             pnlContent.Size = new Size(450, 600);
             pnlContent.TabIndex = 1;
+            pnlContent.MouseDown += PnlContent_MouseDown;
+            pnlContent.MouseMove += PnlContent_MouseMove;
+            pnlContent.MouseUp += PnlContent_MouseUp;
+            // 
+            // btnMinimize
+            // 
+            btnMinimize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnMinimize.FlatAppearance.BorderSize = 0;
+            btnMinimize.FlatStyle = FlatStyle.Flat;
+            btnMinimize.IconChar = IconChar.WindowMinimize;
+            btnMinimize.IconColor = Color.FromArgb(49, 76, 143);
+            btnMinimize.IconFont = IconFont.Auto;
+            btnMinimize.IconSize = 24;
+            btnMinimize.Location = new Point(375, 5);
+            btnMinimize.Name = "btnMinimize";
+            btnMinimize.Size = new Size(32, 32);
+            btnMinimize.TabIndex = 9;
+            btnMinimize.UseVisualStyleBackColor = true;
+            btnMinimize.Click += BtnMinimize_Click;
+            // 
+            // btnClose
+            // 
+            btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClose.FlatAppearance.BorderSize = 0;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.IconChar = IconChar.Close;
+            btnClose.IconColor = Color.FromArgb(49, 76, 143);
+            btnClose.IconFont = IconFont.Auto;
+            btnClose.IconSize = 24;
+            btnClose.Location = new Point(413, 5);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(32, 32);
+            btnClose.TabIndex = 8;
+            btnClose.UseVisualStyleBackColor = true;
+            btnClose.Click += BtnClose_Click;
             // 
             // label1
             // 
+            label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             label1.AutoSize = true;
             label1.Location = new Point(375, 576);
             label1.Name = "label1";
@@ -267,8 +314,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
             ClientSize = new Size(800, 600);
             Controls.Add(pnlContent);
             Controls.Add(pnlLeft);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.None;
             Name = "LoginPage";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Kullanıcı Girişi";
@@ -309,5 +355,7 @@ namespace arac_kiralama_satis_desktop.Interfaces
         private Label lblStatus;
         private PictureBox picLogo;
         private Label label1;
+        private IconButton btnClose;
+        private IconButton btnMinimize;
     }
 }

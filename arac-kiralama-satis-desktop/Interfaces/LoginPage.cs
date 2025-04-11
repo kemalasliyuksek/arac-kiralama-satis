@@ -15,6 +15,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
     {
         private System.Windows.Forms.Timer? loginTimer = null;
         private Dictionary<TextBox, string> placeholderTexts = new Dictionary<TextBox, string>();
+        private bool isDragging = false;
+        private Point dragStartPoint;
 
         public LoginPage()
         {
@@ -71,6 +73,8 @@ namespace arac_kiralama_satis_desktop.Interfaces
             picUser.Image = IconChar.User.ToBitmap(Color.Gray, 24);
             picLock.Image = IconChar.Lock.ToBitmap(Color.Gray, 24);
             btnShowPassword.Image = IconChar.EyeSlash.ToBitmap(Color.Gray, 24);
+            btnClose.IconChar = IconChar.Times;
+            btnMinimize.IconChar = IconChar.WindowMinimize;
 
             ApplyRoundedCorners(btnLogin, 25);
 
@@ -93,6 +97,66 @@ namespace arac_kiralama_satis_desktop.Interfaces
 
                 this.ActiveControl = null;
             };
+        }
+
+        #region Form Dragging
+
+        private void PnlContent_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isDragging = true;
+                dragStartPoint = e.Location;
+            }
+        }
+
+        private void PnlContent_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                Point p = PointToScreen(e.Location);
+                Location = new Point(p.X - dragStartPoint.X, p.Y - dragStartPoint.Y);
+            }
+        }
+
+        private void PnlContent_MouseUp(object sender, MouseEventArgs e)
+        {
+            isDragging = false;
+        }
+
+        private void PnlLeft_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                isDragging = true;
+                dragStartPoint = e.Location;
+            }
+        }
+
+        private void PnlLeft_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                Point p = PointToScreen(e.Location);
+                Location = new Point(p.X - dragStartPoint.X, p.Y - dragStartPoint.Y);
+            }
+        }
+
+        private void PnlLeft_MouseUp(object sender, MouseEventArgs e)
+        {
+            isDragging = false;
+        }
+
+        #endregion
+
+        private void BtnClose_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void BtnMinimize_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
         }
 
         private void SetCustomPlaceholder(TextBox textBox, string placeholderText)
