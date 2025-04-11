@@ -33,6 +33,7 @@ namespace arac_kiralama_satis_desktop.Controls
             {
                 Cursor = Cursors.WaitCursor;
 
+                ErrorManager.Instance.LogInfo("Şubeler listesi yükleniyor", "BranchesControl.LoadData");
                 branchesTable = BranchMethods.GetBranchesAsDataTable();
 
                 dgvBranches.DataSource = branchesTable;
@@ -51,11 +52,18 @@ namespace arac_kiralama_satis_desktop.Controls
                 }
 
                 lblBranchesTitle.Text = $"Şube Listesi ({branchesTable.Rows.Count})";
+                ErrorManager.Instance.LogInfo($"Şubeler listesi başarıyla yüklendi. Toplam {branchesTable.Rows.Count} şube.", "BranchesControl.LoadData");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Şube verileri yüklenirken bir hata oluştu: {ex.Message}",
-                    "Veri Yükleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorId = ErrorManager.Instance.HandleException(
+                    ex,
+                    "Şube verileri yüklenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true); // Show to user
+
+                // Hata zaten kullanıcıya gösterildiği için MessageBox'a gerek yok
             }
             finally
             {
@@ -88,10 +96,14 @@ namespace arac_kiralama_satis_desktop.Controls
                 dv.RowFilter = filter;
 
                 lblBranchesTitle.Text = $"Şube Listesi ({dv.Count})";
+                ErrorManager.Instance.LogInfo($"Şube araması yapıldı. Arama metni: '{searchText}', Sonuç: {dv.Count} şube", "BranchesControl.SearchBranches");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Şube aramada hata: {ex.Message}");
+                ErrorManager.Instance.LogWarning(
+                    $"Şube arama sırasında hata oluştu. Arama metni: '{searchText}', Hata: {ex.Message}",
+                    "BranchesControl.SearchBranches");
+
                 if (branchesTable != null)
                 {
                     dgvBranches.DataSource = branchesTable;
@@ -102,24 +114,62 @@ namespace arac_kiralama_satis_desktop.Controls
 
         private void BtnAddBranch_Click(object sender, EventArgs e)
         {
-            BranchAddForm branchForm = new BranchAddForm();
-            if (branchForm.ShowDialog() == DialogResult.OK)
+            try
             {
-                LoadData();
-
-                BranchAdded?.Invoke(this, EventArgs.Empty);
+                ErrorManager.Instance.LogInfo("Yeni şube ekleme formu açılıyor", "BranchesControl.BtnAddBranch_Click");
+                BranchAddForm branchForm = new BranchAddForm();
+                if (branchForm.ShowDialog() == DialogResult.OK)
+                {
+                    LoadData();
+                    BranchAdded?.Invoke(this, EventArgs.Empty);
+                    ErrorManager.Instance.LogInfo("Yeni şube başarıyla eklendi", "BranchesControl.BtnAddBranch_Click");
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Şube ekleme formu açılırken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
             }
         }
 
         private void BtnRefreshBranches_Click(object sender, EventArgs e)
         {
-            LoadData();
-            txtSearchBranches.Clear();
+            try
+            {
+                ErrorManager.Instance.LogInfo("Şube listesi yenileniyor", "BranchesControl.BtnRefreshBranches_Click");
+                LoadData();
+                txtSearchBranches.Clear();
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Şube listesi yenilenirken bir hata oluştu",
+                    ErrorSeverity.Error,
+                    ErrorSource.UI,
+                    true);
+            }
         }
 
         private void TxtSearchBranches_TextChanged(object sender, EventArgs e)
         {
-            SearchBranches(txtSearchBranches.Text);
+            try
+            {
+                SearchBranches(txtSearchBranches.Text);
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Instance.HandleException(
+                    ex,
+                    "Şube arama işlemi sırasında beklenmeyen bir hata oluştu",
+                    ErrorSeverity.Warning,
+                    ErrorSource.UI,
+                    false);
+            }
         }
     }
 }
